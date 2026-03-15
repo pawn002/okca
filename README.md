@@ -29,7 +29,7 @@ const okca = new OkcaService();
 okca.calculateContrast('#fff', '#000');  // 21
 ```
 
-Accepts any CSS color string that [colorjs.io](https://colorjs.io) can parse: hex, `rgb()`, `oklch()`, named colors, etc.
+Accepts 3- and 6-digit hex strings (e.g. `#fff`, `#ff8000`).
 
 ## What OKCA solves
 
@@ -99,7 +99,7 @@ A pair that fails WCAG will also fail OKCA. **Zero false passes by construction.
 
 - **Achromatic exactness:** white/black = 21, white/#767676 = 4.5 — matches WCAG exactly
 - **Symmetric:** `okca(A, B) = okca(B, A)` — order doesn't matter
-- **Single dependency:** [colorjs.io](https://colorjs.io)
+- **Zero dependencies:** pure TypeScript, no runtime deps
 - **Clean-room implementation:** no third-party contrast algorithm source code
 
 ## Validation

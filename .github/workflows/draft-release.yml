@@ -1,0 +1,28 @@
+name: Draft Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  draft-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Generate release notes
+        run: |
+          TAG="${GITHUB_REF#refs/tags/}"
+          PREV_TAG=$(git tag --sort=-v:refname | grep '^v' | sed -n '2p')
+          if [ -n "$PREV_TAG" ]; then
+            NOTES_FLAG="--generate-notes --notes-start-tag $PREV_TAG"
+          else
+            NOTES_FLAG="--generate-notes"
+          fi
+          gh release create "$TAG" --draft --title "$TAG" $NOTES_FLAG
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

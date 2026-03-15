@@ -71,10 +71,16 @@ describe('hexToSrgb', () => {
     expect(hexToSrgb('#ff8000')).toEqual([1, 128 / 255, 0]);
   });
 
+  it('parses valid 3-digit hex shorthand', () => {
+    expect(hexToSrgb('#fff')).toEqual([1, 1, 1]);
+    expect(hexToSrgb('#000')).toEqual([0, 0, 0]);
+    expect(hexToSrgb('#f80')).toEqual([1, 136 / 255, 0]);
+  });
+
   it('returns null for invalid input', () => {
     expect(hexToSrgb('not-a-color')).toBeNull();
-    expect(hexToSrgb('#fff')).toBeNull();
     expect(hexToSrgb('#gggggg')).toBeNull();
+    expect(hexToSrgb('#gg')).toBeNull();
     expect(hexToSrgb('')).toBeNull();
   });
 });

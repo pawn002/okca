@@ -20,7 +20,10 @@ function linearize(c: number): number {
  */
 export function hexToSrgb(hex: string): [number, number, number] | null {
   if (!hex.startsWith('#')) return null;
-  const h = hex.slice(1);
+  let h = hex.slice(1);
+  if (/^[0-9A-Fa-f]{3}$/.test(h)) {
+    h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+  }
   if (!/^[0-9A-Fa-f]{6}$/.test(h)) return null;
   return [
     parseInt(h.slice(0, 2), 16) / 255,
