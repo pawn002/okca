@@ -77,7 +77,7 @@ $$\text{ratio} = \frac{Y_{\text{lighter}} + 0.05}{Y_{\text{darker}} + 0.05}$$
 
 The chroma compression raises L to a power greater than 1 for saturated colours. Since $L \le 1$, a higher exponent produces a smaller value:
 
-$$L^{\,1.75} \;\le\; L^{\,1.0} \quad \text{for } L \in [0,\,1]$$
+$$L^{1.75} \le L^{1.0} \quad \text{for } L \in [0, 1]$$
 
 A smaller `lighterY` in the numerator means a smaller ratio. For achromatic colours the exponent is 1 and the value is unchanged.
 
@@ -87,7 +87,7 @@ The correction adds a non-negative term to `darkerL` before cubing, making `dark
 
 Together, both corrections push the ratio downward:
 
-$$\text{ratio}_{\text{OKCA}} \;\le\; \text{ratio}_{\text{WCAG}} \quad \text{for any input}$$
+$$\text{ratio}_{\text{OKCA}} \le \text{ratio}_{\text{WCAG}} \quad \text{for any input}$$
 
 A pair WCAG fails (ratio < 4.5) will also fail OKCA. **FP = 0 by construction.**
 
@@ -101,7 +101,7 @@ A pair WCAG fails (ratio < 4.5) will also fail OKCA. **FP = 0 by construction.**
 
 **Mechanism.** The lighter element's luminance proxy is penalised by a chroma-weighted power exponent. First, a saturation weight is computed from the Oklab chroma:
 
-$$\text{satW} = \min\!\left(1,\;\left(\frac{C}{0.15}\right)^{\!2}\right)$$
+$$\text{satW} = \min\left(1, \left(\frac{C}{0.15}\right)^{2}\right)$$
 
 This is a quadratic ramp: zero for achromatic colours, reaching 1.0 when chroma hits the threshold. The exponent is then:
 
@@ -109,7 +109,7 @@ $$\text{exp} = 1 + 0.75 \times \text{satW}$$
 
 ranging from 1.0 (achromatic) to 1.75 (fully saturated). The adjusted luminance proxy becomes:
 
-$$Y_{\text{lighter}} = \left(L_{\text{lighter}}^{\;\text{exp}}\right)^3$$
+$$Y_{\text{lighter}} = \left(L_{\text{lighter}}^{\text{exp}}\right)^3$$
 
 For a neutral white lighter element: C = 0, satW = 0, exp = 1, so $Y_{\text{lighter}} = L^3 = 1.0$ --- unchanged.
 
@@ -125,9 +125,9 @@ Root cause: IEC 61966-2-1 assigns 71.5% weight to the sRGB green channel. OKLCH 
 
 **Mechanism.** For the darker element, if its Oklab `a` coordinate is below the gate threshold (true greens; not blues, which have a slightly negative `a` but at much smaller magnitude), the effective lightness is boosted:
 
-$$L_{\text{eff}} = L_{\text{darker}} + \max\!\big(0,\; K_{\text{DARK}} \times (-a - A_{\text{THRESH}})\big)$$
+$$L_{\text{eff}} = L_{\text{darker}} + \max\left(0, \ K_{\text{DARK}} \times (-a - A_{\text{THRESH}})\right)$$
 
-$$Y_{\text{darker}} = L_{\text{eff}}^{\;3}$$
+$$Y_{\text{darker}} = L_{\text{eff}}^{3}$$
 
 With $K_{\text{DARK}} = 0.155$ and $A_{\text{THRESH}} = 0.05$.
 

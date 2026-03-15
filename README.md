@@ -49,11 +49,11 @@ OKCA uses OKLCH $L^3$ as a luminance proxy ($L^3 \approx Y_{\text{WCAG}}$ for ne
 
 Saturated lighter colors get a power-compression penalty proportional to their Oklab chroma. A saturation weight ramps quadratically from 0 (achromatic) to 1 (vivid):
 
-$$\text{satW} = \min\!\left(1,\;\left(\frac{C}{0.15}\right)^{\!2}\right)$$
+$$\text{satW} = \min\left(1, \left(\frac{C}{0.15}\right)^{2}\right)$$
 
 This drives a variable exponent that compresses the lighter element's luminance:
 
-$$\text{exp} = 1 + 0.75 \times \text{satW} \qquad Y_{\text{lighter}} = \left(L_{\text{lighter}}^{\;\text{exp}}\right)^3$$
+$$\text{exp} = 1 + 0.75 \times \text{satW} \qquad Y_{\text{lighter}} = \left(L_{\text{lighter}}^{\text{exp}}\right)^3$$
 
 Since $L \le 1$, a higher exponent always produces a smaller value — the ratio can only decrease. Achromatic colors (C = 0) pass through unchanged.
 
@@ -61,9 +61,9 @@ Since $L \le 1$, a higher exponent always produces a smaller value — the ratio
 
 For darker elements with Oklab `a < -0.05` (true greens), a correction boosts the luminance proxy to close the gap between $L^3$ and WCAG Y:
 
-$$L_{\text{eff}} = L_{\text{darker}} + \max\!\big(0,\; 0.155 \times (-a - 0.05)\big)$$
+$$L_{\text{eff}} = L_{\text{darker}} + \max\left(0, \ 0.155 \times (-a - 0.05)\right)$$
 
-$$Y_{\text{darker}} = L_{\text{eff}}^{\;3}$$
+$$Y_{\text{darker}} = L_{\text{eff}}^{3}$$
 
 A larger denominator means a lower ratio — preventing green false passes.
 
@@ -80,7 +80,7 @@ Both corrections push the ratio in one direction:
 - **Chroma compression** can only *reduce* the numerator (lighter element penalty)
 - **Green correction** can only *increase* the denominator (darker element boost)
 
-$$\text{ratio}_{\text{OKCA}} \;\le\; \text{ratio}_{\text{WCAG}} \quad \text{for any input}$$
+$$\text{ratio}_{\text{OKCA}} \le \text{ratio}_{\text{WCAG}} \quad \text{for any input}$$
 
 A pair that fails WCAG will also fail OKCA. **Zero false passes by construction.**
 
