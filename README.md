@@ -37,52 +37,50 @@ WCAG 2.x contrast has two well-documented failure modes:
 
 1. **False passes for saturated chromatic text.** Hot pink on near-black scores 6.6:1 under WCAG — a comfortable AA pass — but is demonstrably harder to read than achromatic pairs at equivalent luminance.
 
-2. **False passes for green hues near the AA boundary.** OKLCH L³ (the perceptually uniform luminance proxy) underestimates WCAG Y for greens because sRGB weights green at 71.5%. A pair that WCAG rates 4.4 can appear to score 4.7 when uncorrected.
+2. **False passes for green hues near the AA boundary.** OKLCH $L^3$ (the perceptually uniform luminance proxy) underestimates WCAG Y for greens because sRGB weights green at 71.5%. A pair that WCAG rates 4.4 can appear to score 4.7 when uncorrected.
 
 OKCA corrects both while guaranteeing **FP = 0** — OKCA never approves a pair that WCAG rejects.
 
 ## Algorithm
 
-OKCA uses OKLCH L³ as a luminance proxy (L cubed ≈ WCAG Y for neutral grays), with two targeted corrections:
+OKCA uses OKLCH $L^3$ as a luminance proxy ($L^3 \approx Y_{\text{WCAG}}$ for neutral grays), with two targeted corrections:
 
 ### 1. Chroma compression on lighter element
 
-Saturated lighter colors get a power-compression penalty proportional to their Oklab chroma:
+Saturated lighter colors get a power-compression penalty proportional to their Oklab chroma. A saturation weight ramps quadratically from 0 (achromatic) to 1 (vivid):
 
-```
-C    = sqrt(a² + b²)           // Oklab chroma
-satW = min(1, (C / 0.15)²)    // quadratic ramp: 0 at C=0, 1 at C≥0.15
-exp  = 1 + 0.75 × satW        // 1.0 (achromatic) … 1.75 (fully saturated)
-lighterY = (lighterL ^ exp) ^ 3
-```
+$$\text{satW} = \min\left(1, \left(\frac{C}{0.15}\right)^{2}\right)$$
 
-Effect: reduces the ratio for saturated lighter elements. Achromatic colors are unaffected.
+This drives a variable exponent that compresses the lighter element's luminance:
+
+$$\text{exp} = 1 + 0.75 \times \text{satW} \qquad Y_{\text{lighter}} = \left(L_{\text{lighter}}^{\text{exp}}\right)^3$$
+
+Since $L \le 1$, a higher exponent always produces a smaller value — the ratio can only decrease. Achromatic colors (C = 0) pass through unchanged.
 
 ### 2. Green correction on darker element
 
-For darker elements with Oklab `a < -0.05` (true greens), a correction increases the luminance proxy to match WCAG Y:
+For darker elements with Oklab `a < -0.05` (true greens), a correction boosts the luminance proxy to close the gap between $L^3$ and WCAG Y:
 
-```
-correction = 0.155 × (-a - 0.05)
-Leff = min(1, darkerL + correction)
-darkerY = Leff³
-```
+$$L_{\text{eff}} = L_{\text{darker}} + \max\left(0, \ 0.155 \times (-a - 0.05)\right)$$
 
-Effect: increases the denominator → lowers the ratio, preventing green false passes.
+$$Y_{\text{darker}} = L_{\text{eff}}^{3}$$
+
+A larger denominator means a lower ratio — preventing green false passes.
 
 ### Output
 
-```
-ratio = (lighterY + 0.05) / (darkerY + 0.05)
-```
+$$\text{ratio} = \frac{Y_{\text{lighter}} + 0.05}{Y_{\text{darker}} + 0.05}$$
 
 Clamped to [1, 21], rounded to 1 decimal place.
 
 ## FP = 0 guarantee
 
-- Step 1 can only *reduce* the numerator (lighter element penalty) → lower ratio
-- Step 2 can only *increase* the denominator (green correction) → lower ratio
-- Therefore: `ratio_OKCA ≤ ratio_WCAG` for any input pair
+Both corrections push the ratio in one direction:
+
+- **Chroma compression** can only *reduce* the numerator (lighter element penalty)
+- **Green correction** can only *increase* the denominator (darker element boost)
+
+$$\text{ratio}_{\text{OKCA}} \le \text{ratio}_{\text{WCAG}} \quad \text{for any input}$$
 
 A pair that fails WCAG will also fail OKCA. **Zero false passes by construction.**
 
@@ -98,7 +96,7 @@ A pair that fails WCAG will also fail OKCA. **Zero false passes by construction.
 ## Properties
 
 - **Achromatic exactness:** white/black = 21, white/#767676 = 4.5 — matches WCAG exactly
-- **Symmetric:** `okca(A, B) = okca(B, A)` — order doesn't matter
+- **Symmetric:** okca(A, B) = okca(B, A) — order doesn't matter
 - **Zero dependencies:** pure TypeScript, no runtime deps
 - **Clean-room implementation:** no third-party contrast algorithm source code
 
