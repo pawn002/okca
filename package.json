@@ -1,6 +1,6 @@
 {
   "name": "okca",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "OK Contrast Algorithm — OKLCH-native, WCAG-compatible contrast ratio with zero false passes",
   "author": "John Z. Rioflorido",
   "main": "./dist/index.js",
@@ -36,24 +36,6 @@
     "perceptual",
     "okca"
   ],
-  "jest": {
-    "testRegex": ".*\\.spec\\.ts$",
-    "transform": {
-      "^.+\\.ts$": [
-        "ts-jest",
-        {
-          "tsconfig": {
-            "module": "commonjs",
-            "target": "ES2021",
-            "skipLibCheck": true,
-            "esModuleInterop": true,
-            "types": ["jest", "node"]
-          }
-        }
-      ]
-    },
-    "testEnvironment": "node"
-  },
   "engines": {
     "node": ">=18.0.0"
   }
