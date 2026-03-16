@@ -7,13 +7,13 @@ OKCA outputs ratios on the familiar 1–21 scale with the same AA (4.5) and AAA 
 ## Install
 
 ```bash
-npm install okca
+npm install @pawn002/okca
 ```
 
 ## Usage
 
 ```ts
-import { calculateContrast } from 'okca';
+import { calculateContrast } from '@pawn002/okca';
 
 calculateContrast('#ffffff', '#000000');  // 21
 calculateContrast('#fff', '#767676');     // 4.5 — WCAG AA boundary anchor
@@ -23,7 +23,7 @@ calculateContrast('#ff69b4', '#1a1a1a'); // ~4.0 (WCAG gives 6.6 — a known fal
 Or use the class:
 
 ```ts
-import { OkcaService } from 'okca';
+import { OkcaService } from '@pawn002/okca';
 
 const okca = new OkcaService();
 okca.calculateContrast('#fff', '#000');  // 21
