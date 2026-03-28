@@ -158,7 +158,7 @@ OKCA is **polarity-aware**: `okca(A, B) ≠ okca(B, A)` when A and B differ in l
 
 $$\text{ratio} = \begin{cases} r \times 0.81 & \text{if text is lighter (light-on-dark)} \\ r \times 0.78 - 0.36 & \text{if background is lighter (dark-on-light)} \end{cases}$$
 
-The D-o-L linear model ($r \times 0.78 - 0.36$) is needed because a pure multiplicative factor cannot simultaneously satisfy both grey and black/white anchors: the polarity gap would scale proportionally with $r$, giving too large a gap at high contrast. The offset compresses the gap at the high end while preserving the grey anchor ($\#767676$/white $= 3.2$).
+The D-o-L linear model ($r \times 0.78 - 0.36$) is needed because a pure multiplicative factor cannot simultaneously satisfy both grey and black/white anchors: the polarity gap would scale proportionally with $r$, giving too large a gap at high contrast. The offset compresses the gap at the high end while preserving the grey anchor (`#767676`/white = 3.2).
 
 **Rationale.** Perceptual research indicates that negative polarity (light text on dark background) produces higher perceived contrast than positive polarity (dark text on light background) at the same luminance ratio. OKCA encodes this asymmetry: a light-on-dark pair scores higher than the same colours reversed. Both transforms produce ratios below the raw WCAG value (all scores are conservative), and L-o-D scores are higher than D-o-L for the same colour pair.
 
