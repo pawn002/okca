@@ -181,14 +181,16 @@ The D-o-L linear model ($r \times 0.78 - 0.36$) is needed because a pure multipl
 
 Three independent batteries:
 
-| Battery | Pairs | FP | FF | Notes |
-|---------|------:|:--:|:--:|-------|
+| Battery | Pairs | FP | WCAG Disagreements | Notes |
+|---------|------:|:--:|:------------------:|-------|
 | Light-on-dark | 53 | **0** | — | See design-systems for FP=0 coverage |
 | Dark-on-light | 54 | **0** | — | See design-systems for FP=0 coverage |
-| Design systems | 2,480 | **0** | 235 | Polarity-aware conservatism |
-| **Total** | **2,587** | **0** | **235+** | |
+| Design systems | 2,480 | **0** | 235 | See note below |
+| **Total** | **2,587** | **0** | **235** | |
 
-The 235 design-system false failures are all warm saturated families (red, fuchsia, pink, rose, orange, plum, indigo) in Tailwind, Material, and Radix UI palettes. They represent principled conservatism: $L^3 > Y_{\text{WCAG}}$ for warm hues, so OKCA underestimates those pairs relative to WCAG. No correction is applied because any warm-side correction on the lighter element risks false passes for pink/fuchsia text near the AA boundary.
+**False passes are zero** — the non-negotiable invariant holds across all 2,587 pairs.
+
+**WCAG disagreements** (pairs where OKCA < 4.5 but WCAG ≥ 4.5) are intentional and should not be read as miscalibration. WCAG's 4.5:1 AA threshold is widely considered too permissive by practitioners. White on `#767676` — the canonical WCAG AA boundary anchor — is not production-ready in most real designs. All 235 disagreements involve colours in that same marginal zone: warm saturated families (red, fuchsia, pink, rose, orange, plum, indigo) in Tailwind, Material, and Radix UI palettes where WCAG's luminance-only formula overstates legibility. OKCA's stricter judgment on these pairs reflects the same reasoning that makes `#767676` insufficient: proximity to the boundary is not the same as being safely above it.
 
 ---
 

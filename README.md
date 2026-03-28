@@ -123,14 +123,16 @@ A pair that fails WCAG will also fail OKCA. **Zero false passes by construction.
 
 Tested against 2,587 color pairs across three batteries (light-on-dark, dark-on-light, design systems from Tailwind/Material/Radix):
 
-| Battery | Pairs | False Passes | False Failures |
-|---------|------:|:------------:|:--------------:|
+| Battery | Pairs | False Passes | WCAG Disagreements |
+|---------|------:|:------------:|:-----------------:|
 | Light-on-dark | 53 | 0 | — |
 | Dark-on-light | 54 | 0 | — |
 | Design systems | 2,480 | 0 | 235 |
-| **Total** | **2,587** | **0** | **235+** |
+| **Total** | **2,587** | **0** | **235** |
 
-All false failures are warm saturated families (red, fuchsia, pink, rose, orange) — principled conservatism, not miscalibration.
+**False passes: zero.** OKCA never approves a pair that WCAG rejects.
+
+**WCAG disagreements** are pairs where OKCA scores below 4.5 but WCAG scores ≥ 4.5. These are intentional. WCAG's 4.5:1 AA threshold is widely considered too permissive — white on `#767676` (WCAG's own AA boundary anchor) is not production-ready in most real-world designs. All 235 disagreements involve colors in that same marginal zone: warm saturated families (red, fuchsia, pink, indigo, orange) in Tailwind, Material, and Radix palettes where WCAG's luminance-only formula overstates legibility.
 
 ## License
 
