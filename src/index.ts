@@ -39,7 +39,7 @@ import { hexToOklab, hexToOklch } from './transforms';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 const C_THRESH = 0.15;  // Oklab chroma for full lighter-element penalty
-const CHROMA_K = 0.75;  // Power-compression exponent at full saturation
+const CHROMA_K = 0.50;  // Power-compression exponent at full saturation
 const K_DARK   = 0.155; // Green correction strength on darker element
 const A_THRESH = 0.05;  // Oklab a gate: correction fires only when a < -A_THRESH
 const LOD_SCALE  = 0.81; // Polarity scale for light-on-dark (text is lighter)

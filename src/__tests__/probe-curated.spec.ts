@@ -33,7 +33,7 @@ const LIGHT_ON_DARK: ProbePair[] = [
   ['#ffffff', '#3a7d44',  4.1, 'B  white on forest-ish green'],
   ['#ffffff', '#228b22',  3.6, 'B  white on forest green'],
   ['#ffff99', '#006400',  5.6, 'B  light yellow on dark green'],
-  ['#ccffcc', '#004d00',  7.0, 'B  light green on very dark green'],
+  ['#ccffcc', '#004d00',  7.1, 'B  light green on very dark green'],
   ['#ffffff', '#556b2f',  4.9, 'B  white on dark olive green'],
   ['#ffffff', '#808000',  3.5, 'B  white on olive'],
   ['#ffffff', '#6b8e23',  3.1, 'B  white on olive drab'],
@@ -46,14 +46,14 @@ const LIGHT_ON_DARK: ProbePair[] = [
   ['#ffffff', '#003399',  8.4, 'C  white on dark blue'],
   ['#ffffff', '#1a237e', 10.2, 'C  white on indigo 900'],
   ['#ffffff', '#0d47a1',  6.8, 'C  white on blue 900'],
-  ['#add8e6', '#000080',  7.6, 'C  light blue on navy'],
+  ['#add8e6', '#000080',  7.7, 'C  light blue on navy'],
 
   // D: Dark purple backgrounds
   ['#ffffff', '#4b0082',  9.6, 'D  white on indigo'],
   ['#ffffff', '#6a0dad',  6.6, 'D  white on purple'],
   ['#ffffff', '#800080',  6.8, 'D  white on pure purple'],
   ['#ffffff', '#4a004a', 11.5, 'D  white on very dark purple'],
-  ['#ffccff', '#4b0082',  6.7, 'D  light magenta on indigo'],
+  ['#ffccff', '#4b0082',  6.9, 'D  light magenta on indigo'],
 
   // E: Dark red/magenta backgrounds
   ['#ffffff', '#8b0000',  7.5, 'E  white on dark red'],
@@ -69,12 +69,12 @@ const LIGHT_ON_DARK: ProbePair[] = [
   ['#ccffff', '#004c4c',  7.3, 'F  light cyan on very dark teal'],
 
   // G: Chromatic light text on dark neutral
-  ['#ffff00', '#1a1a1a', 12.0, 'G  yellow on near-black'],
-  ['#00ff00', '#1a1a1a',  7.0, 'G  pure green on near-black'],
-  ['#00ffff', '#1a1a1a',  8.6, 'G  cyan on near-black'],
-  ['#ff69b4', '#1a1a1a',  3.2, 'G  hot pink on near-black'],
-  ['#7fff00', '#333333',  5.8, 'G  chartreuse on dark gray'],
-  ['#ff8c00', '#1a1a1a',  3.6, 'G  dark orange on near-black'],
+  ['#ffff00', '#1a1a1a', 12.3, 'G  yellow on near-black'],
+  ['#00ff00', '#1a1a1a',  7.7, 'G  pure green on near-black'],
+  ['#00ffff', '#1a1a1a',  9.3, 'G  cyan on near-black'],
+  ['#ff69b4', '#1a1a1a',  3.9, 'G  hot pink on near-black'],
+  ['#7fff00', '#333333',  6.3, 'G  chartreuse on dark gray'],
+  ['#ff8c00', '#1a1a1a',  4.4, 'G  dark orange on near-black'],
 
   // H: Near-threshold boundary probes
   ['#ffffff', '#595959',  5.7, 'H  white on #595959'],
@@ -140,12 +140,12 @@ const DARK_ON_LIGHT: ProbePair[] = [
   ['#009090', '#ffffff',  2.7, 'N  #009090 on white'],
 
   // O: Light chromatic backgrounds
-  ['#000000', '#90ee90',  7.8, 'O  black on light green'],
-  ['#000000', '#add8e6',  9.9, 'O  black on light blue'],
-  ['#000000', '#ffff99', 14.5, 'O  black on light yellow'],
-  ['#000000', '#ffcccc', 11.0, 'O  black on light pink'],
-  ['#000000', '#e6ccff', 10.5, 'O  black on light lavender'],
-  ['#333333', '#90ee90',  4.6, 'O  dark gray on light green'],
+  ['#000000', '#90ee90',  8.7, 'O  black on light green'],
+  ['#000000', '#add8e6', 10.0, 'O  black on light blue'],
+  ['#000000', '#ffff99', 14.7, 'O  black on light yellow'],
+  ['#000000', '#ffcccc', 11.1, 'O  black on light pink'],
+  ['#000000', '#e6ccff', 10.7, 'O  black on light lavender'],
+  ['#333333', '#90ee90',  5.1, 'O  dark gray on light green'],
   ['#1a237e', '#e3f2fd',  8.2, 'O  dark navy on very light blue'],
   ['#004d00', '#e8f5e9',  6.8, 'O  very dark green on near-white green bg'],
 

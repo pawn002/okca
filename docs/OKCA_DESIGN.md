@@ -107,13 +107,13 @@ This is a quadratic ramp: zero for achromatic colours, reaching 1.0 when chroma 
 
 $$\text{exp} = 1 + 0.75 \times \text{satW}$$
 
-ranging from 1.0 (achromatic) to 1.75 (fully saturated). The adjusted luminance proxy becomes:
+ranging from 1.0 (achromatic) to 1.50 (fully saturated). The adjusted luminance proxy becomes:
 
 $$Y_{\text{lighter}} = \left(L_{\text{lighter}}^{\text{exp}}\right)^3$$
 
 For a neutral white lighter element: C = 0, satW = 0, exp = 1, so $Y_{\text{lighter}} = L^3 = 1.0$ --- unchanged.
 
-For hot pink (C ≈ 0.197 > 0.15): satW = 1, exp = 1.75 --- the lighter element is penalised and the ratio drops below WCAG.
+For hot pink (C ≈ 0.197 > 0.15): satW = 1, exp = 1.50 --- the lighter element is penalised and the ratio, after polarity scaling, drops below WCAG.
 
 The threshold of 0.15 is calibrated so the penalty is negligible for lightly tinted neutrals (e.g. off-white at C ≈ 0.01) and fully active for vivid designer palette colours (C ≥ 0.15).
 
@@ -203,7 +203,7 @@ The 235 design-system false failures are all warm saturated families (red, fuchs
 | Constant | Value | Role |
 |----------|------:|------|
 | `C_THRESH` | 0.15 | Oklab chroma at which lighter-element penalty is fully active |
-| `CHROMA_K` | 0.75 | Maximum additional power exponent at full saturation |
+| `CHROMA_K` | 0.50 | Maximum additional power exponent at full saturation |
 | `K_DARK` | 0.155 | Green correction coefficient on darker element |
 | `A_THRESH` | 0.05 | Oklab `a` gate: green correction fires only when a < −0.05 |
 | `LOD_SCALE`  | 0.81 | Light-on-dark multiplier |
@@ -214,7 +214,7 @@ All four constants have one degree of freedom each. They were calibrated by the 
 
 - **C_THRESH = 0.15** --- Typical Oklab chroma for designer palette saturated colours; lightly tinted neutrals (C < 0.05) receive less than 10% of the full penalty.
 
-- **CHROMA_K = 0.75** --- Yields exp = 1.75 at full saturation, which reduces hot pink's effective ratio from 6.6 to 4.0 (below the 4.5 AA threshold). This is the target: WCAG's two most-cited false passes (hot pink and dark orange on near-black) become OKCA false failures.
+- **CHROMA_K = 0.50** --- Yields exp = 1.50 at full saturation. Combined with the LOD_SCALE polarity factor, hot pink/near-black scores 3.9 and dark orange/near-black scores 4.4 — both below the 4.5 AA threshold. This is the target: WCAG's two most-cited false passes (hot pink and dark orange on near-black) become OKCA false failures. The value was recalibrated from 0.75 to 0.50 after the polarity model was introduced, so that the chroma compression and polarity model together (rather than chroma compression alone) produce the intended AA-boundary behaviour.
 
 - **A_THRESH = 0.05** --- Separates true greens (a ≈ −0.13 for forest green) from blue-shifted colours like Tailwind blue-700 (a ≈ −0.047). The gate must be above −0.047 and below −0.085 (the weakest green that needs correction).
 

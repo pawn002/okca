@@ -10,7 +10,7 @@ import { calculateContrast } from '../index';
 // ── Reference implementation (colorjs-backed, copied from original) ──────────
 
 const C_THRESH  = 0.15;
-const CHROMA_K  = 0.75;
+const CHROMA_K  = 0.50;
 const K_DARK    = 0.155;
 const A_THRESH  = 0.05;
 const LOD_SCALE  = 0.81;
