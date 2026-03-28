@@ -22,8 +22,8 @@
  *        darkerY   = darkLeff ^ 3
  *   5. Polarity-aware contrast ratio:
  *        rawRatio  = (lighterY + 0.05) / (darkerY + 0.05)
- *        factor    = LOD_SCALE (light-on-dark) or DOL_SCALE (dark-on-light)
- *        ratio     = rawRatio × factor
+ *        L-o-D:    ratio = rawRatio × LOD_SCALE
+ *        D-o-L:    ratio = rawRatio × DOL_MULT − DOL_OFFSET  (linear model)
  *        clamped to [1, 21], rounded to 1 decimal place.
  *
  * Luminance proxy: L³ (OKLCH L cubed ≈ WCAG Y for neutral grays).
@@ -42,8 +42,9 @@ const C_THRESH = 0.15;  // Oklab chroma for full lighter-element penalty
 const CHROMA_K = 0.75;  // Power-compression exponent at full saturation
 const K_DARK   = 0.155; // Green correction strength on darker element
 const A_THRESH = 0.05;  // Oklab a gate: correction fires only when a < -A_THRESH
-const LOD_SCALE = 0.81; // Polarity scale for light-on-dark (text is lighter)
-const DOL_SCALE = 0.76; // Polarity scale for dark-on-light (background is lighter)
+const LOD_SCALE  = 0.81; // Polarity scale for light-on-dark (text is lighter)
+const DOL_MULT   = 0.78; // Dark-on-light multiplier component
+const DOL_OFFSET = 0.36; // Dark-on-light additive offset (compresses high-contrast gap)
 
 export class OkcaService {
   calculateContrast(textColor: string, bgColor: string): number | null {
@@ -73,10 +74,14 @@ export class OkcaService {
     // Step 4 — darker element: green correction → luminance proxy
     const darkerY  = this.darkerLuminance(darkerOklab, darkerL);
 
-    // Step 5 — polarity-aware scaling: light-on-dark has higher perceived contrast
+    // Step 5 — polarity-aware scaling: light-on-dark has higher perceived contrast.
+    // D-o-L uses a linear model (mult + offset) to compress the gap at high contrast
+    // while preserving the achromatic grey anchor: #767676/white ≈ 3.2.
     const isLightOnDark = tL > bL;
-    const polarFactor   = isLightOnDark ? LOD_SCALE : DOL_SCALE;
-    const ratio = ((lighterY + 0.05) / (darkerY + 0.05)) * polarFactor;
+    const rawRatio = (lighterY + 0.05) / (darkerY + 0.05);
+    const ratio = isLightOnDark
+      ? rawRatio * LOD_SCALE
+      : rawRatio * DOL_MULT - DOL_OFFSET;
     return parseFloat(Math.max(1, Math.min(21, ratio)).toFixed(1));
   }
 
