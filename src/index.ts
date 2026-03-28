@@ -5,9 +5,10 @@
  * IP status: clear.  Clean-room implementation.
  * Zero runtime dependencies.
  *
- * Algorithm overview (OKLCH-native with green correction):
+ * Algorithm overview (OKLCH-native with green correction and polarity scaling):
  *   1. Extract OKLCH L for each color (perceptually uniform lightness).
  *   2. Identify lighter element (higher L) and darker element.
+ *      Determine polarity: light-on-dark (text is lighter) vs dark-on-light.
  *   3. Lighter element — chroma-weighted power compression:
  *        [_, a, b] = Oklab(lighter)
  *        C         = sqrt(a² + b²)
@@ -19,16 +20,19 @@
  *        Fires only when da < -A_THRESH (true greens, not blues).
  *        darkLeff  = darkerL + K_DARK × (-da - A_THRESH)
  *        darkerY   = darkLeff ^ 3
- *   5. WCAG-compatible contrast ratio:
- *        ratio = (lighterY + 0.05) / (darkerY + 0.05)
+ *   5. Polarity-aware contrast ratio:
+ *        rawRatio  = (lighterY + 0.05) / (darkerY + 0.05)
+ *        factor    = LOD_SCALE (light-on-dark) or DOL_SCALE (dark-on-light)
+ *        ratio     = rawRatio × factor
  *        clamped to [1, 21], rounded to 1 decimal place.
  *
  * Luminance proxy: L³ (OKLCH L cubed ≈ WCAG Y for neutral grays).
  *
  * Properties:
- *   - FP = 0 guaranteed (step 3 only reduces lighter ratio; step 4 only
- *     reduces darker → increases ratio, bounded by green FP gate)
- *   - Achromatic & white-text pairs track WCAG exactly
+ *   - FP = 0 guaranteed (steps 3–4 reduce raw ratio; step 5 applies factor < 1
+ *     so OKCA ≤ WCAG for all inputs)
+ *   - Polarity-aware: light-on-dark scores higher than dark-on-light for the
+ *     same color pair, reflecting the perceptual advantage of negative polarity
  *   - Low false-failure rate across design-system palettes
  */
 import { hexToOklab, hexToOklch } from './transforms';
@@ -38,6 +42,8 @@ const C_THRESH = 0.15;  // Oklab chroma for full lighter-element penalty
 const CHROMA_K = 0.75;  // Power-compression exponent at full saturation
 const K_DARK   = 0.155; // Green correction strength on darker element
 const A_THRESH = 0.05;  // Oklab a gate: correction fires only when a < -A_THRESH
+const LOD_SCALE = 0.92; // Polarity scale for light-on-dark (text is lighter)
+const DOL_SCALE = 0.80; // Polarity scale for dark-on-light (background is lighter)
 
 export class OkcaService {
   calculateContrast(textColor: string, bgColor: string): number | null {
@@ -67,7 +73,10 @@ export class OkcaService {
     // Step 4 — darker element: green correction → luminance proxy
     const darkerY  = this.darkerLuminance(darkerOklab, darkerL);
 
-    const ratio = (lighterY + 0.05) / (darkerY + 0.05);
+    // Step 5 — polarity-aware scaling: light-on-dark has higher perceived contrast
+    const isLightOnDark = tL > bL;
+    const polarFactor   = isLightOnDark ? LOD_SCALE : DOL_SCALE;
+    const ratio = ((lighterY + 0.05) / (darkerY + 0.05)) * polarFactor;
     return parseFloat(Math.max(1, Math.min(21, ratio)).toFixed(1));
   }
 

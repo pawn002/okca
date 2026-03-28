@@ -150,19 +150,32 @@ Since $L^3 \approx Y_{\text{WCAG}}$ for greys (up to floating-point precision of
 
 ---
 
-## 7. Symmetry
+## 7. Polarity Model
 
-OKCA is **symmetric**: okca(A, B) = okca(B, A). This follows from:
+OKCA is **polarity-aware**: `okca(A, B) ≠ okca(B, A)` when A and B differ in lightness. The ratio formula takes the designated text and background roles into account via a final scaling step.
 
-1. The lighter/darker split uses OKLCH L magnitude, not polarity (fg/bg roles are irrelevant).
-2. Both correction functions depend only on the colour, not on whether it is text or background.
-3. The ratio formula uses positional roles determined by L:
+**Step 5** applies a polarity scale factor to the raw contrast ratio:
 
-$$\frac{Y_{\text{lighter}} + 0.05}{Y_{\text{darker}} + 0.05}$$
+$$\text{ratio} = \frac{Y_{\text{lighter}} + 0.05}{Y_{\text{darker}} + 0.05} \times P$$
 
-Some contrast algorithms use asymmetric polarity models --- they model the difference between reading light text on dark vs. dark text on light backgrounds. OKCA does not encode this asymmetry. This is a deliberate design choice: it produces consistent numbers regardless of which colour a designer designates as "text," and avoids the calibration complexity of polarity-dependent response curves.
+where:
 
-The cost: OKCA does not capture the finding that warm chromatic light text on dark backgrounds is harder to read than dark text on light backgrounds at the same luminance ratio. It handles this partially via the chroma compression penalty (step 3), but not via a full polarity model.
+$$P = \begin{cases} \text{LOD\_SCALE} & \text{if text is lighter (light-on-dark)} \\ \text{DOL\_SCALE} & \text{if background is lighter (dark-on-light)} \end{cases}$$
+
+with $\text{LOD\_SCALE} = 0.92$ and $\text{DOL\_SCALE} = 0.80$.
+
+**Rationale.** Perceptual research indicates that negative polarity (light text on dark background) produces higher perceived contrast than positive polarity (dark text on light background) at the same luminance ratio. OKCA encodes this asymmetry: a light-on-dark pair scores higher than the same colours reversed. Both scale factors are less than 1 (all scores are conservative relative to raw WCAG), and $\text{LOD\_SCALE} > \text{DOL\_SCALE}$ (light-on-dark retains a relative advantage).
+
+**FP = 0 proof for step 5.** Both $P < 1$, so multiplying reduces every ratio. The existing guarantee ($\text{ratio}_\text{OKCA} \leq \text{ratio}_\text{WCAG}$) is preserved: if $\text{WCAG} < 4.5$, then $\text{ratio}_\text{OKCA} \times P \leq \text{WCAG} \times P < 4.5$.
+
+**Achromatic reference pairs** (for calibration):
+
+| Pair | Polarity | Score |
+|------|----------|------:|
+| white on black | L-o-D | 19.3 |
+| black on white | D-o-L | 16.8 |
+| white on #767676 | L-o-D | 4.2 |
+| #767676 on white | D-o-L | 3.6 |
 
 ---
 
@@ -172,10 +185,10 @@ Three independent batteries:
 
 | Battery | Pairs | FP | FF | Notes |
 |---------|------:|:--:|:--:|-------|
-| Light-on-dark | 53 | **0** | 1 | Hot pink --- intentional WCAG FP |
-| Dark-on-light | 54 | **0** | 0 | Clean sweep |
-| Design systems | 2,480 | **0** | 28 | All warm-hue conservatism |
-| **Total** | **2,587** | **0** | **29** | |
+| Light-on-dark | 53 | **0** | 5 | AA-boundary grey, D3 red, hot pink, dark orange |
+| Dark-on-light | 54 | **0** | 7 | AA-boundary greys, greens, D3 red, teal |
+| Design systems | 2,480 | **0** | 151 | Increased conservatism from polarity factors |
+| **Total** | **2,587** | **0** | **163** | |
 
 The 28 design-system false failures are all warm saturated families (red, fuchsia, pink, rose, orange, plum, indigo) in Tailwind, Material, and Radix UI palettes. They represent principled conservatism: $L^3 > Y_{\text{WCAG}}$ for warm hues, so OKCA underestimates those pairs relative to WCAG. No correction is applied because any warm-side correction on the lighter element risks false passes for pink/fuchsia text near the AA boundary.
 
@@ -189,6 +202,8 @@ The 28 design-system false failures are all warm saturated families (red, fuchsi
 | `CHROMA_K` | 0.75 | Maximum additional power exponent at full saturation |
 | `K_DARK` | 0.155 | Green correction coefficient on darker element |
 | `A_THRESH` | 0.05 | Oklab `a` gate: green correction fires only when a < −0.05 |
+| `LOD_SCALE` | 0.92 | Polarity scale for light-on-dark (text is lighter than background) |
+| `DOL_SCALE` | 0.80 | Polarity scale for dark-on-light (background is lighter than text) |
 
 All four constants have one degree of freedom each. They were calibrated by the following anchors:
 
@@ -205,8 +220,6 @@ All four constants have one degree of freedom each. They were calibrated by the 
 ## 10. What OKCA Does Not Do
 
 Understanding the scope prevents incorrect use and misguided extension attempts.
-
-**Does not model polarity.** Reading direction (light-on-dark vs. dark-on-light) is not encoded. Polarity models add significant calibration complexity and require asymmetric response functions. OKCA prioritises simplicity and symmetry.
 
 **Does not model font size or weight.** WCAG AA (4.5:1) applies uniformly regardless of text size. OKCA outputs a single ratio; size-dependent thresholds are the caller's responsibility.
 

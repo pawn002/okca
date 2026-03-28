@@ -203,7 +203,7 @@ describe('design-system probe', () => {
     expect(falsePassPairs).toEqual([]);
   });
 
-  it('false-failure count matches baseline (28 total)', () => {
+  it('false-failure count matches baseline (151 total)', () => {
     let ffCount = 0;
 
     for (const { fg, bg } of ALL_PAIRS) {
@@ -212,7 +212,7 @@ describe('design-system probe', () => {
       if (okca < AA && wcag >= AA) ffCount++;
     }
 
-    expect(ffCount).toBe(28);
+    expect(ffCount).toBe(151);
   });
 
   it('false-failure counts match per system', () => {
@@ -226,10 +226,10 @@ describe('design-system probe', () => {
       }
     }
 
-    expect(ffBySystem['tw'] ?? 0).toBe(10);
-    expect(ffBySystem['md'] ?? 0).toBe(10);
-    expect(ffBySystem['rx-lt'] ?? 0).toBe(6);
-    expect(ffBySystem['rx-dk'] ?? 0).toBe(2);
+    expect(ffBySystem['tw'] ?? 0).toBe(35);
+    expect(ffBySystem['md'] ?? 0).toBe(40);
+    expect(ffBySystem['rx-lt'] ?? 0).toBe(41);
+    expect(ffBySystem['rx-dk'] ?? 0).toBe(35);
   });
 
   it('all results are in [1, 21] range', () => {
