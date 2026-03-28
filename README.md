@@ -132,7 +132,10 @@ Tested against 2,587 color pairs across three batteries (light-on-dark, dark-on-
 
 **False passes: zero.** OKCA never approves a pair that WCAG rejects.
 
-**WCAG disagreements** are pairs where OKCA scores below 4.5 but WCAG scores ≥ 4.5. These are intentional. WCAG's 4.5:1 AA threshold is widely considered too permissive — white on `#767676` (WCAG's own AA boundary anchor) is not production-ready in most real-world designs. All 235 disagreements involve colors in that same marginal zone: warm saturated families (red, fuchsia, pink, indigo, orange) in Tailwind, Material, and Radix palettes where WCAG's luminance-only formula overstates legibility.
+**WCAG disagreements** are pairs where OKCA scores below 4.5 but WCAG scores ≥ 4.5. These are intentional. WCAG's 4.5:1 AA threshold is widely considered too permissive — white on `#767676` (WCAG's own AA boundary anchor) is not production-ready in most real-world designs. All 235 disagreements involve colors in that same marginal zone, but their character varies by system:
+
+- **Tailwind (48) and Material (54):** Mid-range chromatic shades (500–700) presented as general-purpose colors without pairing restrictions. These are the most meaningful disagreements — colors a designer might genuinely reach for as text or icon color.
+- **Radix UI light (67) and dark (66):** Radix uses APCA, not WCAG, as its contrast standard and only guarantees steps 11–12 as text colors. Almost all Radix disagreements are step-9/10 solid-fill colors that Radix itself does not document as accessible text pairings.
 
 ## License
 

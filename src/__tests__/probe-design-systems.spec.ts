@@ -14,6 +14,20 @@
  * production-ready in practice. The disagreements below identify colours
  * that sit in the same marginal zone.
  *
+ * Disagreement character varies by system:
+ *
+ * - Tailwind and Material present mid-range chromatic shades (500–700) as
+ *   general-purpose colours without pairing restrictions. Their 48 and 54
+ *   disagreements respectively are the most meaningful: these are colours
+ *   a designer might genuinely reach for as text or icon colour.
+ *
+ * - Radix UI uses APCA (not WCAG) as its contrast standard and publishes
+ *   explicit guarantees only for steps 11–12 on same-family step-2
+ *   backgrounds. Steps 9–10 are solid-fill / interactive-state colours,
+ *   not intended as text on white. The 67 (light) and 66 (dark) Radix
+ *   disagreements are almost entirely step-9/10 pairs that Radix itself
+ *   does not claim are accessible text combinations.
+ *
  * WCAG 2.x relative luminance is computed inline (no colorjs dependency)
  * so we can cross-check OKCA scores independently.
  */
@@ -228,6 +242,9 @@ describe('design-system probe', () => {
     expect(ffCount).toBe(235);
   });
 
+  // tw:48 and md:54 are mid-range chromatic shades used as general colours.
+  // rx-lt:67 and rx-dk:66 are almost entirely step-9/10 solid fills that
+  // Radix does not document as accessible text pairings.
   it('WCAG disagreement counts match per system', () => {
     const ffBySystem: Record<string, number> = {};
 
