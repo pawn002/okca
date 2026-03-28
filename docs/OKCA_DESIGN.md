@@ -77,7 +77,7 @@ $$\text{ratio} = \frac{Y_{\text{lighter}} + 0.05}{Y_{\text{darker}} + 0.05}$$
 
 The chroma compression raises L to a power greater than 1 for saturated colours. Since $L \le 1$, a higher exponent produces a smaller value:
 
-$$L^{1.75} \le L^{1.0} \quad \text{for } L \in [0, 1]$$
+$$L^{1.50} \le L^{1.0} \quad \text{for } L \in [0, 1]$$
 
 A smaller `lighterY` in the numerator means a smaller ratio. For achromatic colours the exponent is 1 and the value is unchanged.
 
@@ -105,7 +105,7 @@ $$\text{satW} = \min\left(1, \left(\frac{C}{0.15}\right)^{2}\right)$$
 
 This is a quadratic ramp: zero for achromatic colours, reaching 1.0 when chroma hits the threshold. The exponent is then:
 
-$$\text{exp} = 1 + 0.75 \times \text{satW}$$
+$$\text{exp} = 1 + 0.50 \times \text{satW}$$
 
 ranging from 1.0 (achromatic) to 1.50 (fully saturated). The adjusted luminance proxy becomes:
 
@@ -146,7 +146,7 @@ For neutral grey pairs, both corrections reduce to identity:
 - **Step 3:** Oklab chroma C = 0, so satW = 0, exp = 1, and $Y_{\text{lighter}} = L^3$.
 - **Step 4:** Oklab a = 0, so the gate is not reached and $Y_{\text{darker}} = L^3$.
 
-Since $L^3 \approx Y_{\text{WCAG}}$ for greys (up to floating-point precision of the OKLCH transform), the algorithm produces **exact WCAG 2.x ratios for achromatic pairs** --- white/black = 21, white/`#767676` = 4.5. This is the most important compatibility property: the AA boundary grey anchor is preserved exactly.
+Since $L^3 \approx Y_{\text{WCAG}}$ for greys (up to floating-point precision of the OKLCH transform), the raw contrast ratio before Step 5 equals the WCAG ratio for neutral pairs. The polarity model (Step 5) then scales all scores below the WCAG equivalent. The achromatic anchors after polarity scaling are white/black = 17.0 (L-o-D) / 16.0 (D-o-L), and white/`#767676` = 3.7 (L-o-D) / 3.2 (D-o-L). These are the calibration reference points; the WCAG AA boundary grey (`#767676`) remains correctly identified as failing AA in both polarities.
 
 ---
 
@@ -154,23 +154,17 @@ Since $L^3 \approx Y_{\text{WCAG}}$ for greys (up to floating-point precision of
 
 OKCA is **polarity-aware**: `okca(A, B) ≠ okca(B, A)` when A and B differ in lightness. The ratio formula takes the designated text and background roles into account via a final scaling step.
 
-**Step 5** applies a polarity scale factor to the raw contrast ratio:
+**Step 5** applies a polarity-aware transform to the raw contrast ratio. Let $r$ denote the raw ratio after Steps 1–4:
 
-$$\text{ratio} = \frac{Y_{\text{lighter}} + 0.05}{Y_{\text{darker}} + 0.05} \times P$$
+$$\text{ratio} = \begin{cases} r \times \text{LOD\_SCALE} & \text{if text is lighter (light-on-dark)} \\ r \times \text{DOL\_MULT} - \text{DOL\_OFFSET} & \text{if background is lighter (dark-on-light)} \end{cases}$$
 
-where:
+with $\text{LOD\_SCALE} = 0.81$, $\text{DOL\_MULT} = 0.78$, and $\text{DOL\_OFFSET} = 0.36$.
 
-$$P = \begin{cases} \text{LOD\_SCALE} & \text{if text is lighter (light-on-dark)} \\ \text{DOL\_SCALE} & \text{if background is lighter (dark-on-light)} \end{cases}$$
+The D-o-L linear model ($r \times 0.78 - 0.36$) is needed because a pure multiplicative factor cannot simultaneously satisfy both grey and black/white anchors: the polarity gap would scale proportionally with $r$, giving too large a gap at high contrast. The offset compresses the gap at the high end while preserving the grey anchor ($\#767676$/white $= 3.2$).
 
-with $\text{LOD\_SCALE} = 0.81$ for light-on-dark, and a linear model for dark-on-light:
+**Rationale.** Perceptual research indicates that negative polarity (light text on dark background) produces higher perceived contrast than positive polarity (dark text on light background) at the same luminance ratio. OKCA encodes this asymmetry: a light-on-dark pair scores higher than the same colours reversed. Both transforms produce ratios below the raw WCAG value (all scores are conservative), and L-o-D scores are higher than D-o-L for the same colour pair.
 
-$$\text{ratio}_\text{D-o-L} = \text{rawRatio} \times \text{DOL\_MULT} - \text{DOL\_OFFSET}$$
-
-where $\text{DOL\_MULT} = 0.78$ and $\text{DOL\_OFFSET} = 0.36$. The linear model compresses the polarity gap at high contrast while preserving the grey anchor: $\#767676$/white $= 3.2$.
-
-**Rationale.** Perceptual research indicates that negative polarity (light text on dark background) produces higher perceived contrast than positive polarity (dark text on light background) at the same luminance ratio. OKCA encodes this asymmetry: a light-on-dark pair scores higher than the same colours reversed. Both scale factors are less than 1 (all scores are conservative relative to raw WCAG), and $\text{LOD\_SCALE} > \text{DOL\_SCALE}$ (light-on-dark retains a relative advantage).
-
-**FP = 0 proof for step 5.** Both $P < 1$, so multiplying reduces every ratio. The existing guarantee ($\text{ratio}_\text{OKCA} \leq \text{ratio}_\text{WCAG}$) is preserved: if $\text{WCAG} < 4.5$, then $\text{ratio}_\text{OKCA} \times P \leq \text{WCAG} \times P < 4.5$.
+**FP = 0 proof for step 5.** For L-o-D: $\text{LOD\_SCALE} < 1$, so $r \times 0.81 < r \le r_\text{WCAG}$. For D-o-L: $r \ge 1$ for any valid pair, and $r \times 0.78 - 0.36 < r \times 0.78 \le r \le r_\text{WCAG}$ since $0.78 < 1$ and the offset is non-negative. In both cases $\text{ratio}_\text{OKCA} < r_\text{WCAG}$, so if WCAG fails ($r_\text{WCAG} < 4.5$) OKCA also fails.
 
 **Achromatic reference pairs** (for calibration):
 
@@ -230,7 +224,7 @@ Understanding the scope prevents incorrect use and misguided extension attempts.
 
 **Does not replace perceptual judgement.** An OKCA score of 4.5 on a warm fuchsia text/white background means the pair clears the numerical threshold. A designer may still find it unpleasant. OKCA is a safety floor, not a design recommendation.
 
-**Does not correct warm-hue false passes in WCAG.** WCAG 2.x has known false passes for warm chromatic text on very dark backgrounds. OKCA catches the two most-cited examples (hot pink, dark orange on near-black). It does not systematically correct all warm-hue WCAG false passes, because doing so would require a polarity model and risks introducing new false passes.
+**Does not correct all warm-hue false passes in WCAG.** WCAG 2.x has known false passes for warm chromatic text on very dark backgrounds. OKCA catches the two most-cited examples (hot pink, dark orange on near-black) via chroma compression and polarity scaling. It does not systematically correct all warm-hue WCAG false passes: the design-systems probe registers 235 false failures for warm saturated families (red, fuchsia, pink, rose, orange), and no warm-side correction is applied because doing so risks introducing false passes for warm chromatic text near the AA boundary.
 
 ---
 
@@ -240,7 +234,7 @@ When modifying the algorithm, these properties must be preserved:
 
 1. **FP = 0.** Run all three probe batteries after any constant change. A false pass in the production service requires that the probe test be run with rounding applied (`toFixed(1)` on the raw ratio), not just with raw floats.
 
-2. **Achromatic exactness.** White/black = 21, white/`#767676` = 4.5. These are the WCAG 2.x anchors that users will cross-check. Any deviation breaks trust.
+2. **Achromatic anchors.** White/black = 17.0 (L-o-D) / 16.0 (D-o-L). White/`#767676` = 3.7 (L-o-D) / 3.2 (D-o-L). These are the calibration reference points. Any unintended deviation breaks the polarity model calibration.
 
 3. **No third-party contrast algorithm source code.** Mathematical derivations from public specifications are permitted; copying control flow or constant blocks from third-party packages is not.
 
