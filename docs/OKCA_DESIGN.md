@@ -156,15 +156,13 @@ OKCA is **polarity-aware**: `okca(A, B) ≠ okca(B, A)` when A and B differ in l
 
 **Step 5** applies a polarity-aware transform to the raw contrast ratio. Let $r$ denote the raw ratio after Steps 1–4:
 
-$$\text{ratio} = \begin{cases} r \times \text{LOD\_SCALE} & \text{if text is lighter (light-on-dark)} \\ r \times \text{DOL\_MULT} - \text{DOL\_OFFSET} & \text{if background is lighter (dark-on-light)} \end{cases}$$
-
-with $\text{LOD\_SCALE} = 0.81$, $\text{DOL\_MULT} = 0.78$, and $\text{DOL\_OFFSET} = 0.36$.
+$$\text{ratio} = \begin{cases} r \times 0.81 & \text{if text is lighter (light-on-dark)} \\ r \times 0.78 - 0.36 & \text{if background is lighter (dark-on-light)} \end{cases}$$
 
 The D-o-L linear model ($r \times 0.78 - 0.36$) is needed because a pure multiplicative factor cannot simultaneously satisfy both grey and black/white anchors: the polarity gap would scale proportionally with $r$, giving too large a gap at high contrast. The offset compresses the gap at the high end while preserving the grey anchor ($\#767676$/white $= 3.2$).
 
 **Rationale.** Perceptual research indicates that negative polarity (light text on dark background) produces higher perceived contrast than positive polarity (dark text on light background) at the same luminance ratio. OKCA encodes this asymmetry: a light-on-dark pair scores higher than the same colours reversed. Both transforms produce ratios below the raw WCAG value (all scores are conservative), and L-o-D scores are higher than D-o-L for the same colour pair.
 
-**FP = 0 proof for step 5.** For L-o-D: $\text{LOD\_SCALE} < 1$, so $r \times 0.81 < r \le r_\text{WCAG}$. For D-o-L: $r \ge 1$ for any valid pair, and $r \times 0.78 - 0.36 < r \times 0.78 \le r \le r_\text{WCAG}$ since $0.78 < 1$ and the offset is non-negative. In both cases $\text{ratio}_\text{OKCA} < r_\text{WCAG}$, so if WCAG fails ($r_\text{WCAG} < 4.5$) OKCA also fails.
+**FP = 0 proof for step 5.** For L-o-D: $0.81 < 1$, so $r \times 0.81 < r \le r_\text{WCAG}$. For D-o-L: $r \ge 1$ for any valid pair, and $r \times 0.78 - 0.36 < r \times 0.78 \le r \le r_\text{WCAG}$ since $0.78 < 1$ and the offset is non-negative. In both cases $\text{ratio}_\text{OKCA} < r_\text{WCAG}$, so if WCAG fails ($r_\text{WCAG} < 4.5$) OKCA also fails.
 
 **Achromatic reference pairs** (for calibration):
 
