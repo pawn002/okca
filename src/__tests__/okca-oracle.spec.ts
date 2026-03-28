@@ -13,8 +13,8 @@ const C_THRESH  = 0.15;
 const CHROMA_K  = 0.75;
 const K_DARK    = 0.155;
 const A_THRESH  = 0.05;
-const LOD_SCALE = 0.92;
-const DOL_SCALE = 0.80;
+const LOD_SCALE = 0.81;
+const DOL_SCALE = 0.70;
 
 function refContrast(textColor: string, bgColor: string): number | null {
   let tp: Color, bp: Color;
