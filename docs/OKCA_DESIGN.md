@@ -162,7 +162,7 @@ where:
 
 $$P = \begin{cases} \text{LOD\_SCALE} & \text{if text is lighter (light-on-dark)} \\ \text{DOL\_SCALE} & \text{if background is lighter (dark-on-light)} \end{cases}$$
 
-with $\text{LOD\_SCALE} = 0.81$ and $\text{DOL\_SCALE} = 0.70$.
+with $\text{LOD\_SCALE} = 0.81$ and $\text{DOL\_SCALE} = 0.76$.
 
 **Rationale.** Perceptual research indicates that negative polarity (light text on dark background) produces higher perceived contrast than positive polarity (dark text on light background) at the same luminance ratio. OKCA encodes this asymmetry: a light-on-dark pair scores higher than the same colours reversed. Both scale factors are less than 1 (all scores are conservative relative to raw WCAG), and $\text{LOD\_SCALE} > \text{DOL\_SCALE}$ (light-on-dark retains a relative advantage).
 
@@ -173,9 +173,9 @@ with $\text{LOD\_SCALE} = 0.81$ and $\text{DOL\_SCALE} = 0.70$.
 | Pair | Polarity | Score |
 |------|----------|------:|
 | white on black | L-o-D | 17.0 |
-| black on white | D-o-L | 14.7 |
+| black on white | D-o-L | 16.0 |
 | white on #767676 | L-o-D | 3.7 |
-| #767676 on white | D-o-L | 3.2 |
+| #767676 on white | D-o-L | 3.5 |
 
 ---
 
@@ -187,8 +187,8 @@ Three independent batteries:
 |---------|------:|:--:|:--:|-------|
 | Light-on-dark | 53 | **0** | — | See design-systems for FP=0 coverage |
 | Dark-on-light | 54 | **0** | — | See design-systems for FP=0 coverage |
-| Design systems | 2,480 | **0** | 247 | Polarity-aware conservatism |
-| **Total** | **2,587** | **0** | **247+** | |
+| Design systems | 2,480 | **0** | 221 | Polarity-aware conservatism |
+| **Total** | **2,587** | **0** | **221+** | |
 
 The 28 design-system false failures are all warm saturated families (red, fuchsia, pink, rose, orange, plum, indigo) in Tailwind, Material, and Radix UI palettes. They represent principled conservatism: $L^3 > Y_{\text{WCAG}}$ for warm hues, so OKCA underestimates those pairs relative to WCAG. No correction is applied because any warm-side correction on the lighter element risks false passes for pink/fuchsia text near the AA boundary.
 
@@ -203,7 +203,7 @@ The 28 design-system false failures are all warm saturated families (red, fuchsi
 | `K_DARK` | 0.155 | Green correction coefficient on darker element |
 | `A_THRESH` | 0.05 | Oklab `a` gate: green correction fires only when a < −0.05 |
 | `LOD_SCALE` | 0.81 | Polarity scale for light-on-dark (text is lighter than background) |
-| `DOL_SCALE` | 0.70 | Polarity scale for dark-on-light (background is lighter than text) |
+| `DOL_SCALE` | 0.76 | Polarity scale for dark-on-light (background is lighter than text) |
 
 All four constants have one degree of freedom each. They were calibrated by the following anchors:
 
