@@ -190,10 +190,7 @@ Three independent batteries:
 
 **False passes are zero** — the non-negotiable invariant holds across all 2,587 pairs.
 
-**WCAG disagreements** (pairs where OKCA < 4.5 but WCAG ≥ 4.5) are intentional and should not be read as miscalibration. WCAG's 4.5:1 AA threshold is widely considered too permissive by practitioners. White on `#767676` — the canonical WCAG AA boundary anchor — is not production-ready in most real designs. All 235 disagreements involve colours in that same marginal zone, but their character varies by system:
-
-- **Tailwind (48) and Material (54):** Mid-range chromatic shades (500–700) presented as general-purpose colours without pairing restrictions. These are the most meaningful disagreements — colours a designer would plausibly reach for as text or icon colour, and where WCAG's luminance-only formula most visibly overstates legibility.
-- **Radix UI light (67) and dark (66):** Radix uses APCA rather than WCAG as its contrast standard, and formally guarantees only steps 11–12 as text colours (against a same-family step-2 background). Steps 9–10 are solid-fill and interactive-state colours, not specified as text-on-white. Almost all Radix disagreements fall in this category — pairs Radix itself does not claim are accessible text pairings. OKCA and Radix are aligned in philosophy; they differ only in standard (APCA vs WCAG-compatible).
+**WCAG disagreements** (pairs where OKCA < 4.5 but WCAG ≥ 4.5) are intentional and should not be read as miscalibration. WCAG's 4.5:1 AA threshold is widely considered too permissive by practitioners. White on `#767676` — the canonical WCAG AA boundary anchor — is not production-ready in most real designs. All 235 disagreements involve colours in that marginal zone: proximity to the boundary is not the same as being safely above it.
 
 ---
 
