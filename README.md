@@ -22,8 +22,6 @@ import { calculateContrast } from '@pawn002/okca';
 const { calculateContrast } = require('@pawn002/okca');
 ```
 
-Angular users: the ESM build eliminates the `CommonJS or AMD dependencies` optimization warning.
-
 ## Usage
 
 ```ts
