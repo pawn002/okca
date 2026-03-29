@@ -1,6 +1,6 @@
 # OKCA / WCAG Disagreements — Reference
 
-**Total: 228 pairs** (Tailwind 48 · Material 54 · Radix-light 62 · Radix-dark 64)
+**Total: 225 pairs** (Tailwind 46 · Material 54 · Radix-light 61 · Radix-dark 64)
 
 ### Source versions
 
@@ -10,13 +10,13 @@
 | Material Design | MD2 named palette | [m2.material.io/design/color/the-color-system](https://m2.material.io/design/color/the-color-system.html) — palette unchanged in MD3 |
 | Radix UI Colors | @radix-ui/colors ≥3.0.0 (Oct 2023 rework) | Hex values hardcoded in `probe-design-systems.spec.ts`; cross-reference against that file for exact values |
 
-All 228 are pairs where OKCA scores below 4.5 AA but WCAG scores ≥ 4.5. These are intentional — they represent colours in the marginal zone that WCAG's threshold passes but real-world practitioners routinely reject. Every entry appears as both a L-o-D pair (white text on colour) and a D-o-L pair (colour on white), each scored separately due to OKCA's polarity model.
+All 225 are pairs where OKCA scores below 4.5 AA but WCAG scores ≥ 4.5. These are intentional — they represent colours in the marginal zone that WCAG's threshold passes but real-world practitioners routinely reject. Every entry appears as both a L-o-D pair (white text on colour) and a D-o-L pair (colour on white), each scored separately due to OKCA's polarity model.
 
 WCAG score shown is symmetric. OKCA scores differ by polarity — L-o-D is always slightly higher than D-o-L for the same colour.
 
 ---
 
-## Tailwind CSS v3.4 — 48 disagreements
+## Tailwind CSS v3.4 — 46 disagreements
 
 ### Achromatic grays (10 pairs — 5 colours × 2 polarities)
 
@@ -143,11 +143,11 @@ Scale runs 50–900 plus accent variants (A100–A700). The disagreements cluste
 
 ---
 
-## Radix UI Colors ≥3.0.0 — 62 (light) + 64 (dark) disagreements
+## Radix UI Colors ≥3.0.0 — 61 (light) + 64 (dark) disagreements
 
 Radix uses APCA as its contrast standard, not WCAG. Published accessibility guarantees cover only steps 11–12 for text on step-2 backgrounds within the same family. Steps 9–10 are solid-fill and interactive-state colours intended for backgrounds, borders, and non-text uses — not for text on white.
 
-The 62 light and 64 dark Radix disagreements are almost entirely step-9 and step-10 entries paired against white. They are included in the disagreement count for completeness but carry less practitioner weight: Radix itself does not claim these are accessible text combinations.
+The 61 light and 64 dark Radix disagreements are almost entirely step-9 and step-10 entries paired against white. They are included in the disagreement count for completeness but carry less practitioner weight: Radix itself does not claim these are accessible text combinations.
 
 ---
 
