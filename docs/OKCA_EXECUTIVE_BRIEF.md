@@ -28,10 +28,9 @@ despite evidence that positive polarity (dark-on-light) and negative polarity
 (light-on-dark) produce different reading performance. Buchner & Baumgartner (2007)
 established the positive polarity advantage for display reading; subsequent work by
 Piepenbrock, Mayr, and Buchner (2013, 2014) extended the finding to older adults and
-measured the pupil-size mechanism. Notably, Buchner, Mayr & Brandt (2009) found that the effect is driven by overall
-display luminance: light backgrounds are brighter, and the advantage diminishes when
-luminance is equated across conditions —
-a distinction WCAG 2.x cannot capture because its formula produces the same score
+measured the pupil-size mechanism. Buchner, Mayr & Brandt (2009) traced the mechanism: light backgrounds are
+intrinsically brighter, and that higher ambient luminance drives the reading
+advantage. WCAG 2.x cannot capture this because its formula produces the same score
 regardless of which colour is text and which is background. WCAG 3.0 /
 Silver acknowledges this asymmetry; WCAG 2.x has no path to correction within its
 current architecture.
