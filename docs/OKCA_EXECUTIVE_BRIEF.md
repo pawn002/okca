@@ -30,7 +30,8 @@ established the positive polarity advantage for display reading; subsequent work
 Piepenbrock, Mayr, and Buchner (2013, 2014) extended the finding to older adults and
 measured the pupil-size mechanism. Notably, Buchner, Mayr & Brandt (2009) attribute
 the effect primarily to overall display luminance rather than polarity direction per se —
-a distinction WCAG 2.x conflates by treating the two directions identically. WCAG 3.0 /
+a distinction WCAG 2.x cannot capture because its formula produces the same score
+regardless of which colour is text and which is background. WCAG 3.0 /
 Silver acknowledges this asymmetry; WCAG 2.x has no path to correction within its
 current architecture.
 
