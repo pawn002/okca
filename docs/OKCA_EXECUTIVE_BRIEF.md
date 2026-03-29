@@ -24,10 +24,15 @@ legibility. The working group has known since at least 2019 that two failure mod
 accumulate at scale:
 
 **Polarity blindness.** The formula is symmetric — `contrast(A, B) = contrast(B, A)` —
-despite consistent evidence from Legge, Arditi, and others that positive polarity
-(dark-on-light) and negative polarity (light-on-dark) produce meaningfully different
-reading performance at equivalent luminance ratios. WCAG 3.0 / Silver acknowledges
-this; WCAG 2.x has no path to correction within its current architecture.
+despite evidence that positive polarity (dark-on-light) and negative polarity
+(light-on-dark) produce different reading performance. Buchner & Baumgartner (2007)
+established the positive polarity advantage for display reading; subsequent work by
+Piepenbrock, Mayr, and Buchner (2013, 2014) extended the finding to older adults and
+measured the pupil-size mechanism. Notably, Buchner, Mayr & Brandt (2009) attribute
+the effect primarily to overall display luminance rather than polarity direction per se —
+a distinction WCAG 2.x conflates by treating the two directions identically. WCAG 3.0 /
+Silver acknowledges this asymmetry; WCAG 2.x has no path to correction within its
+current architecture.
 
 **Chromatic over-rating near threshold.** Saturated chromatic text on dark
 backgrounds — the hot pink / near-black case is canonical — scores well above the
@@ -45,9 +50,10 @@ practitioners and user research consistently flag as inadequate.
 
 ## What OKCA Does
 
-OKCA (OK Contrast Algorithm) is an OKLCH-native contrast algorithm. It uses Björn
-Ottosson's perceptually uniform Oklab/OKLCH colour space as its luminance input
-rather than the IEC 61966-2-1 sRGB decomposition. This is not a patch on top of
+OKCA (OK Contrast Algorithm) is an OKLCH-native contrast algorithm. It uses the
+perceptually uniform Oklab/OKLCH colour space — introduced by Björn Ottosson in a
+widely-adopted 2020 technical publication — as its luminance input rather than the
+IEC 61966-2-1 sRGB decomposition. This is not a patch on top of
 WCAG — it is a different measurement model that happens to be expressible on the
 same 1–21 scale with the same AA/AAA thresholds, allowing parallel deployment.
 
