@@ -2,7 +2,7 @@
  * Design-system probe battery — 2,480 pairs from real-world palettes.
  *
  * Source: docs/probe-design-systems.mjs
- * Palettes: Tailwind CSS v3.4, Material Design 2/3, Radix UI (light + dark)
+ * Palettes: Tailwind CSS v3.4, Material Design 2 named palette, @radix-ui/colors ≥3.0.0 (light + dark)
  *
  * Tests the critical invariant: OKCA must never produce a false pass
  * (OKCA ≥ 4.5 when WCAG < 4.5). Also pins WCAG-disagreement counts per

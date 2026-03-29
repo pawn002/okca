@@ -2,6 +2,14 @@
 
 **Total: 228 pairs** (Tailwind 48 · Material 54 · Radix-light 62 · Radix-dark 64)
 
+### Source versions
+
+| System | Version | Source |
+|--------|---------|--------|
+| Tailwind CSS | v3.4 | `tailwindcss` npm package, default color palette |
+| Material Design | MD2 named palette | [m2.material.io/design/color/the-color-system](https://m2.material.io/design/color/the-color-system.html) — palette unchanged in MD3 |
+| Radix UI Colors | @radix-ui/colors ≥3.0.0 (Oct 2023 rework) | Hex values hardcoded in `probe-design-systems.spec.ts`; cross-reference against that file for exact values |
+
 All 228 are pairs where OKCA scores below 4.5 AA but WCAG scores ≥ 4.5. These are intentional — they represent colours in the marginal zone that WCAG's threshold passes but real-world practitioners routinely reject. Every entry appears as both a L-o-D pair (white text on colour) and a D-o-L pair (colour on white), each scored separately due to OKCA's polarity model.
 
 WCAG score shown is symmetric. OKCA scores differ by polarity — L-o-D is always slightly higher than D-o-L for the same colour.
@@ -75,9 +83,9 @@ Blue and indigo hues are perceptually darker than their WCAG luminance suggests 
 
 ---
 
-## Material Design 2/3 — 54 disagreements
+## Material Design 2 named palette — 54 disagreements
 
-Material's scale runs 50–900 plus accent variants (A100–A700). The disagreements cluster around 700–800 for most hues, and A-level accents (which are often highly saturated).
+Scale runs 50–900 plus accent variants (A100–A700). The disagreements cluster around 700–800 for most hues, and A-level accents (which are often highly saturated).
 
 ### Red / orange family (12 pairs — 6 colours × 2 polarities)
 
@@ -135,7 +143,7 @@ Material's scale runs 50–900 plus accent variants (A100–A700). The disagreem
 
 ---
 
-## Radix UI — 62 (light) + 64 (dark) disagreements
+## Radix UI Colors ≥3.0.0 — 62 (light) + 64 (dark) disagreements
 
 Radix uses APCA as its contrast standard, not WCAG. Published accessibility guarantees cover only steps 11–12 for text on step-2 backgrounds within the same family. Steps 9–10 are solid-fill and interactive-state colours intended for backgrounds, borders, and non-text uses — not for text on white.
 
