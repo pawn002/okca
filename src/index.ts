@@ -5,7 +5,7 @@
  * IP status: clear.  Clean-room implementation.
  * Zero runtime dependencies.
  *
- * Algorithm overview (OKLCH-native with green correction and polarity scaling):
+ * Algorithm overview (pure OKLCH/Oklab — no WCAG luminance formula):
  *   1. Extract OKLCH L for each color (perceptually uniform lightness).
  *   2. Identify lighter element (higher L) and darker element.
  *      Determine polarity: light-on-dark (text is lighter) vs dark-on-light.
@@ -13,13 +13,10 @@
  *        [_, a, b] = Oklab(lighter)
  *        C         = sqrt(a² + b²)
  *        satW      = min(1, (C / C_THRESH)²)    // quadratic ramp
- *        exp       = 1 + CHROMA_K × satW         // 1.0 … 1.75
+ *        exp       = 1 + CHROMA_K × satW         // 1.0 … 1.5
  *        lighterY  = (lighterL ^ exp) ^ 3        // L → luminance proxy
- *   4. Darker element — green-hue correction:
- *        da        = Oklab(darker).a
- *        Fires only when da < -A_THRESH (true greens, not blues).
- *        darkLeff  = darkerL + K_DARK × (-da - A_THRESH)
- *        darkerY   = darkLeff ^ 3
+ *   4. Darker element — pure luminance proxy:
+ *        darkerY   = darkerL ^ 3
  *   5. Polarity-aware contrast ratio:
  *        rawRatio  = (lighterY + 0.05) / (darkerY + 0.05)
  *        L-o-D:    ratio = 21       × (rawRatio / 21) ^ POL_K
@@ -30,19 +27,17 @@
  * Luminance proxy: L³ (OKLCH L cubed ≈ WCAG Y for neutral grays).
  *
  * Properties:
- *   - FP = 0 guaranteed (steps 3–4 reduce raw ratio; step 5 applies factor < 1
- *     so OKCA ≤ WCAG for all inputs)
+ *   - FP = 0 guaranteed (chroma compression reduces lighter element; polarity
+ *     model applies power factor < 1 so OKCA ≤ WCAG for all inputs)
  *   - Polarity-aware: light-on-dark scores higher than dark-on-light for the
  *     same color pair, reflecting the perceptual advantage of negative polarity
- *   - Low false-failure rate across design-system palettes
+ *   - Pure OKLCH/Oklab — no WCAG luminance formula, no hue-specific patches
  */
 import { hexToOklab, hexToOklch } from './transforms';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 const C_THRESH = 0.15;  // Oklab chroma for full lighter-element penalty
 const CHROMA_K = 0.50;  // Power-compression exponent at full saturation
-const K_DARK   = 0.155; // Green correction strength on darker element
-const A_THRESH = 0.05;  // Oklab a gate: correction fires only when a < -A_THRESH
 const POL_K    = 1.175; // Shared polarity power exponent: CAP*(r/21)^k
 const DOL_CAP  = 20;    // D-o-L max contrast (vs 21 for L-o-D); proportional polarity penalty
 
@@ -65,14 +60,13 @@ export class OkcaService {
     const lighterL = isBoW ? bL : tL;
     const darkerL  = isBoW ? tL : bL;
     const lighterOklab = isBoW ? bOklab : tOklab;
-    const darkerOklab  = isBoW ? tOklab : bOklab;
 
     // Step 3 — lighter element: chroma-weighted power compression → luminance proxy
     const exp      = this.chromaExp(lighterOklab);
     const lighterY = Math.pow(Math.pow(lighterL, exp), 3);
 
-    // Step 4 — darker element: green correction → luminance proxy
-    const darkerY  = this.darkerLuminance(darkerOklab, darkerL);
+    // Step 4 — darker element: pure luminance proxy (L³)
+    const darkerY  = Math.pow(darkerL, 3);
 
     // Step 5 — polarity-aware scaling: light-on-dark has higher perceived contrast.
     // Both polarities use the same power curve CAP*(r/21)^POL_K; DOL_CAP < 21
@@ -96,19 +90,7 @@ export class OkcaService {
     return 1 + CHROMA_K * satW;
   }
 
-  /**
-   * Darker element luminance proxy (L³) with optional green-hue correction.
-   * Correction fires only for true greens (Oklab a < -A_THRESH), preventing
-   * false passes where L³ undershoots WCAG Y due to green's high WCAG weight.
-   */
-  private darkerLuminance(oklab: [number, number, number], L: number): number {
-    const da = oklab[1];
-    const correction = da < -A_THRESH
-      ? K_DARK * (-da - A_THRESH)
-      : 0;
-    const Leff = Math.min(1, L + correction);
-    return Math.pow(Leff, 3);
-  }
+
 }
 
 /**

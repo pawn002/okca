@@ -11,10 +11,8 @@ import { calculateContrast } from '../index';
 
 const C_THRESH  = 0.15;
 const CHROMA_K  = 0.50;
-const K_DARK    = 0.155;
-const A_THRESH  = 0.05;
-const POL_K   = 1.175;
-const DOL_CAP = 20;
+const POL_K     = 1.175;
+const DOL_CAP   = 20;
 
 function refContrast(textColor: string, bgColor: string): number | null {
   let tp: Color, bp: Color;
@@ -40,12 +38,8 @@ function refContrast(textColor: string, bgColor: string): number | null {
   const exp = 1 + CHROMA_K * satW;
   const lighterY = Math.pow(Math.pow(lighterL, exp), 3);
 
-  // Step 4
-  const oklab2 = darker.to('oklab');
-  const da = oklab2.coords[1];
-  const correction = da < -A_THRESH ? K_DARK * (-da - A_THRESH) : 0;
-  const Leff = Math.min(1, darkerL + correction);
-  const darkerY = Math.pow(Leff, 3);
+  // Step 4 — pure luminance proxy
+  const darkerY = Math.pow(darkerL, 3);
 
   // Step 5 — polarity-aware scaling
   const isLightOnDark = tL > bL;

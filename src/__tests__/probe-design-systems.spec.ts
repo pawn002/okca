@@ -239,7 +239,7 @@ describe('design-system probe', () => {
       if (okca < AA && wcag >= AA) ffCount++;
     }
 
-    expect(ffCount).toBe(228);
+    expect(ffCount).toBe(225);
   });
 
   // tw:48 and md:54 are mid-range chromatic shades used as general colours.
@@ -256,9 +256,9 @@ describe('design-system probe', () => {
       }
     }
 
-    expect(ffBySystem['tw'] ?? 0).toBe(48);
+    expect(ffBySystem['tw'] ?? 0).toBe(46);
     expect(ffBySystem['md'] ?? 0).toBe(54);
-    expect(ffBySystem['rx-lt'] ?? 0).toBe(62);
+    expect(ffBySystem['rx-lt'] ?? 0).toBe(61);
     expect(ffBySystem['rx-dk'] ?? 0).toBe(64);
   });
 

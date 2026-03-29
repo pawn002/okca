@@ -25,18 +25,18 @@ const LIGHT_ON_DARK: ProbePair[] = [
   ['#eeeeee', '#444444',  7.2, 'A  near-white on dark gray'],
 
   // B: Dark green backgrounds
-  ['#ffffff', '#004000', 11.2, 'B  white on very dark green'],
-  ['#ffffff', '#006000',  6.7, 'B  white on dark green'],
-  ['#ffffff', '#008000',  4.1, 'B  white on medium dark green'],
-  ['#ffffff', '#00a000',  2.6, 'B  white on medium green'],
-  ['#ffffff', '#2ca02c',  2.5, 'B  white on D3 green'],
-  ['#ffffff', '#3a7d44',  4.0, 'B  white on forest-ish green'],
-  ['#ffffff', '#228b22',  3.4, 'B  white on forest green'],
-  ['#ffff99', '#006400',  5.7, 'B  light yellow on dark green'],
-  ['#ccffcc', '#004d00',  7.6, 'B  light green on very dark green'],
+  ['#ffffff', '#004000', 11.5, 'B  white on very dark green'],
+  ['#ffffff', '#006000',  7.1, 'B  white on dark green'],
+  ['#ffffff', '#008000',  4.4, 'B  white on medium dark green'],
+  ['#ffffff', '#00a000',  2.8, 'B  white on medium green'],
+  ['#ffffff', '#2ca02c',  2.7, 'B  white on D3 green'],
+  ['#ffffff', '#3a7d44',  4.1, 'B  white on forest-ish green'],
+  ['#ffffff', '#228b22',  3.6, 'B  white on forest green'],
+  ['#ffff99', '#006400',  6.0, 'B  light yellow on dark green'],
+  ['#ccffcc', '#004d00',  7.8, 'B  light green on very dark green'],
   ['#ffffff', '#556b2f',  4.9, 'B  white on dark olive green'],
   ['#ffffff', '#808000',  3.2, 'B  white on olive'],
-  ['#ffffff', '#6b8e23',  2.9, 'B  white on olive drab'],
+  ['#ffffff', '#6b8e23',  3.0, 'B  white on olive drab'],
   ['#ffffff', '#9acd32',  1.3, 'B  white on yellow-green'],
 
   // C: Dark blue backgrounds
@@ -63,14 +63,14 @@ const LIGHT_ON_DARK: ProbePair[] = [
   ['#ffcccc', '#8b0000',  5.3, 'E  light pink on dark red'],
 
   // F: Dark cyan/teal backgrounds
-  ['#ffffff', '#006666',  5.7, 'F  white on dark teal'],
-  ['#ffffff', '#008080',  3.8, 'F  white on teal'],
-  ['#ffffff', '#004c4c',  8.8, 'F  white on very dark teal'],
-  ['#ccffff', '#004c4c',  7.8, 'F  light cyan on very dark teal'],
+  ['#ffffff', '#006666',  5.8, 'F  white on dark teal'],
+  ['#ffffff', '#008080',  3.9, 'F  white on teal'],
+  ['#ffffff', '#004c4c',  8.9, 'F  white on very dark teal'],
+  ['#ccffff', '#004c4c',  7.9, 'F  light cyan on very dark teal'],
 
   // G: Chromatic light text on dark neutral
   ['#ffff00', '#1a1a1a', 14.3, 'G  yellow on near-black'],
-  ['#00ff00', '#1a1a1a',  8.3, 'G  pure green on near-black'],
+  ['#00ff00', '#1a1a1a',  8.3, 'G  pure green on near-black'],  // unchanged
   ['#00ffff', '#1a1a1a', 10.3, 'G  cyan on near-black'],
   ['#ff69b4', '#1a1a1a',  3.7, 'G  hot pink on near-black'],
   ['#7fff00', '#333333',  6.5, 'G  chartreuse on dark gray'],
@@ -80,7 +80,7 @@ const LIGHT_ON_DARK: ProbePair[] = [
   ['#ffffff', '#595959',  5.8, 'H  white on #595959'],
   ['#ffffff', '#767676',  3.5, 'H  white on #767676 (AA boundary)'],
   ['#ffffff', '#808080',  2.9, 'H  white on mid gray'],
-  ['#ffffff', '#007700',  4.7, 'H  white on dark green (near 4.5)'],
+  ['#ffffff', '#007700',  5.0, 'H  white on dark green'],
   ['#ffffff', '#00008b', 13.3, 'H  white on dark blue'],
   ['#ffffff', '#8b008b',  6.3, 'H  white on dark magenta'],
 ];
@@ -99,18 +99,18 @@ const DARK_ON_LIGHT: ProbePair[] = [
   ['#333333', '#cccccc',  6.3, 'I  dark gray on light gray'],
 
   // J: Dark green text on white
-  ['#004000', '#ffffff', 10.7, 'J  very dark green on white'],
-  ['#006400', '#ffffff',  6.0, 'J  dark green on white'],
-  ['#006600', '#ffffff',  5.8, 'J  #006600 on white'],
-  ['#007700', '#ffffff',  4.5, 'J  #007700 on white'],
-  ['#008000', '#ffffff',  3.9, 'J  #008000 on white'],
-  ['#008900', '#ffffff',  3.4, 'J  #008900 on white (boundary)'],
-  ['#228b22', '#ffffff',  3.2, 'J  forest green on white'],
-  ['#3a7d44', '#ffffff',  3.8, 'J  forest-ish green on white'],
+  ['#004000', '#ffffff', 11.0, 'J  very dark green on white'],
+  ['#006400', '#ffffff',  6.3, 'J  dark green on white'],
+  ['#006600', '#ffffff',  6.1, 'J  #006600 on white'],
+  ['#007700', '#ffffff',  4.7, 'J  #007700 on white'],
+  ['#008000', '#ffffff',  4.2, 'J  #008000 on white'],
+  ['#008900', '#ffffff',  3.6, 'J  #008900 on white (boundary)'],
+  ['#228b22', '#ffffff',  3.4, 'J  forest green on white'],
+  ['#3a7d44', '#ffffff',  3.9, 'J  forest-ish green on white'],
   ['#556b2f', '#ffffff',  4.7, 'J  dark olive on white'],
-  ['#2ca02c', '#ffffff',  2.4, 'J  D3 green on white'],
+  ['#2ca02c', '#ffffff',  2.6, 'J  D3 green on white'],
   ['#808000', '#ffffff',  3.1, 'J  olive on white'],
-  ['#228b22', '#f0fff0',  3.1, 'J  forest green on honeydew'],
+  ['#228b22', '#f0fff0',  3.3, 'J  forest green on honeydew'],
 
   // K: Dark blue text on white
   ['#000080', '#ffffff', 13.5, 'K  navy on white'],
@@ -133,28 +133,28 @@ const DARK_ON_LIGHT: ProbePair[] = [
   ['#d62728', '#ffffff',  3.3, 'M  D3 red on white'],
 
   // N: Dark teal text on white
-  ['#004c4c', '#ffffff',  8.4, 'N  very dark teal on white'],
-  ['#006666', '#ffffff',  5.4, 'N  dark teal on white'],
-  ['#007070', '#ffffff',  4.6, 'N  #007070 on white'],
-  ['#008080', '#ffffff',  3.6, 'N  teal on white'],
-  ['#009090', '#ffffff',  2.8, 'N  #009090 on white'],
+  ['#004c4c', '#ffffff',  8.5, 'N  very dark teal on white'],
+  ['#006666', '#ffffff',  5.6, 'N  dark teal on white'],
+  ['#007070', '#ffffff',  4.7, 'N  #007070 on white'],
+  ['#008080', '#ffffff',  3.7, 'N  teal on white'],
+  ['#009090', '#ffffff',  2.9, 'N  #009090 on white'],
 
   // O: Light chromatic backgrounds
-  ['#000000', '#90ee90',  9.9, 'O  black on light green'],
+  ['#000000', '#90ee90',  9.9, 'O  black on light green'],  // unchanged
   ['#000000', '#add8e6', 11.6, 'O  black on light blue'],
   ['#000000', '#ffff99', 18.1, 'O  black on light yellow'],
   ['#000000', '#ffcccc', 13.2, 'O  black on light pink'],
   ['#000000', '#e6ccff', 12.6, 'O  black on light lavender'],
   ['#333333', '#90ee90',  5.5, 'O  dark gray on light green'],
   ['#1a237e', '#e3f2fd',  9.4, 'O  dark navy on very light blue'],
-  ['#004d00', '#e8f5e9',  7.5, 'O  very dark green on near-white green bg'],
+  ['#004d00', '#e8f5e9',  7.8, 'O  very dark green on near-white green bg'],
 
   // P: Mixed real-world BoW pairs
   ['#1a1a1a', '#ffffff', 16.0, 'P  near-black on white'],
   ['#2c2c2c', '#f8f8f8', 11.5, 'P  body text on off-white'],
   ['#444444', '#ffffff',  8.1, 'P  medium dark on white'],
   ['#1e3a5f', '#ffffff',  9.8, 'P  dark navy blue on white'],
-  ['#2d4a1e', '#ffffff',  8.6, 'P  dark forest text on white'],
+  ['#2d4a1e', '#ffffff',  8.6, 'P  dark forest text on white'],  // unchanged
   ['#5c1a1a', '#ffffff', 10.8, 'P  dark burgundy on white'],
   ['#1a1a5c', '#ffffff', 13.6, 'P  very dark indigo on white'],
 ];
