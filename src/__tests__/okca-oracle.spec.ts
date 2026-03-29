@@ -13,9 +13,8 @@ const C_THRESH  = 0.15;
 const CHROMA_K  = 0.50;
 const K_DARK    = 0.155;
 const A_THRESH  = 0.05;
-const LOD_K      = 1.175;
-const DOL_MULT   = 0.78;
-const DOL_OFFSET = 0.36;
+const POL_K   = 1.175;
+const DOL_CAP = 20;
 
 function refContrast(textColor: string, bgColor: string): number | null {
   let tp: Color, bp: Color;
@@ -51,9 +50,8 @@ function refContrast(textColor: string, bgColor: string): number | null {
   // Step 5 — polarity-aware scaling
   const isLightOnDark = tL > bL;
   const rawRatio = (lighterY + 0.05) / (darkerY + 0.05);
-  const ratio = isLightOnDark
-    ? 21 * Math.pow(rawRatio / 21, LOD_K)
-    : rawRatio * DOL_MULT - DOL_OFFSET;
+  const cap = isLightOnDark ? 21 : DOL_CAP;
+  const ratio = cap * Math.pow(rawRatio / 21, POL_K);
   return parseFloat(Math.max(1, Math.min(21, ratio)).toFixed(1));
 }
 
