@@ -13,6 +13,7 @@ be kept in sync:
 | `docs/OKCA_DESIGN.md` | Contributors / architectural reference |
 | `docs/OKCA_DESIGN.tex` | LaTeX source (mirrors the Markdown design doc) |
 | `docs/WCAG_DISAGREEMENTS.md` | Counts and calibration reference |
+| `docs/OKCA_EXECUTIVE_BRIEF.md` | Non-technical stakeholders / decision-makers |
 
 A typical algorithm change touches: constants, step descriptions, FP=0
 proof, achromatic anchor values, and the WCAG disagreement counts.
