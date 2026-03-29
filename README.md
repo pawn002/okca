@@ -10,6 +10,20 @@ OKCA outputs ratios on the familiar 1–21 scale with the same AA (4.5) and AAA 
 npm install @pawn002/okca
 ```
 
+## Module formats
+
+The package ships both ESM and CommonJS. Bundlers and Node with `"type": "module"` resolve ESM automatically via the `exports` field. CommonJS projects use `require`:
+
+```js
+// ESM (default for bundlers / Node ESM)
+import { calculateContrast } from '@pawn002/okca';
+
+// CommonJS
+const { calculateContrast } = require('@pawn002/okca');
+```
+
+Angular users: the ESM build eliminates the `CommonJS or AMD dependencies` optimization warning.
+
 ## Usage
 
 ```ts
