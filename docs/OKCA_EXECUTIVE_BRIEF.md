@@ -1,5 +1,19 @@
 # OKCA — Executive Brief
 
+## Executive Summary
+
+WCAG 2.x has two known measurement gaps: it over-rates saturated chromatic text on
+dark backgrounds, and it scores contrast symmetrically when the perceptual reality is
+not symmetric. Both cause marginal colour combinations to pass automated checks and
+reach production, where real users with contrast sensitivity loss cannot read them.
+
+OKCA is a drop-in contrast algorithm that closes both gaps while preserving the
+familiar 1–21 scale and AA/AAA thresholds. It introduces no new compliance vocabulary.
+Its central guarantee — that it never passes a pair WCAG fails — is proven from the
+algorithm's structure, not inferred from test coverage. A 2,587-pair audit across
+Tailwind, Material Design, and Radix UI found zero false passes and flagged 225 pairs
+that WCAG passes but practitioners consistently reject as inadequate.
+
 ---
 
 > **Persona note** *(internal framing, not for distribution)*
