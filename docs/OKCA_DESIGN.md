@@ -91,7 +91,7 @@ The ratio formula is:
 
 $$\text{ratio} = \text{CAP} \times \left(\frac{r_{\text{raw}}}{21}\right)^{k}$$
 
-where $k = \texttt{POL\_K} = 1.175 \ge 1$ and $\text{CAP} \le 21$.
+where $k =$ `POL_K` $= 1.175 \ge 1$ and $\text{CAP} \le 21$.
 
 Rewriting:
 
