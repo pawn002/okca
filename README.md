@@ -1,27 +1,19 @@
 # okca — OK Contrast Algorithm
 
-OKLCH-native, polarity-aware contrast ratio with **zero false passes** against WCAG 2.x.
+WCAG 2.x passes hot pink on near-black at 6.6:1. Practitioners flag it as inadequate. OKCA scores it 3.7 — a correct fail.
 
-OKCA outputs ratios on the familiar 1–21 scale with the same AA (4.5) and AAA (7.0) thresholds as WCAG. It is stricter than WCAG in two ways: saturated chromatic colors are penalised relative to achromatic equivalents, and scores are polarity-aware — the same color pair scores differently depending on which element is foreground and which is background.
+OKCA is a drop-in replacement for WCAG contrast that closes two well-documented failure modes while staying fully compatible: same 1–21 scale, same AA (4.5) and AAA (7.0) thresholds, and a mathematical guarantee of **zero false passes** — OKCA never approves a pair that WCAG rejects.
 
-**Argument order matters.** `calculateContrast(foreground, background)` — the first argument is the element being evaluated (text, icon, or other visual element); the second is the surface it sits on. For text this is unambiguous. For other visual elements the caller determines which role each color plays.
+**The two failure modes OKCA fixes:**
+
+1. **Saturated chromatic false passes.** WCAG's luminance formula cannot distinguish hot pink from grey at the same luminance. Accessibility practitioners and production audits consistently treat them differently.
+
+2. **Polarity blindness.** WCAG treats `contrast(A on B)` and `contrast(B on A)` as equal. Design systems and practitioners do not — dark mode and light mode are different decisions.
 
 ## Install
 
 ```bash
 npm install @pawn002/okca
-```
-
-## Module formats
-
-The package ships both ESM and CommonJS. Bundlers and Node with `"type": "module"` resolve ESM automatically via the `exports` field. CommonJS projects use `require`:
-
-```js
-// ESM (default for bundlers / Node ESM)
-import { calculateContrast } from '@pawn002/okca';
-
-// CommonJS
-const { calculateContrast } = require('@pawn002/okca');
 ```
 
 ## Usage
@@ -40,6 +32,8 @@ calculateContrast('#767676', '#ffffff');  // 3.3
 // Chromatic — WCAG gives 6.6 (false pass); OKCA correctly fails
 calculateContrast('#ff69b4', '#1a1a1a'); // 3.7
 ```
+
+**Argument order matters.** The first argument is the foreground element (text, icon, or other visual element); the second is the background surface it sits on. `okca(A, B) ≠ okca(B, A)`.
 
 Or use the class:
 
@@ -61,15 +55,17 @@ calculateContrast('oklch(1 0 0)', 'oklch(0 0 0)');           // 21.0
 calculateContrast('oklch(70% 37.5% 180deg)', '#ffffff');      // mixed formats ok
 ```
 
-## What OKCA solves
+## Module formats
 
-WCAG 2.x contrast has two well-documented failure modes:
+The package ships both ESM and CommonJS. Bundlers and Node with `"type": "module"` resolve ESM automatically via the `exports` field. CommonJS projects use `require`:
 
-1. **False passes for saturated chromatic text.** Hot pink on near-black scores 6.6:1 under WCAG — a comfortable AA pass — but is one of the most commonly cited cases where WCAG's result does not match production experience or practitioner judgement.
+```js
+// ESM (default for bundlers / Node ESM)
+import { calculateContrast } from '@pawn002/okca';
 
-2. **Polarity blindness.** WCAG treats `contrast(A, B)` and `contrast(B, A)` as identical. Designers and design systems treat the two directions as distinct — dark mode and light mode are different decisions. WCAG's formula discards that distinction entirely.
-
-OKCA corrects both while guaranteeing **FP = 0** — OKCA never approves a pair that WCAG rejects.
+// CommonJS
+const { calculateContrast } = require('@pawn002/okca');
+```
 
 ## Properties
 
@@ -91,7 +87,7 @@ Tested against 1,249 color pairs across three batteries (light-on-dark, dark-on-
 
 **False passes: zero.** OKCA never approves a pair that WCAG rejects.
 
-**WCAG disagreements** are pairs where OKCA scores below 4.5 but WCAG scores ≥ 4.5. These are intentional. WCAG's 4.5:1 AA threshold is widely considered too permissive — white on `#767676` (WCAG's own AA boundary anchor) is not production-ready in most real-world designs. All 111 disagreements involve colors in that marginal zone where proximity to the boundary is not the same as being safely above it.
+**WCAG disagreements** are pairs where OKCA scores below 4.5 but WCAG scores ≥ 4.5. These are intentional. WCAG's 4.5:1 AA threshold is widely considered too permissive — white on `#767676` (WCAG's own AA boundary anchor) is not production-ready in most real-world designs. All 111 disagreements involve colors in that marginal zone.
 
 ## Further reading
 
