@@ -33,7 +33,7 @@
  *     same color pair; direction is a design input, not a symmetric quantity
  *   - Pure OKLCH/Oklab — no WCAG luminance formula, no hue-specific patches
  */
-import { hexToOklab, hexToOklch } from './transforms';
+import { hexToOklab, cssOklabToOklab, cssOklchToOklch, oklchToOklab } from './transforms';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 const C_THRESH = 0.15;  // Oklab chroma for full lighter-element penalty
@@ -41,24 +41,29 @@ const CHROMA_K = 0.50;  // Power-compression exponent at full saturation
 const POL_K    = 1.175; // Shared polarity power exponent: CAP*(r/21)^k
 const DOL_CAP  = 20;    // D-o-L max contrast (vs 21 for L-o-D); proportional polarity penalty
 
+/** Parse any supported color string to Oklab [L, a, b], or null if unrecognised. */
+function parseToOklab(color: string): [number, number, number] | null {
+  return hexToOklab(color)
+    ?? cssOklabToOklab(color)
+    ?? (() => { const lch = cssOklchToOklch(color); return lch ? oklchToOklab(lch) : null; })();
+}
+
 export class OkcaService {
   calculateContrast(textColor: string, bgColor: string): number | null {
-    const tOklab = hexToOklab(textColor);
-    const bOklab = hexToOklab(bgColor);
+    const tOklab = parseToOklab(textColor);
+    const bOklab = parseToOklab(bgColor);
     if (!tOklab || !bOklab) return null;
 
-    const tOklch = hexToOklch(textColor)!;
-    const bOklch = hexToOklch(bgColor)!;
-
-    const tL = Math.max(0, tOklch[0]);
-    const bL = Math.max(0, bOklch[0]);
+    // L is identical in Oklab and OKLCH — no separate OKLCH parse needed.
+    const tL = Math.max(0, tOklab[0]);
+    const bL = Math.max(0, bOklab[0]);
 
     // Identical lightness → no contrast
     if (Math.abs(tL - bL) < 1e-6) return 1;
 
-    const isBoW    = bL >= tL;
-    const lighterL = isBoW ? bL : tL;
-    const darkerL  = isBoW ? tL : bL;
+    const isBoW        = bL >= tL;
+    const lighterL     = isBoW ? bL : tL;
+    const darkerL      = isBoW ? tL : bL;
     const lighterOklab = isBoW ? bOklab : tOklab;
 
     // Step 3 — lighter element: chroma-weighted power compression → luminance proxy
@@ -96,12 +101,18 @@ export class OkcaService {
 /**
  * Convenience function — calculates OKCA contrast ratio between two colors.
  *
- * @param a - First color (6-digit hex string, e.g. "#ff0000")
- * @param b - Second color (6-digit hex string)
+ * Accepts hex strings (`#rrggbb`, `#rgb`), CSS `oklab()`, and CSS `oklch()`.
+ *
+ * @param a - First color (text)
+ * @param b - Second color (background)
  * @returns Contrast ratio in [1, 21] rounded to 1 decimal place, or null if either color is invalid
  */
 export function calculateContrast(a: string, b: string): number | null {
   return new OkcaService().calculateContrast(a, b);
 }
 
-export { hexToOklab, hexToOklch, hexToSrgb, srgbToOklab, srgbToOklch } from './transforms';
+export {
+  hexToOklab, hexToOklch, hexToSrgb, srgbToOklab, srgbToOklch,
+  oklchToOklab, oklabToOklch,
+  cssOklabToOklab, cssOklchToOklch,
+} from './transforms';

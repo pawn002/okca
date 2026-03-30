@@ -5,7 +5,11 @@
  * transforms produce identical results (within floating-point tolerance).
  */
 import Color from 'colorjs.io';
-import { hexToSrgb, srgbToOklab, srgbToOklch, hexToOklab, hexToOklch } from '../transforms';
+import {
+  hexToSrgb, srgbToOklab, srgbToOklch, hexToOklab, hexToOklch,
+  oklchToOklab, oklabToOklch,
+  cssOklabToOklab, cssOklchToOklch,
+} from '../transforms';
 
 const EPSILON = 1e-10;
 
@@ -141,5 +145,116 @@ describe('hexToOklch — convenience wrapper', () => {
 
   it('returns null for invalid hex', () => {
     expect(hexToOklch('nope')).toBeNull();
+  });
+});
+
+describe('oklchToOklab / oklabToOklch — round-trip', () => {
+  it('oklch → oklab → oklch round-trips L and C', () => {
+    for (const hex of EDGE_CASES) {
+      const [L, C, H] = hexToOklch(hex)!;
+      const lab = oklchToOklab([L, C, H]);
+      const [rL, rC] = oklabToOklch(lab);
+      expect(rL).toBeCloseTo(L, 10);
+      expect(rC).toBeCloseTo(C, 10);
+    }
+  });
+
+  it('oklab → oklch → oklab round-trips', () => {
+    for (const hex of EDGE_CASES) {
+      const [L, a, b] = hexToOklab(hex)!;
+      const lch = oklabToOklch([L, a, b]);
+      const [rL, ra, rb] = oklchToOklab(lch);
+      expect(rL).toBeCloseTo(L, 10);
+      expect(ra).toBeCloseTo(a, 10);
+      expect(rb).toBeCloseTo(b, 10);
+    }
+  });
+});
+
+describe('cssOklabToOklab', () => {
+  it('parses numeric values', () => {
+    const [L, a, b] = cssOklabToOklab('oklab(0.5 0.1 -0.2)')!;
+    expect(L).toBeCloseTo(0.5, 10);
+    expect(a).toBeCloseTo(0.1, 10);
+    expect(b).toBeCloseTo(-0.2, 10);
+  });
+
+  it('parses percentage values', () => {
+    // 100% L = 1, 100% a/b = 0.4
+    const [L, a, b] = cssOklabToOklab('oklab(50% 25% -50%)')!;
+    expect(L).toBeCloseTo(0.5, 10);
+    expect(a).toBeCloseTo(0.1, 10);
+    expect(b).toBeCloseTo(-0.2, 10);
+  });
+
+  it('ignores alpha channel', () => {
+    const result = cssOklabToOklab('oklab(0.5 0.1 -0.2 / 0.8)');
+    expect(result).not.toBeNull();
+    expect(result![0]).toBeCloseTo(0.5, 10);
+  });
+
+  it('is case-insensitive', () => {
+    expect(cssOklabToOklab('OKLAB(0.5 0.1 -0.2)')).not.toBeNull();
+  });
+
+  it('returns null for invalid input', () => {
+    expect(cssOklabToOklab('oklch(0.5 0.1 180)')).toBeNull();
+    expect(cssOklabToOklab('oklab(0.5 0.1)')).toBeNull();
+    expect(cssOklabToOklab('#ffffff')).toBeNull();
+    expect(cssOklabToOklab('')).toBeNull();
+  });
+
+  it('produces same Oklab as hex→oklab for white and black', () => {
+    const white = hexToOklab('#ffffff')!;
+    const black = hexToOklab('#000000')!;
+    const cssWhite = cssOklabToOklab(`oklab(${white[0]} ${white[1]} ${white[2]})`)!;
+    const cssBlack = cssOklabToOklab(`oklab(${black[0]} ${black[1]} ${black[2]})`)!;
+    expect(cssWhite[0]).toBeCloseTo(white[0], 7);
+    expect(cssBlack[0]).toBeCloseTo(black[0], 7);
+  });
+});
+
+describe('cssOklchToOklch', () => {
+  it('parses numeric values', () => {
+    const [L, C, H] = cssOklchToOklch('oklch(0.7 0.15 180)')!;
+    expect(L).toBeCloseTo(0.7, 10);
+    expect(C).toBeCloseTo(0.15, 10);
+    expect(H).toBeCloseTo(180, 10);
+  });
+
+  it('parses percentage values', () => {
+    // 100% L = 1, 100% C = 0.4
+    const [L, C, H] = cssOklchToOklch('oklch(70% 37.5% 180)')!;
+    expect(L).toBeCloseTo(0.7, 10);
+    expect(C).toBeCloseTo(0.15, 10);
+    expect(H).toBeCloseTo(180, 10);
+  });
+
+  it('parses angle units', () => {
+    const deg  = cssOklchToOklch('oklch(0.7 0.15 180deg)')![2];
+    const rad  = cssOklchToOklch('oklch(0.7 0.15 3.14159265rad)')![2];
+    const turn = cssOklchToOklch('oklch(0.7 0.15 0.5turn)')![2];
+    const grad = cssOklchToOklch('oklch(0.7 0.15 200grad)')![2];
+    expect(deg).toBeCloseTo(180, 5);
+    expect(rad).toBeCloseTo(180, 3);
+    expect(turn).toBeCloseTo(180, 10);
+    expect(grad).toBeCloseTo(180, 10);
+  });
+
+  it('ignores alpha channel', () => {
+    const result = cssOklchToOklch('oklch(0.7 0.15 180 / 50%)');
+    expect(result).not.toBeNull();
+    expect(result![0]).toBeCloseTo(0.7, 10);
+  });
+
+  it('is case-insensitive', () => {
+    expect(cssOklchToOklch('OKLCH(0.7 0.15 180)')).not.toBeNull();
+  });
+
+  it('returns null for invalid input', () => {
+    expect(cssOklchToOklch('oklab(0.5 0.1 -0.2)')).toBeNull();
+    expect(cssOklchToOklch('oklch(0.7 0.15)')).toBeNull();
+    expect(cssOklchToOklch('#ffffff')).toBeNull();
+    expect(cssOklchToOklch('')).toBeNull();
   });
 });

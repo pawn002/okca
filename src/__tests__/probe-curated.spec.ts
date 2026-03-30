@@ -8,6 +8,7 @@
  * algorithm that shifts a value here is a regression that needs review.
  */
 import { calculateContrast } from '../index';
+import { hexToOklab, hexToOklch } from '../transforms';
 
 // [fg, bg, expected OKCA, group + description]
 type ProbePair = [string, string, number, string];
@@ -195,4 +196,43 @@ describe('curated probe: invariants', () => {
   it('total pair count matches probe scripts (107)', () => {
     expect(ALL_PAIRS.length).toBe(107);
   });
+});
+
+// ── CSS string input parity ───────────────────────────────────────────────────
+// oklab() and oklch() inputs must produce identical scores to hex for the
+// same color. Uses a representative subset of the curated pairs.
+
+const PARITY_PAIRS: [string, string][] = [
+  ['#ffffff', '#000000'],
+  ['#000000', '#ffffff'],
+  ['#ffffff', '#767676'],
+  ['#767676', '#ffffff'],
+  ['#ff69b4', '#1a1a1a'],
+  ['#ffffff', '#008080'],
+  ['#228b22', '#ffffff'],
+];
+
+describe('CSS oklab() / oklch() input parity with hex', () => {
+  for (const [fg, bg] of PARITY_PAIRS) {
+    it(`${fg} / ${bg}`, () => {
+      const expected = calculateContrast(fg, bg)!;
+
+      const [fgL, fgA, fgB] = hexToOklab(fg)!;
+      const [bgL, bgA, bgB] = hexToOklab(bg)!;
+      const [fgLch0, fgC, fgH] = hexToOklch(fg)!;
+      const [bgLch0, bgC, bgH] = hexToOklch(bg)!;
+
+      const viaOklab = calculateContrast(
+        `oklab(${fgL} ${fgA} ${fgB})`,
+        `oklab(${bgL} ${bgA} ${bgB})`,
+      );
+      const viaOklch = calculateContrast(
+        `oklch(${fgLch0} ${fgC} ${fgH})`,
+        `oklch(${bgLch0} ${bgC} ${bgH})`,
+      );
+
+      expect(viaOklab).toBe(expected);
+      expect(viaOklch).toBe(expected);
+    });
+  }
 });

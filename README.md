@@ -48,7 +48,16 @@ const okca = new OkcaService();
 okca.calculateContrast('#fff', '#000');  // 21.0
 ```
 
-Accepts 3- and 6-digit hex strings (e.g. `#fff`, `#ff8000`).
+Accepts 3- and 6-digit hex strings (`#fff`, `#ff8000`), CSS `oklab()`, and CSS `oklch()`:
+
+```ts
+// CSS oklab — values direct or as percentages (100% L = 1, 100% a/b = 0.4)
+calculateContrast('oklab(1 0 0)', 'oklab(0 0 0)');           // 21.0
+
+// CSS oklch — hue in deg (default), rad, turn, or grad
+calculateContrast('oklch(1 0 0)', 'oklch(0 0 0)');           // 21.0
+calculateContrast('oklch(70% 37.5% 180deg)', '#ffffff');      // mixed formats ok
+```
 
 ## What OKCA solves
 

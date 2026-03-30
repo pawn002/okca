@@ -80,3 +80,82 @@ export function hexToOklch(hex: string): [number, number, number] | null {
   const rgb = hexToSrgb(hex);
   return rgb ? srgbToOklch(rgb) : null;
 }
+
+// ── Oklab ↔ OKLCH ─────────────────────────────────────────────────────────────
+
+/** Convert OKLCH [L, C, H] to Oklab [L, a, b]. H in degrees. */
+export function oklchToOklab([L, C, H]: [number, number, number]): [number, number, number] {
+  const hRad = H * (Math.PI / 180);
+  return [L, C * Math.cos(hRad), C * Math.sin(hRad)];
+}
+
+/** Convert Oklab [L, a, b] to OKLCH [L, C, H]. H in degrees. */
+export function oklabToOklch([L, a, b]: [number, number, number]): [number, number, number] {
+  const C = Math.sqrt(a * a + b * b);
+  let H = Math.atan2(b, a) * (180 / Math.PI);
+  if (H < 0) H += 360;
+  return [L, C, H];
+}
+
+// ── CSS Color Level 4 parsers ─────────────────────────────────────────────────
+
+/** Parse a numeric CSS token with optional percentage. pctRef is the value 100% maps to. */
+function parseCssValue(token: string, pctRef: number): number | null {
+  if (token.endsWith('%')) {
+    const n = parseFloat(token);
+    return isNaN(n) ? null : (n / 100) * pctRef;
+  }
+  const n = parseFloat(token);
+  return isNaN(n) ? null : n;
+}
+
+/** Parse a CSS angle token. Defaults to degrees if no unit. */
+function parseCssAngle(token: string): number | null {
+  if (token.endsWith('grad')) return parseFloat(token) * (360 / 400);
+  if (token.endsWith('turn')) return parseFloat(token) * 360;
+  if (token.endsWith('rad'))  return parseFloat(token) * (180 / Math.PI);
+  if (token.endsWith('deg'))  return parseFloat(token);
+  const n = parseFloat(token);
+  return isNaN(n) ? null : n;
+}
+
+/**
+ * Parse a CSS oklab() string to Oklab [L, a, b].
+ *
+ * Accepts: `oklab(L a b)` or `oklab(L a b / alpha)` (alpha ignored).
+ * L: number 0–1, or percentage 0%–100%.
+ * a, b: number, or percentage where 100% = 0.4 (CSS Color Level 4).
+ * Returns null for invalid input.
+ */
+export function cssOklabToOklab(str: string): [number, number, number] | null {
+  const m = str.trim().match(/^oklab\(\s*([\s\S]+?)\s*\)$/i);
+  if (!m) return null;
+  const parts = m[1].split('/')[0].trim().split(/[\s,]+/).filter(Boolean);
+  if (parts.length < 3) return null;
+  const L = parseCssValue(parts[0], 1);
+  const a = parseCssValue(parts[1], 0.4);
+  const b = parseCssValue(parts[2], 0.4);
+  if (L === null || a === null || b === null) return null;
+  return [L, a, b];
+}
+
+/**
+ * Parse a CSS oklch() string to OKLCH [L, C, H].
+ *
+ * Accepts: `oklch(L C H)` or `oklch(L C H / alpha)` (alpha ignored).
+ * L: number 0–1, or percentage 0%–100%.
+ * C: number, or percentage where 100% = 0.4 (CSS Color Level 4).
+ * H: angle in deg (default), rad, turn, or grad.
+ * Returns null for invalid input.
+ */
+export function cssOklchToOklch(str: string): [number, number, number] | null {
+  const m = str.trim().match(/^oklch\(\s*([\s\S]+?)\s*\)$/i);
+  if (!m) return null;
+  const parts = m[1].split('/')[0].trim().split(/[\s,]+/).filter(Boolean);
+  if (parts.length < 3) return null;
+  const L = parseCssValue(parts[0], 1);
+  const C = parseCssValue(parts[1], 0.4);
+  const H = parseCssAngle(parts[2]);
+  if (L === null || C === null || H === null) return null;
+  return [L, C, H];
+}
