@@ -54,9 +54,9 @@ Accepts 3- and 6-digit hex strings (e.g. `#fff`, `#ff8000`).
 
 WCAG 2.x contrast has two well-documented failure modes:
 
-1. **False passes for saturated chromatic text.** Hot pink on near-black scores 6.6:1 under WCAG — a comfortable AA pass — but is demonstrably harder to read than achromatic pairs at equivalent luminance.
+1. **False passes for saturated chromatic text.** Hot pink on near-black scores 6.6:1 under WCAG — a comfortable AA pass — but is one of the most commonly cited cases where WCAG's result does not match production experience or practitioner judgement.
 
-2. **Polarity blindness.** WCAG treats `contrast(A, B)` and `contrast(B, A)` as identical. Perceptual research indicates light text on a dark background (negative polarity) has higher effective contrast than the same colors reversed.
+2. **Polarity blindness.** WCAG treats `contrast(A, B)` and `contrast(B, A)` as identical. Designers and design systems treat the two directions as distinct — dark mode and light mode are different decisions. WCAG's formula discards that distinction entirely.
 
 OKCA corrects both while guaranteeing **FP = 0** — OKCA never approves a pair that WCAG rejects.
 

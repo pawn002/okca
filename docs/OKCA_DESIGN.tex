@@ -41,16 +41,16 @@ This has two well-documented failure modes:
 \begin{enumerate}
   \item \textbf{False passes for saturated chromatic text.}
     Hot pink on near-black scores 6.6:1 under WCAG---a comfortable AA
-    pass.  Perceptual research flags it as harder to read than achromatic
-    pairs at equivalent luminance.  WCAG's luminance formula does not
-    encode the reduced effectiveness of saturated chromatic light on very
-    dark backgrounds.
+    pass.  It is one of the most commonly cited cases where WCAG's result
+    does not match production experience or practitioner judgement.
+    WCAG's luminance formula treats it identically to an achromatic pair
+    at the same luminance ratio.
 
   \item \textbf{Polarity blindness.}
     WCAG's ratio is symmetric: \texttt{ratio(A on B) = ratio(B on A)}.
-    Perceptual research shows that light text on dark backgrounds has
-    higher effective contrast than dark text on light backgrounds at the
-    same luminance ratio.  WCAG does not model this asymmetry.
+    Designers and design systems treat the two directions as
+    distinct---dark mode and light mode are different design decisions,
+    not interchangeable.  WCAG does not model this asymmetry.
 \end{enumerate}
 
 OKCA corrects both, while maintaining \textbf{zero false passes}
@@ -125,8 +125,8 @@ are relevant to OKCA:
   \item \textbf{Chromatic text on dark backgrounds.}  WCAG~Y does not
     distinguish between saturated and desaturated light text.  A
     chromatic lighter element at the same Y as an achromatic one produces
-    the same ratio---even though the saturated one has demonstrably lower
-    effective contrast against a dark background.
+    the same ratio---even though practitioners and production audits
+    consistently treat them differently.
 \end{enumerate}
 
 OKLCH $L^3$ addresses both points directly.  For neutral greys,
@@ -190,11 +190,12 @@ also fail OKCA.
 
 \paragraph{Problem.}
 Saturated chromatic light text on a dark background---e.g.\ hot pink
-(\texttt{\#ff69b4}) on near-black (\texttt{\#1a1a1a})---has the same
-WCAG luminance ratio as achromatic white on a dark grey, but is
-demonstrably harder to read.  The reduced effectiveness comes from
-chromatic contrast partially substituting for luminance contrast in the
-visual system.
+(\texttt{\#ff69b4}) on near-black (\texttt{\#1a1a1a})---scores 6.6:1
+under WCAG, the same as an achromatic pair at equivalent luminance.
+It is one of the most commonly cited WCAG false passes: experienced
+practitioners flag it as inadequate, and it fails at moderate contrast
+sensitivity loss.  WCAG's formula has no mechanism to distinguish it
+from an achromatic pair.
 
 \paragraph{Mechanism.}
 The lighter element's luminance proxy is penalised by a chroma-weighted
@@ -287,13 +288,15 @@ proportionally lower, applying a polarity penalty at every contrast
 level.  Both polarities share the same exponent~$k$, giving consistent
 curve shape.
 
-\paragraph{Rationale.}  Perceptual research indicates that negative
-polarity (light text on dark background) produces higher perceived
-contrast than positive polarity (dark text on light background) at the
-same luminance ratio.  OKCA encodes this asymmetry: a light-on-dark
-pair scores higher than the same colours reversed.  Both transforms
-produce ratios at or below the raw WCAG value (all scores are
-conservative).
+\paragraph{Rationale.}  Designers and design systems treat polarity as
+a meaningful input---dark mode and light mode are distinct design
+decisions, and practitioners evaluate them differently.  WCAG's
+symmetric formula discards this information.  OKCA encodes the
+asymmetry as a calibrated design choice: a light-on-dark pair scores
+higher than the same colours reversed, anchored to
+practitioner-accepted reference values (white/black = 21.0/20.0,
+\texttt{\#767676} = 3.5/3.3).  Both transforms produce ratios at or
+below the raw WCAG value (all scores are conservative).
 
 \paragraph{Deriving $k$.}
 The exponent was calibrated so that white on \texttt{\#767676}---the

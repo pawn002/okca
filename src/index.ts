@@ -30,7 +30,7 @@
  *   - FP = 0 guaranteed (chroma compression reduces lighter element; polarity
  *     model applies power factor < 1 so OKCA ≤ WCAG for all inputs)
  *   - Polarity-aware: light-on-dark scores higher than dark-on-light for the
- *     same color pair, reflecting the perceptual advantage of negative polarity
+ *     same color pair; direction is a design input, not a symmetric quantity
  *   - Pure OKLCH/Oklab — no WCAG luminance formula, no hue-specific patches
  */
 import { hexToOklab, hexToOklch } from './transforms';

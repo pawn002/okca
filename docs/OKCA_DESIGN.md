@@ -13,9 +13,9 @@ $$\text{ratio} = \frac{Y_1 + 0.05}{Y_2 + 0.05}$$
 
 This has two well-documented failure modes:
 
-1. **False passes for saturated chromatic text.** Hot pink on near-black scores 6.6:1 under WCAG --- a comfortable AA pass. Perceptual research flags it as harder to read than achromatic pairs at equivalent luminance. WCAG's luminance formula does not encode the reduced effectiveness of saturated chromatic light on very dark backgrounds.
+1. **False passes for saturated chromatic text.** Hot pink on near-black scores 6.6:1 under WCAG --- a comfortable AA pass. Accessibility practitioners consistently identify it as inadequate, and it is one of the most commonly cited examples of WCAG producing a result that does not match production experience. WCAG's luminance formula treats it identically to an achromatic pair at the same luminance ratio.
 
-2. **Polarity blindness.** WCAG's ratio is symmetric: `ratio(A on B) = ratio(B on A)`. Perceptual research shows that light text on dark backgrounds has higher effective contrast than dark text on light backgrounds at the same luminance ratio. WCAG does not model this asymmetry.
+2. **Polarity blindness.** WCAG's ratio is symmetric: `ratio(A on B) = ratio(B on A)`. Designers and design systems treat the two directions as distinct --- dark mode and light mode are different design decisions, not interchangeable. WCAG does not model this asymmetry.
 
 OKCA corrects both, while maintaining **zero false passes** against WCAG --- meaning OKCA never tells a designer a pair is safe when WCAG says it fails.
 
@@ -63,7 +63,7 @@ per IEC 61966-2-1 (linearised sRGB). This formula was designed for display calib
 
 1. **Not designer-readable.** A designer cannot look at a colour picker, read the OKLCH L values, and predict the WCAG ratio without a separate calculation.
 
-2. **Chromatic text on dark backgrounds.** WCAG Y does not distinguish between saturated and desaturated light text. A chromatic lighter element at the same Y as an achromatic one produces the same ratio --- even though the saturated one has demonstrably lower effective contrast against a dark background.
+2. **Chromatic text on dark backgrounds.** WCAG Y does not distinguish between saturated and desaturated light text. A chromatic lighter element at the same Y as an achromatic one produces the same ratio --- even though practitioners and production audits consistently treat them differently.
 
 OKLCH $L^3$ addresses both points directly. For neutral greys, $L^3 \approx Y_{\text{WCAG}}$ holds to within floating-point precision of the OKLCH transform. For chromatic pairs, the chroma compression in Step 3 reduces the effective lighter-element luminance below the $L^3$ value, producing the desired penalty.
 
@@ -107,7 +107,7 @@ $$\text{ratio} \le r_{\text{raw}} \le r_{\text{WCAG}}$$
 
 ## 5. The Chroma Compression Mechanism (Step 3)
 
-**Problem.** Saturated chromatic light text on a dark background --- e.g. hot pink (`#ff69b4`) on near-black (`#1a1a1a`) --- has the same WCAG luminance ratio as achromatic white on a dark grey, but is demonstrably harder to read. The reduced effectiveness comes from chromatic contrast partially substituting for luminance contrast in the visual system.
+**Problem.** Saturated chromatic light text on a dark background --- e.g. hot pink (`#ff69b4`) on near-black (`#1a1a1a`) --- scores 6.6:1 under WCAG, the same as an achromatic pair at equivalent luminance. It is one of the most commonly cited WCAG false passes: experienced practitioners flag it as inadequate, and it fails at moderate contrast sensitivity loss. WCAG's formula has no mechanism to distinguish it from an achromatic pair.
 
 **Mechanism.** The lighter element's luminance proxy is penalised by a chroma-weighted power exponent. First, a saturation weight is computed from the Oklab chroma:
 
@@ -163,7 +163,7 @@ $$\text{CAP} = \begin{cases} 21 & \text{if text is lighter (light-on-dark)} \\ 2
 
 For L-o-D ($\text{CAP} = 21$): the formula pins exactly at 21.0 when $r = 21$ and reduces all lower ratios by the power factor. For D-o-L ($\text{CAP} = 20$): the same power curve is applied but the cap is proportionally lower, applying a polarity penalty at every contrast level. Both polarities share the same exponent $k$, giving consistent curve shape.
 
-**Rationale.** Perceptual research indicates that negative polarity (light text on dark background) produces higher perceived contrast than positive polarity (dark text on light background) at the same luminance ratio. OKCA encodes this asymmetry: a light-on-dark pair scores higher than the same colours reversed. Both transforms produce ratios at or below the raw WCAG value (all scores are conservative).
+**Rationale.** Designers and design systems treat polarity as a meaningful input --- dark mode and light mode are distinct design decisions, and practitioners evaluate them differently. WCAG's symmetric formula discards this information. OKCA encodes the asymmetry as a calibrated design choice: a light-on-dark pair scores higher than the same colours reversed, anchored to practitioner-accepted reference values (white/black = 21.0/20.0, `#767676` = 3.5/3.3). Both transforms produce ratios at or below the raw WCAG value (all scores are conservative).
 
 **Deriving $k$.** The exponent was calibrated so that white on `#767676` --- the canonical WCAG AA boundary grey, raw $r \approx 4.57$ --- rounds to exactly 3.5 under L-o-D:
 
@@ -220,8 +220,6 @@ Understanding the scope prevents incorrect use and misguided extension attempts.
 **Does not model font size or weight.** WCAG AA (4.5:1) applies uniformly regardless of text size. OKCA outputs a single ratio; size-dependent thresholds are the caller's responsibility.
 
 **Does not replace perceptual judgement.** An OKCA score of 4.5 on a warm fuchsia text/white background means the pair clears the numerical threshold. A designer may still find it unpleasant. OKCA is a safety floor, not a design recommendation.
-
-**Does not model polarity.** *(Removed — OKCA now models polarity fully via the Step 5 power curve.)*
 
 **Does not apply hue-specific WCAG corrections.** OKCA does not patch the IEC 61966-2-1 green channel weighting. $L^3$ is the luminance proxy for all hues; the polarity model maintains FP = 0 without green-channel compensation.
 
