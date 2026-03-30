@@ -20,3 +20,17 @@ proof, achromatic anchor values, and the WCAG disagreement counts.
 Probe test expectations (`probe-curated.spec.ts`,
 `probe-design-systems.spec.ts`) and the oracle
 (`okca-oracle.spec.ts`) must also be updated.
+
+### LaTeX rule — `\texttt{}` must never appear inside `$...$`
+
+When writing a constant name inline with an equation, split the math:
+
+```latex
+% CORRECT
+$k =$ \texttt{POL\_K} $= 1.175$
+
+% WRONG — causes "'_' allowed only in math mode"
+$k = \texttt{POL\_K} = 1.175$
+```
+
+A test in `docs-lint.spec.ts` enforces this automatically.
