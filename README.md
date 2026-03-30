@@ -93,6 +93,10 @@ Tested against 2,587 color pairs across three batteries (light-on-dark, dark-on-
 
 **WCAG disagreements** are pairs where OKCA scores below 4.5 but WCAG scores ≥ 4.5. These are intentional. WCAG's 4.5:1 AA threshold is widely considered too permissive — white on `#767676` (WCAG's own AA boundary anchor) is not production-ready in most real-world designs. All 225 disagreements involve colors in that marginal zone where proximity to the boundary is not the same as being safely above it.
 
+## Further reading
+
+Algorithm design, calibration rationale, FP = 0 proof, and extension guidelines: [`docs/OKCA_DESIGN.md`](docs/OKCA_DESIGN.md).
+
 ## License
 
 MIT
