@@ -103,9 +103,9 @@ zero false passes at production rounding precision (`toFixed(1)`).
 
 OKCA is not a candidate to replace WCAG 3.0 / APCA. It occupies a different
 position: a conservative, deployable improvement that operates within the WCAG 2.x
-frame (same scale, same thresholds, same AA/AAA language) for teams that cannot
-wait for the standards process. It catches what WCAG 2.x misses without asking
-organisations to re-baseline their compliance posture.
+frame (same scale, same thresholds, same AA/AAA language) and is compatible with
+existing compliance postures. It catches what WCAG 2.x misses without requiring
+organisations to re-baseline.
 
 For working group purposes, the algorithm and its calibration corpus are open and
 auditable. The 225-pair disagreement dataset (see `docs/WCAG_DISAGREEMENTS.md`)
