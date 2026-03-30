@@ -324,27 +324,26 @@ Three independent batteries:
 \midrule
 Light-on-dark   & 53      & \textbf{0} & See design-systems for FP\,=\,0 coverage \\
 Dark-on-light   & 54      & \textbf{0} & See design-systems for FP\,=\,0 coverage \\
-Design systems  & 2{,}480 & \textbf{0} & 225 WCAG disagreements (see below) \\
+Design systems  & 1{,}142 & \textbf{0} & 111 WCAG disagreements (see below) \\
 \midrule
-\textbf{Total}  & \textbf{2{,}587} & \textbf{0} & \\
+\textbf{Total}  & \textbf{1{,}249} & \textbf{0} & \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \textbf{False passes are zero}---the non-negotiable invariant holds
-across all 2,587 pairs.
+across all 1,249 pairs.
 
 \textbf{WCAG disagreements} (pairs where OKCA~<~4.5 but
 WCAG~$\ge$~4.5) are intentional and should not be read as
 miscalibration.  WCAG's 4.5:1 AA threshold is widely considered too
 permissive by practitioners.  White on \texttt{\#767676}---the canonical
 WCAG~AA boundary anchor---is not production-ready in most real designs.
-All 225 disagreements involve colours in that marginal zone: proximity
+All 111 disagreements involve colours in that marginal zone: proximity
 to the boundary is not the same as being safely above it.
 
-By system: Tailwind CSS v3.4~(46), Material Design~2 named
-palette~(54), Radix UI Colors~$\ge$3.0.0 light~(61), Radix UI
-Colors~$\ge$3.0.0 dark~(64).  See \texttt{docs/WCAG\_DISAGREEMENTS.md}
+By system: Tailwind CSS v3.4~(46), GOV.UK Design System~(15),
+USWDS v3.x~(50).  See \texttt{docs/WCAG\_DISAGREEMENTS.md}
 for full enumeration with hex values.
 
 %% =====================================================================
@@ -414,7 +413,7 @@ WCAG~2.x has known false passes for warm chromatic text on very dark
 backgrounds.  OKCA catches the two most-cited examples (hot pink, dark
 orange on near-black) via chroma compression and polarity scaling.  It
 does not systematically correct all warm-hue WCAG false passes: the
-design-systems probe registers 225 WCAG disagreements for warm saturated
+design-systems probe registers 111 WCAG disagreements for warm saturated
 families, and no warm-side correction is applied because doing so risks
 introducing false passes for warm chromatic text near the AA boundary.
 

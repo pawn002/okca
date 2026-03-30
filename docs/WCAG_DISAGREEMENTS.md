@@ -1,16 +1,16 @@
 # OKCA / WCAG Disagreements — Reference
 
-**Total: 225 pairs** (Tailwind 46 · Material 54 · Radix-light 61 · Radix-dark 64)
+**Total: 111 pairs** (Tailwind 46 · GOV.UK 15 · USWDS 50)
 
 ### Source versions
 
 | System | Version | Source |
 |--------|---------|--------|
 | Tailwind CSS | v3.4 | `tailwindcss` npm package, default color palette |
-| Material Design | MD2 named palette | [m2.material.io/design/color/the-color-system](https://m2.material.io/design/color/the-color-system.html) — palette unchanged in MD3 |
-| Radix UI Colors | @radix-ui/colors ≥3.0.0 (Oct 2023 rework) | Hex values hardcoded in `probe-design-systems.spec.ts`; cross-reference against that file for exact values |
+| GOV.UK Design System | govuk-frontend (MIT) | [github.com/alphagov/govuk-frontend](https://github.com/alphagov/govuk-frontend) `_colours-palette.scss` |
+| US Web Design System | USWDS v3.x (MIT) | [github.com/uswds/uswds](https://github.com/uswds/uswds) `packages/uswds-core/src/styles/tokens/color/` |
 
-All 225 are pairs where OKCA scores below 4.5 AA but WCAG scores ≥ 4.5. These are intentional — they represent colours in the marginal zone that WCAG's threshold passes but real-world practitioners routinely reject. Every entry appears as both a L-o-D pair (white text on colour) and a D-o-L pair (colour on white), each scored separately due to OKCA's polarity model.
+All 111 are pairs where OKCA scores below 4.5 AA but WCAG scores ≥ 4.5. These are intentional — they represent colours in the marginal zone that WCAG's threshold passes but real-world practitioners routinely reject. Every entry appears as both a L-o-D pair (white text on colour) and a D-o-L pair (colour on white), each scored separately due to OKCA's polarity model, unless otherwise noted.
 
 WCAG score shown is symmetric. OKCA scores differ by polarity — L-o-D is always slightly higher than D-o-L for the same colour.
 
@@ -83,89 +83,109 @@ Blue and indigo hues are perceptually darker than their WCAG luminance suggests 
 
 ---
 
-## Material Design 2 named palette — 54 disagreements
+## GOV.UK Design System — 15 disagreements
 
-Scale runs 50–900 plus accent variants (A100–A700). The disagreements cluster around 700–800 for most hues, and A-level accents (which are often highly saturated).
+The GOV.UK Design System makes explicit WCAG 2.2 AA compliance claims and documents approved text-on-background pairings. These 15 disagreements are mid-range chromatic primaries and shades that sit near WCAG's threshold.
 
-### Red / orange family (12 pairs — 6 colours × 2 polarities)
+### Blue / teal (4 pairs)
 
-| Colour | Hex | WCAG | OKCA L-o-D | OKCA D-o-L |
-|--------|-----|-----:|----------:|----------:|
-| red-700 | `#d32f2f` | 5.0 | 3.4 | 3.3 |
-| red-800 | `#c62828` | 5.6 | 4.0 | 3.8 |
-| red-A700 | `#d50000` | 5.5 | 3.8 | 3.6 |
-| deepOrange-900 | `#bf360c` | 5.6 | 4.0 | 3.8 |
-| deepOrange-A700 | `#dd2c00` | 4.7 | 3.2 | 3.1 |
-| lime-900 | `#827717` | 4.6 | 3.5 | 3.4 |
+| Colour | Token | Hex | WCAG | OKCA L-o-D | OKCA D-o-L |
+|--------|-------|-----|-----:|----------:|----------:|
+| blue | primary | `#1d70b8` | 5.2 | 4.1 | 3.9 |
+| teal | primary | `#158187` | 4.6 | 3.7 | 3.6 |
+
+Both directions fail for both colours (2 × 2 = 4 pairs total). GOV.UK blue is the brand/link colour; GOV.UK teal is a secondary brand hue.
 
 ---
 
-### Pink / magenta family (8 pairs — 4 colours × 2 polarities)
+### Green (1 pair — D-o-L only)
 
-| Colour | Hex | WCAG | OKCA L-o-D | OKCA D-o-L |
-|--------|-----|-----:|----------:|----------:|
-| pink-600 | `#d81b60` | 4.9 | 3.3 | 3.2 |
-| pink-700 | `#c2185b` | 5.9 | 4.1 | 3.9 |
-| pink-A700 | `#c51162` | 5.8 | 4.0 | 3.8 |
-| purple-A700 | `#aa00ff` | 5.1 | 3.2 | 3.1 |
+| Colour | Token | Hex | WCAG | OKCA L-o-D | OKCA D-o-L |
+|--------|-------|-----|-----:|----------:|----------:|
+| green | primary | `#0f7a52` | 5.3 | 4.5 | 4.3 |
 
----
-
-### Purple / indigo / blue family (16 pairs — 8 colours × 2 polarities, minus 1 L-o-D only)
-
-| Colour | Hex | WCAG | OKCA L-o-D | OKCA D-o-L |
-|--------|-----|-----:|----------:|----------:|
-| purple-400 | `#ab47bc` | 4.8 | 3.3 | 3.1 |
-| purple-500 | `#9c27b0` | 6.3 | 4.4 | 4.2 |
-| deepPurple-400 | `#7e57c2` | 5.2 | 3.8 | 3.6 |
-| deepPurple-A200 | `#7c4dff` | 4.8 | 3.3 | 3.1 |
-| deepPurple-A400 D-o-L only | `#651fff` | 6.6 | — | 4.3 |
-| indigo-400 | `#5c6bc0` | 4.9 | 3.6 | 3.5 |
-| indigo-A400 | `#3d5afe` | 5.1 | 3.7 | 3.5 |
-| indigo-A700 | `#304ffe` | 5.7 | 4.1 | 3.9 |
-| blue-700 | `#1976d2` | 4.6 | 3.5 | 3.3 |
-| blue-800 D-o-L only | `#1565c0` | 5.7 | — | 4.3 |
-| blue-A700 | `#2962ff` | 4.9 | 3.5 | 3.4 |
-| lightBlue-800 | `#0277bd` | 4.8 | 3.7 | 3.5 |
+Green-primary scores exactly 4.5 L-o-D (passes) but 4.3 D-o-L (fails). The single disagreement is the dark-on-light direction only.
 
 ---
 
-### Teal / cyan / green (10 pairs — 5 colours × 2 polarities)
+### Purple / magenta / red (6 pairs)
 
-| Colour | Hex | WCAG | OKCA L-o-D | OKCA D-o-L |
-|--------|-----|-----:|----------:|----------:|
-| cyan-800 | `#00838f` | 4.5 | 3.5 | 3.4 |
-| teal-700 | `#00796b` | 5.3 | 4.3 | 4.1 |
-| green-800 | `#2e7d32` | 5.1 | 4.1 | 3.9 |
-| brown-400 | `#8d6e63` | 4.6 | 3.5 | 3.3 |
-| grey-600 | `#757575` | 4.6 | 3.5 | 3.4 |
-| blueGrey-600 | `#546e7a` | 5.4 | 4.3 | 4.1 |
+| Colour | Token | Hex | WCAG | OKCA L-o-D | OKCA D-o-L |
+|--------|-------|-----|-----:|----------:|----------:|
+| purple | tint-25 | `#7f65b7` | 4.7 | 3.4 | 3.3 |
+| magenta | primary | `#ca357c` | 4.9 | 3.3 | 3.2 |
+| red | primary | `#ca3535` | 5.2 | 3.6 | 3.4 |
+
+Both directions for all three (3 × 2 = 6 pairs). Purple tint-25 and magenta are penalised heavily by chroma compression; red sits in the same mid-range chromatic zone as Tailwind red-600.
 
 ---
 
-## Radix UI Colors ≥3.0.0 — 61 (light) + 64 (dark) disagreements
+### Orange / yellow (4 pairs)
 
-Radix uses APCA as its contrast standard, not WCAG. Published accessibility guarantees cover only steps 11–12 for text on step-2 backgrounds within the same family. Steps 9–10 are solid-fill and interactive-state colours intended for backgrounds, borders, and non-text uses — not for text on white.
+| Colour | Token | Hex | WCAG | OKCA L-o-D | OKCA D-o-L |
+|--------|-------|-----|-----:|----------:|----------:|
+| orange | shade-25 | `#b7592a` | 4.7 | 3.4 | 3.2 |
+| yellow | shade-50 | `#806f00` | 5.0 | 3.9 | 3.7 |
 
-The 61 light and 64 dark Radix disagreements are almost entirely step-9 and step-10 entries paired against white. They are included in the disagreement count for completeness but carry less practitioner weight: Radix itself does not claim these are accessible text combinations.
+Both directions for both colours (2 × 2 = 4 pairs).
+
+---
+
+## USWDS v3.x — 50 disagreements
+
+USWDS makes explicit WCAG 2.x AA compliance claims and provides pre-approved accessible colour combinations via its theme token system. The 50 disagreements are uniformly the grade-50 shade across every chromatic family plus all three gray families. Grade 50 is designed to be the "mid-point" of each scale and sits at WCAG ≈ 4.6 for every family — just above the 4.5 threshold.
+
+### Pattern: grade-50 across all 25 chromatic + gray families (50 pairs — 25 colours × 2 polarities)
+
+All entries are at grade 50 (the mid-range shade in the USWDS scale), paired with white in both directions.
+
+| Family | Hex | WCAG | OKCA L-o-D | OKCA D-o-L |
+|--------|-----|-----:|----------:|----------:|
+| red-cool | `#cd425b` | 4.6 | 3.2 | 3.0 |
+| red | `#d83933` | 4.6 | 3.2 | 3.0 |
+| red-warm | `#c3512c` | 4.6 | 3.3 | 3.1 |
+| orange-warm | `#bd5727` | 4.6 | 3.3 | 3.1 |
+| orange | `#a86437` | 4.6 | 3.4 | 3.2 |
+| gold | `#8e704f` | 4.6 | 3.5 | 3.3 |
+| yellow | `#8a7237` | 4.6 | 3.5 | 3.4 |
+| green-warm | `#6f7a41` | 4.6 | 3.6 | 3.5 |
+| green | `#607f35` | 4.6 | 3.7 | 3.5 |
+| green-cool | `#4d8055` | 4.6 | 3.7 | 3.5 |
+| mint | `#2e8367` | 4.6 | 3.7 | 3.6 |
+| mint-cool | `#40807e` | 4.6 | 3.6 | 3.5 |
+| cyan | `#168092` | 4.6 | 3.7 | 3.5 |
+| blue-cool | `#3a7d95` | 4.6 | 3.6 | 3.5 |
+| blue | `#2378c3` | 4.6 | 3.6 | 3.4 |
+| blue-warm | `#4a77b4` | 4.6 | 3.5 | 3.3 |
+| indigo-cool | `#496fd8` | 4.6 | 3.4 | 3.3 |
+| indigo | `#676cc8` | 4.6 | 3.4 | 3.2 |
+| indigo-warm | `#7665d1` | 4.6 | 3.3 | 3.2 |
+| violet | `#8168b3` | 4.6 | 3.4 | 3.2 |
+| violet-warm | `#b04abd` | 4.6 | 3.1 | 3.0 |
+| magenta | `#c84281` | 4.6 | 3.2 | 3.0 |
+| gray-cool | `#71767a` | 4.6 | 3.5 | 3.4 |
+| gray | `#757575` | 4.6 | 3.5 | 3.4 |
+| gray-warm | `#76766a` | 4.6 | 3.5 | 3.4 |
+
+**Pattern:** USWDS grade 50 is calibrated to land at exactly WCAG 4.6 — 0.1 above the threshold — across the entire palette. This is by design: grade 50 is intended as a background or accent colour, not a text colour. OKCA scores these at 3.0–3.7, consistently below AA. The uniformity here (every family, same grade, same WCAG score) demonstrates that USWDS grade 50 sits at the same marginal position as white on `#767676`.
 
 ---
 
 ## Cross-system observations
 
 ### Where OKCA and WCAG agree most
-- Deep darks (shade 700–950 in Tailwind, 700–900 in Material) generally pass both
+- Deep darks (shade 700–950 in Tailwind, grade 60–90 in USWDS) generally pass both
 - Lights and near-whites pass both trivially
-- Achromatic pairs above shade 600 pass both
+- Achromatic pairs above USWDS grade 60 pass both
 
 ### Where OKCA consistently disagrees
 1. **Gray 500 zone** — the entire Tailwind neutral scale at 500 (~4.7–4.8 WCAG). These are the most important disagreements from a practitioner standpoint.
-2. **Saturated chromatics at medium depth** — any hue with high chroma at a luminance level that puts it near the WCAG boundary. The chroma compression penalty is largest here.
-3. **Blue / indigo / purple hues** — perceptually darker than luminance alone predicts; OKCA's chroma penalty compounds with perceived weight, producing gaps of 1.5–2.0 points against WCAG.
-4. **Warm accent saturates** — Material's A-level accents (A400, A700) are highly saturated; chroma compression hits them hard regardless of their nominal luminance.
+2. **USWDS grade 50 across all families** — calibrated to WCAG ≈ 4.6 system-wide. A single threshold shift of 0.1 WCAG points separates these from USWDS grade 40 (which passes both).
+3. **Saturated chromatics at medium depth** — any hue with high chroma at a luminance level that puts it near the WCAG boundary. The chroma compression penalty is largest here.
+4. **Blue / indigo / purple hues** — perceptually darker than luminance alone predicts; OKCA's chroma penalty compounds with perceived weight, producing gaps of 1.5–2.0 points against WCAG.
 
 ### The D-o-L asymmetry
-Every colour in this document appears as both a L-o-D and D-o-L failure. The polarity model means D-o-L scores are consistently 0.1–0.3 below L-o-D scores for the same colour. White-on-colour fails for the same reason colour-on-white fails — these pairs are marginal in either direction.
+Every colour in this document appears as both a L-o-D and D-o-L failure (with rare exceptions where one direction scores exactly 4.5). The polarity model means D-o-L scores are consistently 0.1–0.3 below L-o-D scores for the same colour. White-on-colour fails for the same reason colour-on-white fails — these pairs are marginal in either direction.
 
 ### Practitioner benchmark
 The canonical marginal pair — white on `#767676` — scores WCAG 4.5, OKCA 3.5 (L-o-D). Everything in this document is in the same zone or worse. A designer who accepts `#767676` as passing AA is accepting the same risk for every entry here.

@@ -181,14 +181,14 @@ Three independent batteries:
 |---------|------:|:--:|:------------------:|-------|
 | Light-on-dark | 53 | **0** | — | See design-systems for FP=0 coverage |
 | Dark-on-light | 54 | **0** | — | See design-systems for FP=0 coverage |
-| Design systems | 2,480 | **0** | 225 | See note below |
-| **Total** | **2,587** | **0** | **225** | |
+| Design systems | 1,142 | **0** | 111 | See note below |
+| **Total** | **1,249** | **0** | **111** | |
 
-**False passes are zero** --- the non-negotiable invariant holds across all 2,587 pairs.
+**False passes are zero** --- the non-negotiable invariant holds across all 1,249 pairs.
 
-**WCAG disagreements** (pairs where OKCA < 4.5 but WCAG ≥ 4.5) are intentional and should not be read as miscalibration. WCAG's 4.5:1 AA threshold is widely considered too permissive by practitioners. White on `#767676` --- the canonical WCAG AA boundary anchor --- is not production-ready in most real designs. All 225 disagreements involve colours in that marginal zone: proximity to the boundary is not the same as being safely above it.
+**WCAG disagreements** (pairs where OKCA < 4.5 but WCAG ≥ 4.5) are intentional and should not be read as miscalibration. WCAG's 4.5:1 AA threshold is widely considered too permissive by practitioners. White on `#767676` --- the canonical WCAG AA boundary anchor --- is not production-ready in most real designs. All 111 disagreements involve colours in that marginal zone: proximity to the boundary is not the same as being safely above it.
 
-By system: Tailwind CSS v3.4 (46), Material Design 2 named palette (54), Radix UI Colors ≥3.0.0 light (61), Radix UI Colors ≥3.0.0 dark (64). See `docs/WCAG_DISAGREEMENTS.md` for full enumeration with hex values.
+By system: Tailwind CSS v3.4 (46), GOV.UK Design System (15), USWDS v3.x (50). See `docs/WCAG_DISAGREEMENTS.md` for full enumeration with hex values.
 
 ---
 

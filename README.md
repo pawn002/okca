@@ -80,18 +80,18 @@ OKCA corrects both while guaranteeing **FP = 0** — OKCA never approves a pair 
 
 ## Validation
 
-Tested against 2,587 color pairs across three batteries (light-on-dark, dark-on-light, design systems from Tailwind/Material/Radix):
+Tested against 1,249 color pairs across three batteries (light-on-dark, dark-on-light, design systems from Tailwind/GOV.UK/USWDS):
 
 | Battery | Pairs | False Passes | WCAG Disagreements |
 |---------|------:|:------------:|:-----------------:|
 | Light-on-dark | 53 | 0 | — |
 | Dark-on-light | 54 | 0 | — |
-| Design systems | 2,480 | 0 | 225 |
-| **Total** | **2,587** | **0** | **225** |
+| Design systems | 1,142 | 0 | 111 |
+| **Total** | **1,249** | **0** | **111** |
 
 **False passes: zero.** OKCA never approves a pair that WCAG rejects.
 
-**WCAG disagreements** are pairs where OKCA scores below 4.5 but WCAG scores ≥ 4.5. These are intentional. WCAG's 4.5:1 AA threshold is widely considered too permissive — white on `#767676` (WCAG's own AA boundary anchor) is not production-ready in most real-world designs. All 225 disagreements involve colors in that marginal zone where proximity to the boundary is not the same as being safely above it.
+**WCAG disagreements** are pairs where OKCA scores below 4.5 but WCAG scores ≥ 4.5. These are intentional. WCAG's 4.5:1 AA threshold is widely considered too permissive — white on `#767676` (WCAG's own AA boundary anchor) is not production-ready in most real-world designs. All 111 disagreements involve colors in that marginal zone where proximity to the boundary is not the same as being safely above it.
 
 ## Further reading
 

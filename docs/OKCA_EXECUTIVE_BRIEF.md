@@ -25,8 +25,8 @@ reach production, where real users with contrast sensitivity loss cannot read th
 OKCA is a drop-in contrast algorithm that closes both gaps while preserving the
 familiar 1–21 scale and AA/AAA thresholds. It introduces no new compliance vocabulary.
 Its central guarantee — that it never passes a pair WCAG fails — is proven from the
-algorithm's structure, not inferred from test coverage. A 2,587-pair audit across
-Tailwind, Material Design, and Radix UI found zero false passes and flagged 225 pairs
+algorithm's structure, not inferred from test coverage. A 1,249-pair audit across
+Tailwind, GOV.UK Design System, and USWDS found zero false passes and flagged 111 pairs
 that WCAG passes but practitioners consistently reject as inadequate.
 
 ---
@@ -54,8 +54,8 @@ green channel, which does not translate cleanly to chromatic legibility. The res
 is a systematic over-rating of vivid lighter elements in negative polarity.
 
 These are not rare conditions. A structured audit of three production design systems
-— Tailwind CSS v3.4, Material Design 2 named palette, Radix UI Colors ≥3.0.0 —
-found **225 pairs** that pass WCAG 2.x AA while sitting in the marginal zone
+— Tailwind CSS v3.4, GOV.UK Design System, and USWDS v3.x —
+found **111 pairs** that pass WCAG 2.x AA while sitting in the marginal zone
 practitioners and user research consistently flag as inadequate.
 
 ---
@@ -94,7 +94,7 @@ curve `CAP × (r/21)^k` satisfies `ratio ≤ r_raw ≤ r_WCAG` for k ≥ 1 and C
 by construction. Any pair WCAG 2.x fails, OKCA also fails — no exceptions,
 no heuristic boundary.
 
-The 2,587-pair test battery (curated probes + Tailwind, Material, Radix) confirms
+The 1,249-pair test battery (curated probes + Tailwind, GOV.UK, USWDS) confirms
 zero false passes at production rounding precision (`toFixed(1)`).
 
 ---
@@ -108,7 +108,7 @@ existing compliance postures. It catches what WCAG 2.x misses without requiring
 organisations to re-baseline.
 
 For working group purposes, the algorithm and its calibration corpus are open and
-auditable. The 225-pair disagreement dataset (see `docs/WCAG_DISAGREEMENTS.md`)
+auditable. The 111-pair disagreement dataset (see `docs/WCAG_DISAGREEMENTS.md`)
 documents exactly where OKCA and WCAG 2.x diverge, by design system, colour family,
 and polarity — a resource for empirical comparison with APCA scoring on the same
 pairs.
@@ -125,5 +125,5 @@ pairs.
 | Polarity | Symmetric | Asymmetric |
 | Chromatic lighter element | Over-rated | Chroma-penalised |
 | False passes vs. WCAG 2.x | Reference | **Zero (proven)** |
-| Marginal pairs flagged in audit | 0 of 225 | 225 of 225 |
+| Marginal pairs flagged in audit | 0 of 111 | 111 of 111 |
 | Deployable today | Yes | Yes |

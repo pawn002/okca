@@ -1,8 +1,8 @@
 /**
- * Design-system probe battery — 2,480 pairs from real-world palettes.
+ * Design-system probe battery — pairs from real-world palettes.
  *
- * Source: docs/probe-design-systems.mjs
- * Palettes: Tailwind CSS v3.4, Material Design 2 named palette, @radix-ui/colors ≥3.0.0 (light + dark)
+ * Palettes: Tailwind CSS v3.4, GOV.UK Design System (govuk-frontend MIT),
+ *           US Web Design System v3.x (USWDS, MIT)
  *
  * Tests the critical invariant: OKCA must never produce a false pass
  * (OKCA ≥ 4.5 when WCAG < 4.5). Also pins WCAG-disagreement counts per
@@ -16,17 +16,15 @@
  *
  * Disagreement character varies by system:
  *
- * - Tailwind and Material present mid-range chromatic shades (500–700) as
- *   general-purpose colours without pairing restrictions. Their 48 and 54
- *   disagreements respectively are the most meaningful: these are colours
- *   a designer might genuinely reach for as text or icon colour.
+ * - Tailwind presents mid-range chromatic shades (500–700) as general-purpose
+ *   colours without pairing restrictions. Its disagreements are the most
+ *   practitioner-relevant: these are colours a designer might reach for as
+ *   text or icon colour.
  *
- * - Radix UI uses APCA (not WCAG) as its contrast standard and publishes
- *   explicit guarantees only for steps 11–12 on same-family step-2
- *   backgrounds. Steps 9–10 are solid-fill / interactive-state colours,
- *   not intended as text on white. The 67 (light) and 66 (dark) Radix
- *   disagreements are almost entirely step-9/10 pairs that Radix itself
- *   does not claim are accessible text combinations.
+ * - GOV.UK and USWDS disagreements are mid-range chromatic shades that land
+ *   in WCAG's marginal zone. Both systems make explicit WCAG 2.x AA claims
+ *   and document approved text pairings; disagreements here identify shades
+ *   that pass WCAG's threshold but sit close to its boundary.
  *
  * WCAG 2.x relative luminance is computed inline (no colorjs dependency)
  * so we can cross-check OKCA scores independently.
@@ -75,95 +73,52 @@ const TAILWIND: Record<string, Record<string, string>> = {
   rose:    { 50:'#fff1f2',100:'#ffe4e6',200:'#fecdd3',300:'#fda4af',400:'#fb7185',500:'#f43f5e',600:'#e11d48',700:'#be123c',800:'#9f1239',900:'#881337',950:'#4c0519' },
 };
 
-const MATERIAL: Record<string, Record<string, string>> = {
-  red:        { 50:'#ffebee',100:'#ffcdd2',200:'#ef9a9a',300:'#e57373',400:'#ef5350',500:'#f44336',600:'#e53935',700:'#d32f2f',800:'#c62828',900:'#b71c1c',A100:'#ff8a80',A200:'#ff5252',A400:'#ff1744',A700:'#d50000' },
-  pink:       { 50:'#fce4ec',100:'#f8bbd0',200:'#f48fb1',300:'#f06292',400:'#ec407a',500:'#e91e63',600:'#d81b60',700:'#c2185b',800:'#ad1457',900:'#880e4f',A100:'#ff80ab',A200:'#ff4081',A400:'#f50057',A700:'#c51162' },
-  purple:     { 50:'#f3e5f5',100:'#e1bee7',200:'#ce93d8',300:'#ba68c8',400:'#ab47bc',500:'#9c27b0',600:'#8e24aa',700:'#7b1fa2',800:'#6a1b9a',900:'#4a148c',A100:'#ea80fc',A200:'#e040fb',A400:'#d500f9',A700:'#aa00ff' },
-  deepPurple: { 50:'#ede7f6',100:'#d1c4e9',200:'#b39ddb',300:'#9575cd',400:'#7e57c2',500:'#673ab7',600:'#5e35b1',700:'#512da8',800:'#4527a0',900:'#311b92',A100:'#b388ff',A200:'#7c4dff',A400:'#651fff',A700:'#6200ea' },
-  indigo:     { 50:'#e8eaf6',100:'#c5cae9',200:'#9fa8da',300:'#7986cb',400:'#5c6bc0',500:'#3f51b5',600:'#3949ab',700:'#303f9f',800:'#283593',900:'#1a237e',A100:'#8c9eff',A200:'#536dfe',A400:'#3d5afe',A700:'#304ffe' },
-  blue:       { 50:'#e3f2fd',100:'#bbdefb',200:'#90caf9',300:'#64b5f6',400:'#42a5f5',500:'#2196f3',600:'#1e88e5',700:'#1976d2',800:'#1565c0',900:'#0d47a1',A100:'#82b1ff',A200:'#448aff',A400:'#2979ff',A700:'#2962ff' },
-  lightBlue:  { 50:'#e1f5fe',100:'#b3e5fc',200:'#81d4fa',300:'#4fc3f7',400:'#29b6f6',500:'#03a9f4',600:'#039be5',700:'#0288d1',800:'#0277bd',900:'#01579b',A100:'#80d8ff',A200:'#40c4ff',A400:'#00b0ff',A700:'#0091ea' },
-  cyan:       { 50:'#e0f7fa',100:'#b2ebf2',200:'#80deea',300:'#4dd0e1',400:'#26c6da',500:'#00bcd4',600:'#00acc1',700:'#0097a7',800:'#00838f',900:'#006064',A100:'#84ffff',A200:'#18ffff',A400:'#00e5ff',A700:'#00b8d4' },
-  teal:       { 50:'#e0f2f1',100:'#b2dfdb',200:'#80cbc4',300:'#4db6ac',400:'#26a69a',500:'#009688',600:'#00897b',700:'#00796b',800:'#00695c',900:'#004d40',A100:'#a7ffeb',A200:'#64ffda',A400:'#1de9b6',A700:'#00bfa5' },
-  green:      { 50:'#e8f5e9',100:'#c8e6c9',200:'#a5d6a7',300:'#81c784',400:'#66bb6a',500:'#4caf50',600:'#43a047',700:'#388e3c',800:'#2e7d32',900:'#1b5e20',A100:'#b9f6ca',A200:'#69f0ae',A400:'#00e676',A700:'#00c853' },
-  lightGreen: { 50:'#f1f8e9',100:'#dcedc8',200:'#c5e1a5',300:'#aed581',400:'#9ccc65',500:'#8bc34a',600:'#7cb342',700:'#689f38',800:'#558b2f',900:'#33691e',A100:'#ccff90',A200:'#b2ff59',A400:'#76ff03',A700:'#64dd17' },
-  lime:       { 50:'#f9fbe7',100:'#f0f4c3',200:'#e6ee9c',300:'#dce775',400:'#d4e157',500:'#cddc39',600:'#c0ca33',700:'#afb42b',800:'#9e9d24',900:'#827717',A100:'#f4ff81',A200:'#eeff41',A400:'#c6ff00',A700:'#aeea00' },
-  yellow:     { 50:'#fffde7',100:'#fff9c4',200:'#fff59d',300:'#fff176',400:'#ffee58',500:'#ffeb3b',600:'#fdd835',700:'#fbc02d',800:'#f9a825',900:'#f57f17',A100:'#ffff8d',A200:'#ffff00',A400:'#ffea00',A700:'#ffd600' },
-  amber:      { 50:'#fff8e1',100:'#ffecb3',200:'#ffe082',300:'#ffd54f',400:'#ffca28',500:'#ffc107',600:'#ffb300',700:'#ffa000',800:'#ff8f00',900:'#ff6f00',A100:'#ffe57f',A200:'#ffd740',A400:'#ffc400',A700:'#ffab00' },
-  orange:     { 50:'#fff3e0',100:'#ffe0b2',200:'#ffcc80',300:'#ffb74d',400:'#ffa726',500:'#ff9800',600:'#fb8c00',700:'#f57c00',800:'#ef6c00',900:'#e65100',A100:'#ffd180',A200:'#ffab40',A400:'#ff9100',A700:'#ff6d00' },
-  deepOrange: { 50:'#fbe9e7',100:'#ffccbc',200:'#ffab91',300:'#ff8a65',400:'#ff7043',500:'#ff5722',600:'#f4511e',700:'#e64a19',800:'#d84315',900:'#bf360c',A100:'#ff9e80',A200:'#ff6e40',A400:'#ff3d00',A700:'#dd2c00' },
-  brown:      { 50:'#efebe9',100:'#d7ccc8',200:'#bcaaa4',300:'#a1887f',400:'#8d6e63',500:'#795548',600:'#6d4c41',700:'#5d4037',800:'#4e342e',900:'#3e2723' },
-  grey:       { 50:'#fafafa',100:'#f5f5f5',200:'#eeeeee',300:'#e0e0e0',400:'#bdbdbd',500:'#9e9e9e',600:'#757575',700:'#616161',800:'#424242',900:'#212121' },
-  blueGrey:   { 50:'#eceff1',100:'#cfd8dc',200:'#b0bec5',300:'#90a4ae',400:'#78909c',500:'#607d8b',600:'#546e7a',700:'#455a64',800:'#37474f',900:'#263238' },
+// GOV.UK Design System — govuk-frontend (MIT). Explicit WCAG 2.2 AA claims.
+// Source: github.com/alphagov/govuk-frontend _colours-palette.scss
+const GOVUK: Record<string, Record<string, string>> = {
+  blue:    { primary:'#1d70b8', shade10:'#1a65a6', shade25:'#16548a', shade50:'#0f385c', tint25:'#5694ca', tint50:'#8eb8dc', tint80:'#d2e2f1', tint95:'#f4f8fb' },
+  green:   { primary:'#0f7a52', shade25:'#0b5c3e', shade50:'#083d29', tint25:'#4b9b7d', tint50:'#87bca8', tint80:'#cfe4dc', tint95:'#f3f8f6' },
+  teal:    { primary:'#158187', shade25:'#106165', shade50:'#0b4144', tint25:'#50a1a5', tint50:'#8ac0c3', tint80:'#d0e6e7', tint95:'#f3f9f9' },
+  purple:  { primary:'#54319f', shade25:'#3f2577', shade50:'#2a1950', tint25:'#7f65b7', tint50:'#aa98cf', tint80:'#ddd6ec', tint95:'#f6f5fa' },
+  magenta: { primary:'#ca357c', shade25:'#98285d', shade50:'#651b3e', tint25:'#d7689d', tint50:'#e59abe', tint80:'#f4d7e5', tint95:'#fcf5f8' },
+  red:     { primary:'#ca3535', shade25:'#982828', shade50:'#651b1b', tint25:'#d76868', tint50:'#e59a9a', tint80:'#f4d7d7', tint95:'#fcf5f5' },
+  orange:  { primary:'#f47738', shade25:'#b7592a', shade50:'#7a3c1c', tint25:'#f7996a', tint50:'#fabb9c', tint80:'#fde4d7', tint95:'#fef8f5' },
+  yellow:  { primary:'#ffdd00', shade25:'#bfa600', shade50:'#806f00', tint25:'#ffe640', tint50:'#ffee80', tint80:'#fff8cc', tint95:'#fffdf2' },
+  brown:   { primary:'#99704a', tint25:'#b39477', tint50:'#ccb8a5', tint95:'#faf8f6' },
+  grey:    { black:'#0b0c0c', tint25:'#484949', tint50:'#858686', tint80:'#cecece', tint95:'#f3f3f3' },
 };
 
-const RADIX_LIGHT: Record<string, Record<string, string>> = {
-  gray:    {'1':'#fcfcfc','2':'#f9f9f9','3':'#f0f0f0','4':'#e8e8e8','5':'#e0e0e0','6':'#d9d9d9','7':'#cecece','8':'#bbbbbb','9':'#8d8d8d','10':'#838383','11':'#646464','12':'#202020'},
-  mauve:   {'1':'#fdfcfd','2':'#faf9fb','3':'#f2eff3','4':'#eae7ec','5':'#e3dfe6','6':'#dbd8e0','7':'#d0cdd7','8':'#bcbac7','9':'#8e8c99','10':'#84828e','11':'#65636d','12':'#211f26'},
-  slate:   {'1':'#fcfcfd','2':'#f9f9fb','3':'#f0f0f3','4':'#e8e8ec','5':'#e0e1e6','6':'#d9d9e0','7':'#cdced6','8':'#b9bbc6','9':'#8b8d98','10':'#80838d','11':'#60646c','12':'#1c2024'},
-  sage:    {'1':'#fbfdfc','2':'#f7f9f8','3':'#eef1f0','4':'#e6e9e8','5':'#dfe2e0','6':'#d7dad9','7':'#cbcfcd','8':'#b8bcba','9':'#868e8b','10':'#7c8481','11':'#5f6563','12':'#1a211e'},
-  olive:   {'1':'#fcfdfc','2':'#f8faf8','3':'#eff1ef','4':'#e7e9e7','5':'#dfe2df','6':'#d7dad7','7':'#cccfcc','8':'#b9bcb8','9':'#898e87','10':'#7f847d','11':'#60655f','12':'#1d211c'},
-  sand:    {'1':'#fdfdfc','2':'#f9f9f8','3':'#f1f0ef','4':'#e9e8e6','5':'#e2e1de','6':'#dad9d6','7':'#cfceca','8':'#bcbbb5','9':'#8d8d86','10':'#82827c','11':'#63635e','12':'#21201c'},
-  tomato:  {'1':'#fffcfc','2':'#fff8f7','3':'#feebe7','4':'#ffdcd3','5':'#ffcdc2','6':'#fdbdaf','7':'#f5a898','8':'#ec8e7b','9':'#e54d2e','10':'#dd4425','11':'#d13415','12':'#5c271f'},
-  red:     {'1':'#fffcfc','2':'#fff7f7','3':'#feebec','4':'#ffdbdc','5':'#ffcdce','6':'#fdbdbe','7':'#f4a9aa','8':'#eb8e90','9':'#e5484d','10':'#dc3e42','11':'#ce2c31','12':'#641723'},
-  ruby:    {'1':'#fffcfd','2':'#fff7f8','3':'#feeaed','4':'#ffdce1','5':'#ffced6','6':'#f8bfc8','7':'#efacb8','8':'#e592a3','9':'#e54666','10':'#dc3b5d','11':'#ca244d','12':'#64172b'},
-  crimson: {'1':'#fffcfd','2':'#fef7f9','3':'#ffe9f0','4':'#fedce7','5':'#facedd','6':'#f3bed1','7':'#eaacc3','8':'#e093b2','9':'#e93d82','10':'#df3478','11':'#cb1d63','12':'#621639'},
-  pink:    {'1':'#fffcfe','2':'#fef7fb','3':'#fee9f5','4':'#fbdcef','5':'#f6cee7','6':'#efbfdd','7':'#e7acd0','8':'#dd93c2','9':'#d6409f','10':'#cf3897','11':'#c2298a','12':'#651249'},
-  plum:    {'1':'#fefcff','2':'#fdf7fd','3':'#fbebfb','4':'#f7def8','5':'#f2d1f3','6':'#e9c2ec','7':'#deade3','8':'#cf91d8','9':'#ab4aba','10':'#a144af','11':'#953ea3','12':'#53195d'},
-  purple:  {'1':'#fefcfe','2':'#fbf7fe','3':'#f7edfe','4':'#f2e2fc','5':'#ead5f9','6':'#e0c4f4','7':'#d1afec','8':'#be93e4','9':'#8e4ec6','10':'#8347b9','11':'#8145b5','12':'#402060'},
-  violet:  {'1':'#fdfcfe','2':'#faf8ff','3':'#f4f0fe','4':'#ebe4ff','5':'#e1d9ff','6':'#d4cafe','7':'#c2b5f5','8':'#aa99ec','9':'#6e56cf','10':'#654dc4','11':'#6550b9','12':'#2f265f'},
-  iris:    {'1':'#fdfdff','2':'#f8f8ff','3':'#f0f1fe','4':'#e6e7ff','5':'#dadcff','6':'#cbcdff','7':'#b8baf8','8':'#9b9ef0','9':'#5b5bd6','10':'#5151cd','11':'#5753c6','12':'#272962'},
-  indigo:  {'1':'#fdfdfe','2':'#f7f9ff','3':'#edf2fe','4':'#e1e9ff','5':'#d2deff','6':'#c1d0ff','7':'#abbdf9','8':'#8da4ef','9':'#3e63dd','10':'#3358d4','11':'#3a5bc7','12':'#1f2d5c'},
-  blue:    {'1':'#fbfdff','2':'#f4faff','3':'#e6f4fe','4':'#d5efff','5':'#c2e5ff','6':'#acd8fc','7':'#8ec8f6','8':'#5eb1ef','9':'#0090ff','10':'#0588f0','11':'#0d74ce','12':'#113264'},
-  cyan:    {'1':'#fafdfe','2':'#f2fafb','3':'#def7f9','4':'#caf1f6','5':'#b5e9f0','6':'#9ddde7','7':'#7dcedc','8':'#3db9cf','9':'#00a2c7','10':'#0797b9','11':'#107d98','12':'#0d3c48'},
-  teal:    {'1':'#fafefd','2':'#f3fbf9','3':'#e0f8f3','4':'#ccf3ea','5':'#b8eae0','6':'#a1ded2','7':'#83cdc1','8':'#53b9ab','9':'#12a594','10':'#0d9b8a','11':'#008573','12':'#0d3d38'},
-  jade:    {'1':'#fbfefd','2':'#f4fbf7','3':'#e6f7ed','4':'#d6f1e3','5':'#c3e9d7','6':'#acdec8','7':'#8bceb6','8':'#56ba9f','9':'#29a383','10':'#26997b','11':'#208368','12':'#1d3b31'},
-  green:   {'1':'#fbfefc','2':'#f4fbf6','3':'#e6f6eb','4':'#d6f1df','5':'#c4e8d1','6':'#adddc0','7':'#8eceaa','8':'#5bb98b','9':'#30a46c','10':'#2b9a66','11':'#218358','12':'#193b2d'},
-  grass:   {'1':'#fbfefb','2':'#f5fbf5','3':'#e9f6e9','4':'#daf1db','5':'#c9e8ca','6':'#b2ddb5','7':'#94ce9a','8':'#65ba74','9':'#46a758','10':'#3e9b4f','11':'#2a7e3b','12':'#203c25'},
-  brown:   {'1':'#fefdfc','2':'#fcf9f6','3':'#f6eee7','4':'#f0e4d9','5':'#ebdaca','6':'#e4cdb7','7':'#dcbc9f','8':'#cea37e','9':'#ad7f58','10':'#a07553','11':'#815e46','12':'#3e332e'},
-  bronze:  {'1':'#fdfcfc','2':'#fdf7f5','3':'#f6edea','4':'#efe4df','5':'#e7d9d3','6':'#dfcdc5','7':'#d3bcb3','8':'#c2a499','9':'#a18072','10':'#957468','11':'#7d5e54','12':'#43302b'},
-  gold:    {'1':'#fdfdfc','2':'#faf9f2','3':'#f2f0e7','4':'#eae6db','5':'#e1dccf','6':'#d8d0bf','7':'#cbc0aa','8':'#b9a88d','9':'#978365','10':'#8c7a5e','11':'#71624b','12':'#3b352b'},
-  sky:     {'1':'#f9feff','2':'#f1fafd','3':'#e1f6fd','4':'#d1f0fa','5':'#bee7f5','6':'#a9daed','7':'#8dcae3','8':'#60b3d7','9':'#7ce2fe','10':'#74daf8','11':'#00749e','12':'#1d3e56'},
-  mint:    {'1':'#f9fefd','2':'#f2fbf9','3':'#ddf9f2','4':'#c8f4e9','5':'#b3ecde','6':'#9ce0d0','7':'#7ecfbd','8':'#4cbba5','9':'#86ead4','10':'#7de0cb','11':'#027864','12':'#16433c'},
-  lime:    {'1':'#fcfdfa','2':'#f8faf3','3':'#eef6d6','4':'#e2f0bd','5':'#d3e7a6','6':'#c2da91','7':'#abc978','8':'#8db654','9':'#bdee63','10':'#b0e64c','11':'#5c7c2f','12':'#37401c'},
-  yellow:  {'1':'#fdfdf9','2':'#fefce9','3':'#fffab8','4':'#fff394','5':'#ffe770','6':'#f3d768','7':'#e4c767','8':'#d5ae39','9':'#ffe629','10':'#ffdc00','11':'#9e6c00','12':'#473b1f'},
-  amber:   {'1':'#fefdfb','2':'#fefbe9','3':'#fff7c2','4':'#ffee9c','5':'#fbe577','6':'#f3d673','7':'#e9c162','8':'#e2a336','9':'#ffc53d','10':'#ffba18','11':'#ab6400','12':'#4f3422'},
-  orange:  {'1':'#fefcfb','2':'#fff7ed','3':'#ffefd6','4':'#ffdfb5','5':'#ffd19a','6':'#ffc182','7':'#f5ae73','8':'#ec9455','9':'#f76b15','10':'#ef5f00','11':'#cc4e00','12':'#582d1d'},
+// US Web Design System v3.x (USWDS, MIT). Explicit WCAG 2.x AA claims.
+// Source: github.com/uswds/uswds packages/uswds-core/src/styles/tokens/color/
+// Base (non-vivid) grades only — grades 5–90 for chromatic, 1–90/100 for grays.
+const USWDS: Record<string, Record<string, string>> = {
+  'red-cool':    { '5':'#f8eff1','10':'#f3e1e4','20':'#ecbec6','30':'#e09aa6','40':'#e16b80','50':'#cd425b','60':'#9e394b','70':'#68363f','80':'#40282c','90':'#1e1517' },
+  red:           { '5':'#f9eeee','10':'#f8e1de','20':'#f7bbb1','30':'#f2938c','40':'#e9695f','50':'#d83933','60':'#a23737','70':'#6f3331','80':'#3e2927','90':'#1b1616' },
+  'red-warm':    { '5':'#f6efea','10':'#f4e3db','20':'#ecc0a7','30':'#dca081','40':'#d27a56','50':'#c3512c','60':'#805039','70':'#524236','80':'#332d29','90':'#1f1c18' },
+  'orange-warm': { '5':'#faeee5','10':'#fbe0d0','20':'#f7bca2','30':'#f3966d','40':'#e17141','50':'#bd5727','60':'#914734','70':'#633a32','80':'#3d2925','90':'#1c1615' },
+  orange:        { '5':'#f6efe9','10':'#f2e4d4','20':'#f3bf90','30':'#f09860','40':'#dd7533','50':'#a86437','60':'#775540','70':'#524236','80':'#332d27','90':'#1b1614' },
+  gold:          { '5':'#f5f0e6','10':'#f1e5cd','20':'#dec69a','30':'#c7a97b','40':'#ad8b65','50':'#8e704f','60':'#6b5947','70':'#4d4438','80':'#322d26','90':'#191714' },
+  yellow:        { '5':'#faf3d1','10':'#f5e6af','20':'#e6c74c','30':'#c9ab48','40':'#a88f48','50':'#8a7237','60':'#6b5a39','70':'#504332','80':'#332d27','90':'#1a1614' },
+  'green-warm':  { '5':'#f1f4d7','10':'#e7eab7','20':'#cbd17a','30':'#a6b557','40':'#8a984b','50':'#6f7a41','60':'#5a5f38','70':'#45472f','80':'#2d2f21','90':'#171712' },
+  green:         { '5':'#eaf4dd','10':'#dfeacd','20':'#b8d293','30':'#9bb672','40':'#7d9b4e','50':'#607f35','60':'#4c6424','70':'#3c4a29','80':'#293021','90':'#161814' },
+  'green-cool':  { '5':'#ecf3ec','10':'#dbebde','20':'#b4d0b9','30':'#86b98e','40':'#5e9f69','50':'#4d8055','60':'#446443','70':'#37493b','80':'#28312a','90':'#1a1f1a' },
+  mint:          { '5':'#dbf6ed','10':'#c7efe2','20':'#92d9bb','30':'#5abf95','40':'#34a37e','50':'#2e8367','60':'#286846','70':'#204e34','80':'#193324','90':'#0d1a12' },
+  'mint-cool':   { '5':'#e0f7f6','10':'#c4eeeb','20':'#9bd4cf','30':'#6fbab3','40':'#4f9e99','50':'#40807e','60':'#376462','70':'#2a4b45','80':'#203131','90':'#111818' },
+  cyan:          { '5':'#e7f6f8','10':'#ccecf2','20':'#99deea','30':'#5dc0d1','40':'#449dac','50':'#168092','60':'#2a646d','70':'#2c4a4e','80':'#203133','90':'#111819' },
+  'blue-cool':   { '5':'#e7f2f5','10':'#dae9ee','20':'#adcfdc','30':'#82b4c9','40':'#6499af','50':'#3a7d95','60':'#2e6276','70':'#224a58','80':'#14333d','90':'#0f191c' },
+  blue:          { '5':'#eff6fb','10':'#d9e8f6','20':'#aacdec','30':'#73b3e7','40':'#4f97d1','50':'#2378c3','60':'#2c608a','70':'#274863','80':'#1f303e','90':'#11181d' },
+  'blue-warm':   { '5':'#ecf1f7','10':'#e1e7f1','20':'#bbcae4','30':'#98afd2','40':'#7292c7','50':'#4a77b4','60':'#345d96','70':'#2f4668','80':'#252f3e','90':'#13171f' },
+  'indigo-cool': { '5':'#eef0f9','10':'#e1e6f9','20':'#bbc8f5','30':'#96abee','40':'#6b8ee8','50':'#496fd8','60':'#3f57a6','70':'#374274','80':'#292d42','90':'#151622' },
+  indigo:        { '5':'#efeff8','10':'#e5e4fa','20':'#c5c5f3','30':'#a5a8eb','40':'#8889db','50':'#676cc8','60':'#4d52af','70':'#3d4076','80':'#2b2c40','90':'#16171f' },
+  'indigo-warm': { '5':'#f1eff7','10':'#e7e3fa','20':'#cbc4f2','30':'#afa5e8','40':'#9287d8','50':'#7665d1','60':'#5e519e','70':'#453c7b','80':'#2e2c40','90':'#18161d' },
+  violet:        { '5':'#f4f1f9','10':'#ebe3f9','20':'#d0c3e9','30':'#b8a2e3','40':'#9d84d2','50':'#8168b3','60':'#665190','70':'#4c3d69','80':'#312b3f','90':'#18161d' },
+  'violet-warm': { '5':'#f8f0f9','10':'#f6dff8','20':'#e2bee4','30':'#d29ad8','40':'#bf77c8','50':'#b04abd','60':'#864381','70':'#5c395a','80':'#382936','90':'#1b151b' },
+  magenta:       { '5':'#f9f0f2','10':'#f6e1e8','20':'#f0bbcc','30':'#e895b3','40':'#e0699f','50':'#c84281','60':'#8b4566','70':'#66364b','80':'#402731','90':'#1b1617' },
+  'gray-cool':   { '1':'#fbfcfd','2':'#f7f9fa','3':'#f5f6f7','4':'#f1f3f6','5':'#edeff0','10':'#dfe1e2','20':'#c6cace','30':'#a9aeb1','40':'#8d9297','50':'#71767a','60':'#565c65','70':'#3d4551','80':'#2d2e2f','90':'#1c1d1f' },
+  gray:          { '1':'#fcfcfc','2':'#f9f9f9','3':'#f6f6f6','4':'#f3f3f3','5':'#f0f0f0','10':'#e6e6e6','20':'#c9c9c9','30':'#adadad','40':'#919191','50':'#757575','60':'#5c5c5c','70':'#454545','80':'#2e2e2e','90':'#1b1b1b','100':'#000000' },
+  'gray-warm':   { '1':'#fcfcfb','2':'#f9f9f7','3':'#f6f6f2','4':'#f5f5f0','5':'#f0f0ec','10':'#e6e6e2','20':'#cac9c0','30':'#afaea2','40':'#929285','50':'#76766a','60':'#5d5d52','70':'#454540','80':'#2e2e2a','90':'#171716' },
 };
 
-const RADIX_DARK: Record<string, Record<string, string>> = {
-  gray:    {'1':'#111111','2':'#191919','3':'#222222','4':'#2a2a2a','5':'#313131','6':'#3a3a3a','7':'#484848','8':'#606060','9':'#6e6e6e','10':'#7b7b7b','11':'#b4b4b4','12':'#eeeeee'},
-  mauve:   {'1':'#121113','2':'#1a191b','3':'#232225','4':'#2b292d','5':'#323035','6':'#3c393f','7':'#49474e','8':'#625f69','9':'#6f6d78','10':'#7c7a85','11':'#b5b2bc','12':'#eeeef0'},
-  slate:   {'1':'#111113','2':'#18191b','3':'#212225','4':'#272a2d','5':'#2e3135','6':'#363a3f','7':'#43484e','8':'#5a6169','9':'#696e77','10':'#777b84','11':'#b0b4ba','12':'#edeef0'},
-  sage:    {'1':'#101211','2':'#111c1b','3':'#202221','4':'#272a29','5':'#2e3130','6':'#373b39','7':'#444947','8':'#5b625f','9':'#63706b','10':'#717d79','11':'#adb5b2','12':'#eceeed'},
-  olive:   {'1':'#111210','2':'#181917','3':'#212220','4':'#282a27','5':'#2f312e','6':'#383a36','7':'#454843','8':'#5c625b','9':'#687066','10':'#767d74','11':'#afb5ad','12':'#eceeec'},
-  sand:    {'1':'#111110','2':'#191918','3':'#222221','4':'#2a2a28','5':'#31312e','6':'#3b3a37','7':'#494844','8':'#62605b','9':'#6f6d66','10':'#7c7b74','11':'#b5b3ad','12':'#eeeeec'},
-  tomato:  {'1':'#181111','2':'#1f1513','3':'#391714','4':'#4e1511','5':'#5e1c16','6':'#6e2920','7':'#853a2d','8':'#ac4d39','9':'#e54d2e','10':'#ec6142','11':'#ff977d','12':'#fbd3cb'},
-  red:     {'1':'#191111','2':'#201314','3':'#3b1219','4':'#500f1c','5':'#611623','6':'#72232d','7':'#8c333a','8':'#b54548','9':'#e5484d','10':'#ec5d5e','11':'#ff9592','12':'#ffd1d9'},
-  ruby:    {'1':'#191113','2':'#1e1517','3':'#3a141e','4':'#4e1325','5':'#5e1a2e','6':'#6f2539','7':'#883447','8':'#b3445a','9':'#e54666','10':'#ec5a72','11':'#ff949d','12':'#fed2e1'},
-  crimson: {'1':'#191114','2':'#201318','3':'#381525','4':'#4d122f','5':'#5c1839','6':'#6d2545','7':'#873356','8':'#b0436e','9':'#e93d82','10':'#ee518a','11':'#ff92ad','12':'#fdd3e8'},
-  pink:    {'1':'#191117','2':'#21121d','3':'#37172f','4':'#4b143d','5':'#591c47','6':'#692955','7':'#833869','8':'#a84885','9':'#d6409f','10':'#de51a8','11':'#ff8dcc','12':'#fdd1ea'},
-  plum:    {'1':'#181118','2':'#201320','3':'#351a35','4':'#451d47','5':'#512454','6':'#5e3061','7':'#734079','8':'#92549c','9':'#ab4aba','10':'#b658c4','11':'#e796f3','12':'#f4d4f4'},
-  purple:  {'1':'#18111b','2':'#1e1523','3':'#301c3b','4':'#3d224e','5':'#48295c','6':'#54346b','7':'#664282','8':'#8457aa','9':'#8e4ec6','10':'#9a5cd0','11':'#d19dff','12':'#ecd9fa'},
-  violet:  {'1':'#14121f','2':'#1b1525','3':'#291f43','4':'#33255b','5':'#3c2e69','6':'#473876','7':'#56468b','8':'#6958ad','9':'#6e56cf','10':'#7d66d9','11':'#baa7ff','12':'#e2ddfe'},
-  iris:    {'1':'#13131e','2':'#171625','3':'#202248','4':'#262a65','5':'#303374','6':'#3d3e82','7':'#4a4a95','8':'#5958b1','9':'#5b5bd6','10':'#6e6ade','11':'#b1a9ff','12':'#e0dffe'},
-  indigo:  {'1':'#11131f','2':'#141726','3':'#182449','4':'#1d2e62','5':'#253974','6':'#304384','7':'#3a4f97','8':'#435db1','9':'#3e63dd','10':'#5472e4','11':'#9eb1ff','12':'#d6e1ff'},
-  blue:    {'1':'#0d1520','2':'#111927','3':'#0d2847','4':'#003362','5':'#004074','6':'#104d87','7':'#205d9e','8':'#2870bd','9':'#0090ff','10':'#3b9eff','11':'#70b8ff','12':'#c2e6ff'},
-  cyan:    {'1':'#0b161a','2':'#101b20','3':'#082c36','4':'#003848','5':'#004558','6':'#045468','7':'#12677e','8':'#11809c','9':'#00a2c7','10':'#23afd0','11':'#4ccce6','12':'#b6ecf7'},
-  teal:    {'1':'#0d1514','2':'#111c1b','3':'#0d2d2a','4':'#023b37','5':'#084843','6':'#145750','7':'#1c6961','8':'#207e73','9':'#12a594','10':'#0eb39e','11':'#0bd8b6','12':'#adf0dd'},
-  jade:    {'1':'#0d1512','2':'#121c18','3':'#0f2e22','4':'#0b3b2c','5':'#114837','6':'#1b5745','7':'#246854','8':'#2a7e68','9':'#29a383','10':'#27b08b','11':'#1fd8a4','12':'#adf0d4'},
-  green:   {'1':'#0e1512','2':'#121b17','3':'#132d21','4':'#113b29','5':'#174933','6':'#20573e','7':'#28684a','8':'#2f7c57','9':'#30a46c','10':'#33b074','11':'#3dd68c','12':'#b1f1cb'},
-  grass:   {'1':'#0e1511','2':'#141a15','3':'#1b2a1e','4':'#1d3a24','5':'#25482d','6':'#2d5736','7':'#366740','8':'#3e7949','9':'#46a758','10':'#53b365','11':'#71d083','12':'#c2f0c2'},
-  brown:   {'1':'#12110f','2':'#1c1816','3':'#28211d','4':'#322922','5':'#3e3128','6':'#4d3c2f','7':'#614a39','8':'#7c5f46','9':'#ad7f58','10':'#b88c67','11':'#dbb594','12':'#f2e1ca'},
-  bronze:  {'1':'#141110','2':'#1c1917','3':'#262220','4':'#302a27','5':'#3b3330','6':'#493e3a','7':'#5a4c47','8':'#6f5f58','9':'#a18072','10':'#ae8c7e','11':'#d4b3a5','12':'#ede0d9'},
-  gold:    {'1':'#121211','2':'#1b1a17','3':'#24231f','4':'#2d2b26','5':'#38352e','6':'#444039','7':'#544f46','8':'#696256','9':'#978365','10':'#a39073','11':'#cbb99f','12':'#e8e2d9'},
-  sky:     {'1':'#0d141f','2':'#111a27','3':'#112840','4':'#113555','5':'#154467','6':'#1b537b','7':'#1f6692','8':'#197cae','9':'#7ce2fe','10':'#a8eeff','11':'#75c7f0','12':'#c2f3ff'},
-  mint:    {'1':'#0e1515','2':'#0f1b1b','3':'#092c2b','4':'#003a38','5':'#004744','6':'#105650','7':'#1e685f','8':'#277f70','9':'#86ead4','10':'#a8f5e5','11':'#58d5ba','12':'#c4f5e1'},
-  lime:    {'1':'#11130c','2':'#151a10','3':'#1f2917','4':'#29371d','5':'#334423','6':'#3d522a','7':'#496231','8':'#577538','9':'#bdee63','10':'#d4ff70','11':'#bde56c','12':'#e3f7ba'},
-  yellow:  {'1':'#14120b','2':'#1b180f','3':'#2d2305','4':'#362b00','5':'#433500','6':'#524202','7':'#665417','8':'#836a21','9':'#ffe629','10':'#ffff57','11':'#f5e147','12':'#f6eeb4'},
-  amber:   {'1':'#16120c','2':'#1d180f','3':'#302008','4':'#3f2700','5':'#4d3000','6':'#5c3d05','7':'#714f19','8':'#8f6424','9':'#ffc53d','10':'#ffd60a','11':'#ffca16','12':'#ffe7b3'},
-  orange:  {'1':'#17120e','2':'#1e160f','3':'#331e0b','4':'#462100','5':'#562800','6':'#66350c','7':'#7e451d','8':'#a35829','9':'#f76b15','10':'#ff801f','11':'#ffa057','12':'#ffe0c2'},
-};
 
 // ── Build pairs ──────────────────────────────────────────────────────────────
 
@@ -190,9 +145,8 @@ function buildPairs(): PalettePair[] {
   };
 
   addSystem('tw', TAILWIND);
-  addSystem('md', MATERIAL);
-  addSystem('rx-lt', RADIX_LIGHT);
-  addSystem('rx-dk', RADIX_DARK);
+  addSystem('govuk', GOVUK);
+  addSystem('uswds', USWDS);
 
   return pairs;
 }
@@ -204,8 +158,8 @@ const ALL_PAIRS = buildPairs();
 const AA = 4.5;
 
 describe('design-system probe', () => {
-  it('covers 2,480 pairs', () => {
-    expect(ALL_PAIRS.length).toBe(2480);
+  it('covers 1,142 pairs', () => {
+    expect(ALL_PAIRS.length).toBe(1142);
   });
 
   it('CRITICAL: zero false passes across all design systems', () => {
@@ -223,14 +177,10 @@ describe('design-system probe', () => {
     expect(falsePassPairs).toEqual([]);
   });
 
-  // "False failures" here means OKCA disagrees with WCAG on pairs near or
-  // just above WCAG's 4.5 AA threshold. This disagreement is intentional:
-  // WCAG's threshold is widely considered too permissive (white on #767676
-  // at 4.5:1 is the canonical example of a technically-compliant but
-  // practically insufficient contrast). All 235 disagreements involve
-  // colours in that marginal zone; none are pairs that practitioners would
-  // consider comfortably accessible.
-  it('WCAG disagreement count matches baseline (235 total)', () => {
+  // "WCAG disagreements" are pairs where OKCA scores below 4.5 AA but WCAG
+  // scores ≥ 4.5. These are intentional — they identify colours in the
+  // marginal zone that WCAG passes but practitioners routinely reject.
+  it('WCAG disagreement count matches baseline (111 total)', () => {
     let ffCount = 0;
 
     for (const { fg, bg } of ALL_PAIRS) {
@@ -239,12 +189,11 @@ describe('design-system probe', () => {
       if (okca < AA && wcag >= AA) ffCount++;
     }
 
-    expect(ffCount).toBe(225);
+    expect(ffCount).toBe(111);
   });
 
-  // tw:48 and md:54 are mid-range chromatic shades used as general colours.
-  // rx-lt:62 and rx-dk:64 are almost entirely step-9/10 solid fills that
-  // Radix does not document as accessible text pairings.
+  // tw:46 — mid-range chromatic shades used as general-purpose colours.
+  // govuk:15 and uswds:50 — mid-range shades near WCAG's boundary.
   it('WCAG disagreement counts match per system', () => {
     const ffBySystem: Record<string, number> = {};
 
@@ -257,9 +206,8 @@ describe('design-system probe', () => {
     }
 
     expect(ffBySystem['tw'] ?? 0).toBe(46);
-    expect(ffBySystem['md'] ?? 0).toBe(54);
-    expect(ffBySystem['rx-lt'] ?? 0).toBe(61);
-    expect(ffBySystem['rx-dk'] ?? 0).toBe(64);
+    expect(ffBySystem['govuk'] ?? 0).toBe(15);
+    expect(ffBySystem['uswds'] ?? 0).toBe(50);
   });
 
   it('all results are in [1, 21] range', () => {
