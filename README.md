@@ -116,19 +116,10 @@ $$\text{ratio}_{\text{OKCA}} \le r_{\text{raw}} \le \text{ratio}_{\text{WCAG}} \
 
 A pair that fails WCAG will also fail OKCA. **Zero false passes by construction.**
 
-## Key constants
-
-| Constant | Value | Role |
-|----------|------:|------|
-| `C_THRESH` | 0.15 | Oklab chroma at which lighter-element penalty is fully active |
-| `CHROMA_K` | 0.50 | Maximum additional power exponent at full saturation (exp range: 1.0–1.5) |
-| `POL_K` | 1.175 | Polarity power exponent: CAP×(r/21)^k |
-| `DOL_CAP` | 20 | Dark-on-light contrast cap (vs 21 for L-o-D) |
-
 ## Properties
 
-- **Polarity-aware:** `okca(A, B) ≠ okca(B, A)` — light-on-dark scores higher than dark-on-light
-- **Conservative:** all scores below WCAG equivalent; AA/AAA thresholds unchanged
+- **Polarity-aware:** `okca(foreground, background) ≠ okca(background, foreground)` — scores differ by direction
+- **Conservative:** all scores at or below WCAG equivalent; AA/AAA thresholds unchanged
 - **Zero dependencies:** pure TypeScript, no runtime deps
 - **Clean-room implementation:** no third-party contrast algorithm source code
 
