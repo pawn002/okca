@@ -157,7 +157,7 @@ OKCA is **polarity-aware**: `okca(A, B) ≠ okca(B, A)` when A and B differ in l
 
 $$\text{ratio} = \text{CAP} \times \left(\frac{r}{21}\right)^{k}$$
 
-where $k = \texttt{POL\_K} = 1.175$ and:
+where $k =$ `POL_K` $= 1.175$ and:
 
 $$\text{CAP} = \begin{cases} 21 & \text{if text is lighter (light-on-dark)} \\ 20 & \text{if background is lighter (dark-on-light)} \end{cases}$$
 
