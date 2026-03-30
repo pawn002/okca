@@ -2,7 +2,9 @@
 
 OKLCH-native, polarity-aware contrast ratio with **zero false passes** against WCAG 2.x.
 
-OKCA outputs ratios on the familiar 1–21 scale with the same AA (4.5) and AAA (7.0) thresholds as WCAG. It is stricter than WCAG in two ways: saturated chromatic colors are penalised relative to achromatic equivalents, and scores are polarity-aware — light-on-dark scores higher than dark-on-light for the same color pair.
+OKCA outputs ratios on the familiar 1–21 scale with the same AA (4.5) and AAA (7.0) thresholds as WCAG. It is stricter than WCAG in two ways: saturated chromatic colors are penalised relative to achromatic equivalents, and scores are polarity-aware — the same color pair scores differently depending on which element is foreground and which is background.
+
+**Argument order matters.** `calculateContrast(foreground, background)` — the first argument is the element being evaluated (text, icon, or other visual element); the second is the surface it sits on. For text this is unambiguous. For other visual elements the caller determines which role each color plays.
 
 ## Install
 
@@ -27,13 +29,13 @@ const { calculateContrast } = require('@pawn002/okca');
 ```ts
 import { calculateContrast } from '@pawn002/okca';
 
-// Achromatic — polarity-aware
-calculateContrast('#ffffff', '#000000');  // 21.0 (white on black, light-on-dark)
-calculateContrast('#000000', '#ffffff');  // 20.0 (black on white, dark-on-light)
+// calculateContrast(foreground, background)
+calculateContrast('#ffffff', '#000000');  // 21.0 — white fg on black bg
+calculateContrast('#000000', '#ffffff');  // 20.0 — black fg on white bg (different score)
 
-// AA boundary anchor
-calculateContrast('#ffffff', '#767676');  // 3.5 (light-on-dark, below AA)
-calculateContrast('#767676', '#ffffff');  // 3.3 (dark-on-light, below AA)
+// WCAG AA boundary grey — fails AA in both directions
+calculateContrast('#ffffff', '#767676');  // 3.5
+calculateContrast('#767676', '#ffffff');  // 3.3
 
 // Chromatic — WCAG gives 6.6 (false pass); OKCA correctly fails
 calculateContrast('#ff69b4', '#1a1a1a'); // 3.7
@@ -45,7 +47,7 @@ Or use the class:
 import { OkcaService } from '@pawn002/okca';
 
 const okca = new OkcaService();
-okca.calculateContrast('#fff', '#000');  // 21.0
+okca.calculateContrast('#fff', '#000');  // 21.0 — foreground, background
 ```
 
 Accepts 3- and 6-digit hex strings (`#fff`, `#ff8000`), CSS `oklab()`, and CSS `oklch()`:

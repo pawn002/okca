@@ -49,9 +49,9 @@ function parseToOklab(color: string): [number, number, number] | null {
 }
 
 export class OkcaService {
-  calculateContrast(textColor: string, bgColor: string): number | null {
-    const tOklab = parseToOklab(textColor);
-    const bOklab = parseToOklab(bgColor);
+  calculateContrast(foreground: string, background: string): number | null {
+    const tOklab = parseToOklab(foreground);
+    const bOklab = parseToOklab(background);
     if (!tOklab || !bOklab) return null;
 
     // L is identical in Oklab and OKLCH — no separate OKLCH parse needed.
@@ -103,12 +103,17 @@ export class OkcaService {
  *
  * Accepts hex strings (`#rrggbb`, `#rgb`), CSS `oklab()`, and CSS `oklch()`.
  *
- * @param a - First color (text)
- * @param b - Second color (background)
+ * **Argument order matters.** OKCA is polarity-aware: the same color pair scores
+ * differently depending on which element is foreground and which is background.
+ * For text this is unambiguous. For other visual elements (icons, borders, fills)
+ * the caller determines which role each color plays.
+ *
+ * @param foreground - The element being evaluated (text, icon, or other visual element)
+ * @param background - The surface it sits on
  * @returns Contrast ratio in [1, 21] rounded to 1 decimal place, or null if either color is invalid
  */
-export function calculateContrast(a: string, b: string): number | null {
-  return new OkcaService().calculateContrast(a, b);
+export function calculateContrast(foreground: string, background: string): number | null {
+  return new OkcaService().calculateContrast(foreground, background);
 }
 
 export {
