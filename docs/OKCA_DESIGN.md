@@ -203,13 +203,13 @@ By system: Tailwind CSS v3.4 (46), Material Design 2 named palette (54), Radix U
 
 **Calibration anchors:**
 
-- **C_THRESH = 0.15** --- Typical Oklab chroma for designer palette saturated colours; lightly tinted neutrals (C < 0.05) receive less than 10% of the full penalty.
+- **`C_THRESH` = 0.15** --- Typical Oklab chroma for designer palette saturated colours; lightly tinted neutrals (C < 0.05) receive less than 10% of the full penalty.
 
-- **CHROMA_K = 0.50** --- Yields exp = 1.50 at full saturation. Combined with the polarity factor, hot pink/near-black scores 3.7 and dark orange/near-black scores 4.2 --- both below the 4.5 AA threshold. These are two of WCAG's most-cited false passes.
+- **`CHROMA_K` = 0.50** --- Yields exp = 1.50 at full saturation. Combined with the polarity factor, hot pink/near-black scores 3.7 and dark orange/near-black scores 4.2 --- both below the 4.5 AA threshold. These are two of WCAG's most-cited false passes.
 
-- **POL_K = 1.175** --- Calibrated so white/`#767676` (WCAG AA boundary grey) scores exactly 3.5 under L-o-D. Derived: $k = \ln(3.5/21) / \ln(4.57/21) \approx 1.1746$.
+- **`POL_K` = 1.175** --- Calibrated so white/`#767676` (WCAG AA boundary grey) scores exactly 3.5 under L-o-D. Derived: $k = \ln(3.5/21) / \ln(4.57/21) \approx 1.1746$.
 
-- **DOL_CAP = 20** --- Proportional polarity penalty for D-o-L: at any given raw ratio, D-o-L scores $(20/21) \approx 95\%$ of the equivalent L-o-D score. Black on white: 20.0. `#767676` on white: $(20/21) \times 3.5 \approx 3.3$.
+- **`DOL_CAP` = 20** --- Proportional polarity penalty for D-o-L: at any given raw ratio, D-o-L scores $(20/21) \approx 95\%$ of the equivalent L-o-D score. Black on white: 20.0. `#767676` on white: $(20/21) \times 3.5 \approx 3.3$.
 
 ---
 
