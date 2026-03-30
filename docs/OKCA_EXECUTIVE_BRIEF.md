@@ -38,16 +38,13 @@ legibility. The working group has known since at least 2019 that two failure mod
 accumulate at scale:
 
 **Polarity blindness.** The formula is symmetric — `contrast(A, B) = contrast(B, A)` —
-despite evidence that positive polarity (dark-on-light) and negative polarity
-(light-on-dark) produce different reading performance. Buchner & Baumgartner (2007)
-established the positive polarity advantage for display reading; subsequent work by
-Piepenbrock, Mayr, and Buchner (2013, 2014) extended the finding to older adults and
-measured the pupil-size mechanism. Buchner, Mayr & Brandt (2009) traced the mechanism: light backgrounds are
-intrinsically brighter, and that higher ambient luminance drives the reading
-advantage. WCAG 2.x cannot capture this because its formula produces the same score
-regardless of which colour is text and which is background. WCAG 3.0 /
-Silver acknowledges this asymmetry; WCAG 2.x has no path to correction within its
-current architecture.
+despite the fact that designers and accessibility practitioners consistently treat the
+two directions as different. Dark mode interfaces, light text on photographic
+backgrounds, and inverse colour schemes all behave differently in practice from their
+luminance-equivalent positive polarity counterparts. WCAG 2.x cannot capture this
+because its formula produces the same score regardless of which colour is text and
+which is background. WCAG 3.0 / Silver addresses this asymmetry; WCAG 2.x has no
+path to correction within its current architecture.
 
 **Chromatic over-rating near threshold.** Saturated chromatic text on dark
 backgrounds — the hot pink / near-black case is canonical — scores well above the
