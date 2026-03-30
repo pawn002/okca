@@ -71,51 +71,6 @@ WCAG 2.x contrast has two well-documented failure modes:
 
 OKCA corrects both while guaranteeing **FP = 0** — OKCA never approves a pair that WCAG rejects.
 
-## Algorithm
-
-OKCA uses OKLCH $L^3$ as a luminance proxy ($L^3 \approx Y_{\text{WCAG}}$ for neutral grays), with one chromatic correction and a final polarity step.
-
-### 1. Chroma compression on lighter element
-
-Saturated lighter colors get a power-compression penalty proportional to their Oklab chroma. A saturation weight ramps quadratically from 0 (achromatic) to 1 (vivid):
-
-$$\text{satW} = \min\left(1, \left(\frac{C}{0.15}\right)^{2}\right)$$
-
-This drives a variable exponent that compresses the lighter element's luminance:
-
-$$\text{exp} = 1 + 0.50 \times \text{satW} \qquad Y_{\text{lighter}} = \left(L_{\text{lighter}}^{\text{exp}}\right)^3$$
-
-Since $L \le 1$, a higher exponent always produces a smaller value — the ratio can only decrease. Achromatic colors (C = 0) pass through unchanged.
-
-### 2. Darker element
-
-Pure $L^3$ — no hue-specific corrections:
-
-$$Y_{\text{darker}} = L_{\text{darker}}^{3}$$
-
-### 3. Polarity power curve
-
-The raw ratio is scaled by a power curve that encodes polarity asymmetry:
-
-$$\text{ratio} = \text{CAP} \times \left(\frac{r}{21}\right)^{k}$$
-
-where $r = (Y_{\text{lighter}} + 0.05) / (Y_{\text{darker}} + 0.05)$, $k = 1.175$, and:
-
-$$\text{CAP} = \begin{cases} 21 & \text{light-on-dark (text is lighter)} \\ 20 & \text{dark-on-light (background is lighter)} \end{cases}$$
-
-Both curves share the same exponent $k$; the lower cap for D-o-L applies a proportional polarity penalty at every contrast level. Result clamped to [1, 21], rounded to 1 decimal place.
-
-## FP = 0 guarantee
-
-Both steps push the ratio downward or leave it unchanged:
-
-- **Chroma compression** can only *reduce* the numerator (lighter element penalty, $\text{exp} \ge 1$, $L \le 1$)
-- **Polarity power curve** satisfies $\text{CAP} \times (r/21)^k = r \times (r/21)^{k-1} \times (\text{CAP}/21) \le r$ for $k \ge 1$, $r \le 21$, $\text{CAP} \le 21$
-
-$$\text{ratio}_{\text{OKCA}} \le r_{\text{raw}} \le \text{ratio}_{\text{WCAG}} \quad \text{for any input}$$
-
-A pair that fails WCAG will also fail OKCA. **Zero false passes by construction.**
-
 ## Properties
 
 - **Polarity-aware:** `okca(foreground, background) ≠ okca(background, foreground)` — scores differ by direction
