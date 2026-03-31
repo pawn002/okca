@@ -16,53 +16,41 @@ npm install @pawn002/okca
 
 ## Usage
 
+`calculateContrast(foreground, background)` — first argument is the element being evaluated (text, icon, or other visual element), second is the surface it sits on. Argument order matters: `okca(A, B) ≠ okca(B, A)`.
+
 ```ts
 import { calculateContrast } from '@pawn002/okca';
 
-// calculateContrast(foreground, background)
-calculateContrast('#ffffff', '#000000');  // 21.0 — white fg on black bg
-calculateContrast('#000000', '#ffffff');  // 20.0 — black fg on white bg (different score)
+calculateContrast('#ffffff', '#000000');  // 21.0 — white on black
+calculateContrast('#000000', '#ffffff');  // 20.0 — black on white
 
-// WCAG AA boundary grey — fails AA in both directions
+// WCAG AA boundary grey — fails in both directions
 calculateContrast('#ffffff', '#767676');  // 3.5
 calculateContrast('#767676', '#ffffff');  // 3.3
 
-// Chromatic — WCAG gives 6.6 (false pass); OKCA correctly fails
+// Chromatic false pass in WCAG — OKCA correctly fails
 calculateContrast('#ff69b4', '#1a1a1a'); // 3.7
 ```
 
-**Argument order matters.** The first argument is the foreground element (text, icon, or other visual element); the second is the background surface it sits on. `okca(A, B) ≠ okca(B, A)`.
-
-Or use the class:
+Also accepts CSS `oklab()` and `oklch()` alongside hex:
 
 ```ts
-import { OkcaService } from '@pawn002/okca';
-
-const okca = new OkcaService();
-okca.calculateContrast('#fff', '#000');  // 21.0 — foreground, background
-```
-
-Accepts 3- and 6-digit hex strings (`#fff`, `#ff8000`), CSS `oklab()`, and CSS `oklch()`:
-
-```ts
-// CSS oklab — values direct or as percentages (100% L = 1, 100% a/b = 0.4)
 calculateContrast('oklab(1 0 0)', 'oklab(0 0 0)');           // 21.0
-
-// CSS oklch — hue in deg (default), rad, turn, or grad
-calculateContrast('oklch(1 0 0)', 'oklch(0 0 0)');           // 21.0
 calculateContrast('oklch(70% 37.5% 180deg)', '#ffffff');      // mixed formats ok
 ```
 
-## Module formats
-
-The package ships both ESM and CommonJS. Bundlers and Node with `"type": "module"` resolve ESM automatically via the `exports` field. CommonJS projects use `require`:
+CommonJS:
 
 ```js
-// ESM (default for bundlers / Node ESM)
-import { calculateContrast } from '@pawn002/okca';
-
-// CommonJS
 const { calculateContrast } = require('@pawn002/okca');
+```
+
+A class-based API is also available:
+
+```ts
+import { OkcaService } from '@pawn002/okca';
+const okca = new OkcaService();
+okca.calculateContrast('#fff', '#000');  // 21.0
 ```
 
 ## Properties
