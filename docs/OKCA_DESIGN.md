@@ -29,7 +29,7 @@ OKCA processes a foreground/background color pair in five steps:
 4. **Compute the darker element's proxy.** The darker element uses $L^3$ directly — no chroma correction applied.
 5. **Apply polarity-aware scaling.** Form a raw ratio from the two luminance proxies, then scale with a power curve that differs by polarity: L-o-D uses a cap of 21; D-o-L uses 20. Output is in [1, 21].
 
-Sections §3–§7 cover each step in depth. §4 proves FP = 0 holds across all inputs.
+Sections 3–7 cover each step in depth. Section 4 proves FP = 0 holds across all inputs.
 
 ---
 
@@ -37,7 +37,7 @@ Sections §3–§7 cover each step in depth. §4 proves FP = 0 holds across all 
 
 ### 2.1 Safety: FP = 0 Is Non-Negotiable
 
-A contrast algorithm used for accessibility decisions must never approve a pair that WCAG rejects. This is not a calibration preference --- it is the definition of a safe accessibility tool. OKCA guarantees this mathematically (see [§4](#4-the-fp--0-guarantee)).
+A contrast algorithm used for accessibility decisions must never approve a pair that WCAG rejects. This is not a calibration preference --- it is the definition of a safe accessibility tool. OKCA guarantees this mathematically (see [Section 4](#4-the-fp--0-guarantee)).
 
 ### 2.2 WCAG-Compatible Scale and Thresholds
 
@@ -57,7 +57,7 @@ OKCA is derived entirely from OKLCH and Oklab geometry. The chroma compression (
 
 In practice, outcomes do vary across hues because different hues reach different C values at any given lightness — warm reds and magentas typically achieve higher chroma than blues or greens at similar L, so the penalty lands harder on those hues. That variation is a consequence of Oklab geometry, not an explicit algorithmic choice.
 
-FP = 0 is maintained by the polarity model (see [§4](#4-the-fp--0-guarantee)) rather than by green-channel patches.
+FP = 0 is maintained by the polarity model (see [Section 4](#4-the-fp--0-guarantee)) rather than by green-channel patches.
 
 ### 2.5 Clean-Room IP
 
@@ -194,7 +194,7 @@ For L-o-D ($\text{CAP} = 21$): the formula pins exactly at 21.0 when $r = 21$ an
 
 $$k = \frac{\ln(3.5/21)}{\ln(4.57/21)} \approx 1.1746 \rightarrow 1.175$$
 
-**FP = 0 proof for Step 5.** Restated from §4: for $k \ge 1$ and $\text{CAP} \le 21$, the polarity ratio is always $\le r_{\text{raw}} \le r_{\text{WCAG}}$.
+**FP = 0 proof for Step 5.** Restated from Section 4: for $k \ge 1$ and $\text{CAP} \le 21$, the polarity ratio is always $\le r_{\text{raw}} \le r_{\text{WCAG}}$.
 
 ---
 
