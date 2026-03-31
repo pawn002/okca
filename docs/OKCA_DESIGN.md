@@ -109,6 +109,15 @@ $$\text{ratio} \le r_{\text{raw}} \le r_{\text{WCAG}}$$
 
 **Problem.** Saturated chromatic light text on a dark background --- e.g. hot pink (`#ff69b4`) on near-black (`#1a1a1a`) --- scores 6.6:1 under WCAG, the same as an achromatic pair at equivalent luminance. It is one of the most commonly cited WCAG false passes: experienced practitioners flag it as inadequate, and it fails at moderate contrast sensitivity loss. WCAG's formula has no mechanism to distinguish it from an achromatic pair.
 
+Because WCAG contrast is a function of $Y$ alone, any two foreground colors sharing a luminance value produce identical ratios regardless of hue or saturation. `#9f9f9f` is the neutral grey with the same WCAG luminance as hot pink ($Y = 0.347$):
+
+| Foreground | $Y$ | WCAG on `#1a1a1a` | OKCA on `#1a1a1a` |
+|---|---:|---:|---:|
+| `#ff69b4` (hot pink) | 0.347 | 6.6 | 3.7 |
+| `#9f9f9f` (same-$Y$ grey) | 0.347 | 6.6 | 5.4 |
+
+WCAG scores them identically. OKCA scores hot pink 3.7 (fails AA) and the grey 5.4 (passes AA).
+
 **Mechanism.** The lighter element's luminance proxy is penalised by a chroma-weighted power exponent. First, a saturation weight is computed from the Oklab chroma:
 
 $$\text{satW} = \min\left(1, \left(\frac{C}{0.15}\right)^{2}\right)$$

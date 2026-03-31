@@ -197,6 +197,26 @@ practitioners flag it as inadequate, and it fails at moderate contrast
 sensitivity loss.  WCAG's formula has no mechanism to distinguish it
 from an achromatic pair.
 
+Because WCAG contrast is a function of $Y$ alone, any two foreground
+colours sharing a luminance value produce identical ratios regardless
+of hue or saturation.  \texttt{\#9f9f9f} is the neutral grey with the
+same WCAG luminance as hot pink ($Y = 0.347$):
+
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+\textbf{Foreground} & $Y$ & \textbf{WCAG on \texttt{\#1a1a1a}} & \textbf{OKCA on \texttt{\#1a1a1a}} \\
+\midrule
+\texttt{\#ff69b4} (hot pink)      & 0.347 & 6.6 & 3.7 \\
+\texttt{\#9f9f9f} (same-$Y$ grey) & 0.347 & 6.6 & 5.4 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+WCAG scores them identically.  OKCA scores hot pink 3.7 (fails AA)
+and the grey 5.4 (passes AA).
+
 \paragraph{Mechanism.}
 The lighter element's luminance proxy is penalised by a chroma-weighted
 power exponent.  First, a saturation weight is computed from the Oklab
