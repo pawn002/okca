@@ -1,14 +1,12 @@
 # okca — OK Contrast Algorithm
 
-WCAG 2.x passes hot pink on near-black at 6.6:1. Practitioners flag it as inadequate. OKCA scores it 3.7 — a correct fail.
+OKCA is a color contrast algorithm that improves on WCAG 2.x while staying fully compatible with it: same 1–21 scale, same AA (4.5) and AAA (7.0) thresholds, and a mathematical guarantee of **zero false passes** — OKCA never approves a pair that WCAG rejects.
 
-OKCA is a drop-in replacement for WCAG contrast that closes two well-documented failure modes while staying fully compatible: same 1–21 scale, same AA (4.5) and AAA (7.0) thresholds, and a mathematical guarantee of **zero false passes** — OKCA never approves a pair that WCAG rejects.
+WCAG 2.x has two well-documented failure modes that OKCA closes:
 
-**The two failure modes OKCA fixes:**
+1. **Saturated chromatic false passes.** WCAG passes hot pink on near-black at 6.6:1 — a comfortable AA score. Practitioners flag it as inadequate; OKCA scores it 3.7. The difference is that WCAG's luminance formula cannot distinguish saturated colour from grey at the same luminance, while OKCA can.
 
-1. **Saturated chromatic false passes.** WCAG's luminance formula cannot distinguish hot pink from grey at the same luminance. Accessibility practitioners and production audits consistently treat them differently.
-
-2. **Polarity blindness.** WCAG treats `contrast(A on B)` and `contrast(B on A)` as equal. Design systems and practitioners do not — dark mode and light mode are different decisions.
+2. **Polarity blindness.** WCAG treats `contrast(A on B)` and `contrast(B on A)` as identical. Design systems and practitioners do not — dark mode and light mode are different decisions. OKCA scores them differently.
 
 ## Install
 
