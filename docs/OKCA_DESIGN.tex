@@ -57,6 +57,33 @@ OKCA corrects both, while maintaining \textbf{zero false passes}
 against WCAG---meaning OKCA never tells a designer a pair is safe
 when WCAG says it fails.
 
+\subsection*{Algorithm overview}
+
+OKCA processes a foreground/background colour pair in five steps:
+
+\begin{enumerate}
+  \item \textbf{Extract lightness.}  Parse each colour to OKLCH $L$ ---
+    a perceptually uniform lightness measure used as the luminance input
+    throughout.
+  \item \textbf{Identify polarity.}  The element with higher $L$ is the
+    lighter element.  If the foreground is lighter the pair is
+    light-on-dark (L-o-D); if the background is lighter it is
+    dark-on-light (D-o-L).
+  \item \textbf{Compress the lighter element.}  Compute Oklab chroma
+    $C = \sqrt{a^2+b^2}$.  Apply a chroma-weighted power exponent to
+    the lighter element's $L$, reducing its effective luminance proxy.
+    Higher chroma $\Rightarrow$ larger reduction.
+  \item \textbf{Compute the darker element's proxy.}  The darker element
+    uses $L^3$ directly---no chroma correction applied.
+  \item \textbf{Apply polarity-aware scaling.}  Form a raw ratio from
+    the two luminance proxies, then scale with a power curve that
+    differs by polarity: L-o-D uses a cap of 21; D-o-L uses 20.
+    Output is in $[1, 21]$.
+\end{enumerate}
+
+Sections~\ref{sec:l3}--\ref{sec:polarity} cover each step in depth.
+Section~\ref{sec:fp0} proves FP\,=\,0 holds across all inputs.
+
 %% =====================================================================
 \section{Core Design Principles}
 
@@ -120,6 +147,7 @@ False passes result in inaccessible text shipped to production.
 
 %% =====================================================================
 \section{\texorpdfstring{Why $L^3$ Instead of WCAG Y}{Why L³ Instead of WCAG Y}}
+\label{sec:l3}
 
 WCAG luminance is defined as:
 \[
@@ -294,6 +322,7 @@ both polarities.
 
 %% =====================================================================
 \section{Polarity Model (Step~5)}
+\label{sec:polarity}
 
 OKCA is \textbf{polarity-aware}: okca(A,~B)~$\neq$~okca(B,~A) when A
 and B differ in lightness.  The ratio formula takes the designated text

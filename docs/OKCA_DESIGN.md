@@ -19,6 +19,18 @@ This has two well-documented failure modes:
 
 OKCA corrects both, while maintaining **zero false passes** against WCAG --- meaning OKCA never tells a designer a pair is safe when WCAG says it fails.
 
+### Algorithm overview
+
+OKCA processes a foreground/background color pair in five steps:
+
+1. **Extract lightness.** Parse each color to OKLCH L — a perceptually uniform lightness measure used as the luminance input throughout.
+2. **Identify polarity.** The element with higher L is the lighter element. If the foreground is lighter the pair is light-on-dark (L-o-D); if the background is lighter it is dark-on-light (D-o-L).
+3. **Compress the lighter element.** Compute Oklab chroma $C = \sqrt{a^2+b^2}$. Apply a chroma-weighted power exponent to the lighter element's L, reducing its effective luminance proxy. Higher chroma → larger reduction.
+4. **Compute the darker element's proxy.** The darker element uses $L^3$ directly — no chroma correction applied.
+5. **Apply polarity-aware scaling.** Form a raw ratio from the two luminance proxies, then scale with a power curve that differs by polarity: L-o-D uses a cap of 21; D-o-L uses 20. Output is in [1, 21].
+
+Sections §3–§7 cover each step in depth. §4 proves FP = 0 holds across all inputs.
+
 ---
 
 ## 2. Core Design Principles
