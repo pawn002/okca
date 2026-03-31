@@ -41,7 +41,11 @@ The cube-root perceptual transform inverts to linear luminance. Using L as the p
 
 ### 2.4 Pure OKLCH/Oklab — No WCAG Hybrid Patches
 
-OKCA is derived entirely from OKLCH and Oklab geometry. It does not apply hue-specific luminance corrections to compensate for WCAG's IEC 61966-2-1 weighting. This keeps the algorithm coherent: FP = 0 is maintained by the polarity model (see [§4](#4-the-fp--0-guarantee)) rather than by green-channel patches.
+OKCA is derived entirely from OKLCH and Oklab geometry. The chroma compression (Step 3) operates on Oklab chroma $C = \sqrt{a^2 + b^2}$ — the Euclidean distance from the achromatic axis in ab-space. This is rotationally symmetric: two colours at the same chroma magnitude receive the same penalty regardless of hue angle. The formula contains no hue branch and treats the $a$ and $b$ channels symmetrically.
+
+In practice, outcomes do vary across hues because different hues reach different C values at any given lightness — warm reds and magentas typically achieve higher chroma than blues or greens at similar L, so the penalty lands harder on those hues. That variation is a consequence of Oklab geometry, not an explicit algorithmic choice.
+
+FP = 0 is maintained by the polarity model (see [§4](#4-the-fp--0-guarantee)) rather than by green-channel patches.
 
 ### 2.5 Clean-Room IP
 
@@ -230,7 +234,7 @@ Understanding the scope prevents incorrect use and misguided extension attempts.
 
 **Does not replace perceptual judgement.** An OKCA score of 4.5 on a warm fuchsia text/white background means the pair clears the numerical threshold. A designer may still find it unpleasant. OKCA is a safety floor, not a design recommendation.
 
-**Does not apply hue-specific WCAG corrections.** OKCA does not patch the IEC 61966-2-1 green channel weighting. $L^3$ is the luminance proxy for all hues; the polarity model maintains FP = 0 without green-channel compensation.
+**Does not patch WCAG's channel weighting.** OKCA does not compensate for the IEC 61966-2-1 green-channel weighting in WCAG's luminance formula. The chroma compression is rotationally symmetric in ab-space — no hue branch, no asymmetric treatment of $a$ vs $b$. Hue-varying outcomes arise from Oklab geometry (different hues reach different C values at similar lightness), not from explicit hue targeting.
 
 ---
 
