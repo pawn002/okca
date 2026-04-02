@@ -8,15 +8,22 @@ compliance regulation.
 
 ## The table
 
-| Tier | Size / weight | Minimum OKCA score |
-|------|--------------|-------------------|
-| Large text | ≥ 24 px, or ≥ 18.67 px bold | 3.0 |
-| Normal text | ≥ 16 px | 4.5 |
-| Small text | 15 px regular, or 14 px bold | 6.5 |
-| Small text | 14 px regular, or 13 px bold | 9.5 |
-| Small text | 13 px regular, or 12 px bold | 13.8 |
-| Small text | 12 px regular | 20 |
-| Below 12 px | — | not supported |
+| Size | Regular | Bold | Notes |
+|------|--------:|-----:|-------|
+| ≥ 24 px | 3.0 | 3.0 | Both weights qualify as large text; weight no longer affects the required score |
+| 23 px | 4.5 | 3.0 | |
+| 22 px | 4.5 | 3.0 | |
+| 21 px | 4.5 | 3.0 | |
+| 20 px | 4.5 | 3.0 | |
+| 19 px | 4.5 | 3.0 | Bold qualifies as WCAG large text from 18.67 px (14 pt); regular does not until 24 px |
+| 18 px | 4.5 | 4.5 | Bold has not yet reached the 18.67 px large text threshold — WCAG 4.5 floor binds both weights |
+| 17 px | 4.5 | 4.5 | |
+| 16 px | 4.5 | 4.5 | |
+| 15 px | 6.5 | 4.5 | Bold one-pixel shift lands exactly on the WCAG 4.5 floor; no further reduction is possible |
+| 14 px | 9.5 | 6.5 | |
+| 13 px | 13.8 | 9.5 | |
+| 12 px | 20 | 13.8 | Small text floor; no bold path to 12 px at normal-text contrast levels |
+| < 12 px | — | — | Not supported — contrast cannot compensate for letterform resolution failure at this size |
 
 ---
 
@@ -65,16 +72,6 @@ WCAG large text data (16 px → 4.5, 24 px → 3.0).
 The intermediate values are not borrowed from any named external threshold.
 They stand on the shape of the ramp and the two anchor points alone.
 
-| px | Required score | Notes |
-|----|---------------|-------|
-| 16 | 4.5 | WCAG normal text AA |
-| 15 | 6.5 | ramp |
-| 14 | 9.5 | ramp |
-| 13 | 13.8 | ramp |
-| 12 | 20 | anchor — maximum achromatic pair, either polarity |
-
----
-
 ### Bold adjustments
 
 WCAG already applies a bold adjustment at the large text boundary: 14 pt
@@ -82,24 +79,16 @@ WCAG already applies a bold adjustment at the large text boundary: 14 pt
 24 px. The same principle — that heavier stroke weight improves letterform
 distinction at smaller sizes — extends into the small text zone.
 
-**Normal text (≥ 16 px):** WCAG's 4.5 floor applies regardless of weight.
-OKCA cannot go below that without a false pass, so no bold adjustment is
-possible here beyond the large text boundary already in the table.
+**Normal text (16–23 px):** WCAG's 4.5 floor applies regardless of weight for
+text below the large text boundary. OKCA cannot go below that without a false
+pass, so no bold adjustment is possible until bold reaches 18.67 px and
+qualifies as large text. This produces the flat zone at 16–18 px where regular
+and bold require the same score despite the weight difference.
 
 **Small text (12–15 px):** Bold text at size N uses the threshold for regular
 text at N+1 — a one-pixel shift, directly mirroring WCAG's own approach.
 Backwards compatibility holds: WCAG requires 4.5 for all text in this range
 regardless of weight, and every bold value in the table is ≥ 4.5.
-
-| Size | Regular | Bold |
-|------|---------|------|
-| 15 px | 6.5 | 4.5 |
-| 14 px | 9.5 | 6.5 |
-| 13 px | 13.8 | 9.5 |
-| 12 px | 20 | 13.8 |
-
-Note that 12 px bold (13.8) remains well above WCAG's 4.5 floor. There is no
-bold path to 12 px text at normal-text contrast levels.
 
 ---
 
