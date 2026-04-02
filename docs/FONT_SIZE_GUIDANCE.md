@@ -12,10 +12,10 @@ compliance regulation.
 |------|--------------|-------------------|
 | Large text | ≥ 24 px, or ≥ 18.67 px bold | 3.0 |
 | Normal text | ≥ 16 px | 4.5 |
-| Small text | 15 px | 6.5 |
-| Small text | 14 px | 9.5 |
-| Small text | 13 px | 13.8 |
-| Small text | 12 px | 20 |
+| Small text | 15 px regular, or 14 px bold | 6.5 |
+| Small text | 14 px regular, or 13 px bold | 9.5 |
+| Small text | 13 px regular, or 12 px bold | 13.8 |
+| Small text | 12 px regular | 20 |
 | Below 12 px | — | not supported |
 
 ---
@@ -75,16 +75,39 @@ They stand on the shape of the ramp and the two anchor points alone.
 
 ---
 
+### Bold adjustments
+
+WCAG already applies a bold adjustment at the large text boundary: 14 pt
+(18.67 px) bold qualifies as large text, whereas non-bold text must reach
+24 px. The same principle — that heavier stroke weight improves letterform
+distinction at smaller sizes — extends into the small text zone.
+
+**Normal text (≥ 16 px):** WCAG's 4.5 floor applies regardless of weight.
+OKCA cannot go below that without a false pass, so no bold adjustment is
+possible here beyond the large text boundary already in the table.
+
+**Small text (12–15 px):** Bold text at size N uses the threshold for regular
+text at N+1 — a one-pixel shift, directly mirroring WCAG's own approach.
+Backwards compatibility holds: WCAG requires 4.5 for all text in this range
+regardless of weight, and every bold value in the table is ≥ 4.5.
+
+| Size | Regular | Bold |
+|------|---------|------|
+| 15 px | 6.5 | 4.5 |
+| 14 px | 9.5 | 6.5 |
+| 13 px | 13.8 | 9.5 |
+| 12 px | 20 | 13.8 |
+
+Note that 12 px bold (13.8) remains well above WCAG's 4.5 floor. There is no
+bold path to 12 px text at normal-text contrast levels.
+
+---
+
 ## What this table does not cover
 
 **AAA calls.** This document specifies AA guidance only. AAA thresholds (7.0
 for normal and large text) apply independently of this table and are not
 extended here.
-
-**Weight within small text.** WCAG distinguishes bold at the large text
-boundary (14 pt bold qualifies as large text). This table does not extend that
-distinction into the small text zone. 12–15 px bold text is still small text
-and requires the same score as regular weight at that size.
 
 **Polarity.** OKCA scores are polarity-aware; this table is not. The threshold
 at each size applies regardless of whether the pair is light-on-dark or
