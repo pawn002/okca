@@ -12,7 +12,10 @@ compliance regulation.
 |------|--------------|-------------------|
 | Large text | ≥ 24 px, or ≥ 18.67 px bold | 3.0 |
 | Normal text | ≥ 16 px | 4.5 |
-| Small text | 12 – 15 px | 21 |
+| Small text | 15 px | 6.5 |
+| Small text | 14 px | 9.5 |
+| Small text | 13 px | 13.8 |
+| Small text | 12 px | 20 |
 | Below 12 px | — | not supported |
 
 ---
@@ -44,32 +47,31 @@ at sub-12 px sizes would be false confidence. Major production design systems
 (Material Design, GOV.UK, Apple HIG) treat 12 px as the practical minimum for
 any rendered text.
 
-**21 as the small text threshold.** The small text tier requires an OKCA score
-of 21. In practice, exactly one pairing achieves this: white (`#ffffff`) as the
-foreground on black (`#000000`), light-on-dark. No other combination reaches 21
-— not near-white on black (`#ffffff` on `#111111` scores 18.5), not black on
-white (the dark-on-light polarity cap prevents it from exceeding 20.0). This is
-intentional.
+**20 as the 12 px anchor.** A score of 20 is achievable in both polarities:
+white on black scores 21 (light-on-dark), black on white scores exactly 20.0
+(the dark-on-light polarity cap). The 12 px threshold therefore admits the
+maximum achromatic pair in either direction. No chromatic combination and no
+near-neutral pair reaches 20 — `#ffffff` on `#111111` scores 18.5; any chroma
+in the lighter element reduces the score further. This is intentional: 12 px
+text carries a real cost, and the required palette reflects that.
 
-The rationale is not that 7.0 (WCAG AAA) is insufficiently strict in principle —
-AAA is already demanding. The rationale is that 7.0 for small text creates false
-confidence. A designer who reaches AAA at 12 px and considers the job done has
-been given permission that the underlying readability does not support. The
-chromatic palette available at 7.0 is wide enough to include many combinations
-that are plausible in a colour picker but genuinely difficult at 12 px in
-real-world rendering conditions (sub-pixel anti-aliasing, device variability,
-ambient lighting).
+**The ramp from 12 px to 16 px.** Rather than a cliff from 4.5 (16 px) to 20
+(12 px), the small text zone uses a per-pixel exponential ramp between the two
+anchors. The ramp is geometric — each pixel step multiplies the required score
+by the same factor — which matches the general character of contrast scales and
+the nonlinear relationship between size and legibility already implied by the
+WCAG large text data (16 px → 4.5, 24 px → 3.0).
 
-At 21, the available palette is not "near-neutral" — it is a single pairing.
-That constraint is the point. It communicates honestly that 12 px text is not a
-decision to be decorated — it is a cost. If a design cannot use white on black
-at 12 px, the answer is to use 16 px, not to find a colour that clears 7.0.
+The intermediate values are not borrowed from any named external threshold.
+They stand on the shape of the ramp and the two anchor points alone.
 
-A further property: since OKCA's AAA threshold is 7.0 and the small text
-threshold is 21, the tiers are unambiguously distinct. A threshold of 7.0 for
-small text would read as "meet the same bar as large-text AAA" — which signals
-that small text is just another tier, slightly more demanding. A threshold of 21
-signals that it is categorically different.
+| px | Required score | Notes |
+|----|---------------|-------|
+| 16 | 4.5 | WCAG normal text AA |
+| 15 | 6.5 | ramp |
+| 14 | 9.5 | ramp |
+| 13 | 13.8 | ramp |
+| 12 | 20 | anchor — maximum achromatic pair, either polarity |
 
 ---
 
@@ -81,15 +83,12 @@ extended here.
 
 **Weight within small text.** WCAG distinguishes bold at the large text
 boundary (14 pt bold qualifies as large text). This table does not extend that
-distinction into the small text tier. 12–15 px bold text is still small text
-and requires 21.
+distinction into the small text zone. 12–15 px bold text is still small text
+and requires the same score as regular weight at that size.
 
-**Polarity.** OKCA scores are polarity-aware; this table is not. A score of 21
-is only achievable light-on-dark — the dark-on-light polarity cap (20.0) means
-black on white can never reach 21 regardless of palette. In practice this means
-the small text tier is light-on-dark only: white on black. The table states the
-threshold without prescribing polarity, but the arithmetic makes the direction
-implicit.
+**Polarity.** OKCA scores are polarity-aware; this table is not. The threshold
+at each size applies regardless of whether the pair is light-on-dark or
+dark-on-light.
 
 **Non-text elements.** WCAG's 3.0 threshold for UI components and graphical
 objects is a separate consideration not addressed here.
