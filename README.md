@@ -16,33 +16,33 @@ npm install @pawn002/okca
 
 ## Usage
 
-`calculateContrast(foreground, background)` — first argument is the element being evaluated (text, icon, or other visual element), second is the surface it sits on. Argument order matters: `okca(A, B) ≠ okca(B, A)`.
+`contrast(foreground, background)` — first argument is the element being evaluated (text, icon, or other visual element), second is the surface it sits on. Argument order matters: `okca(A, B) ≠ okca(B, A)`.
 
 ```ts
-import { calculateContrast } from '@pawn002/okca';
+import { contrast } from '@pawn002/okca';
 
-calculateContrast('#ffffff', '#000000');  // 21.0 — white on black
-calculateContrast('#000000', '#ffffff');  // 20.0 — black on white
+contrast('#ffffff', '#000000');  // 21.0 — white on black
+contrast('#000000', '#ffffff');  // 20.0 — black on white
 
 // WCAG AA boundary grey — fails in both directions
-calculateContrast('#ffffff', '#767676');  // 3.5
-calculateContrast('#767676', '#ffffff');  // 3.3
+contrast('#ffffff', '#767676');  // 3.5
+contrast('#767676', '#ffffff');  // 3.3
 
 // Chromatic false pass in WCAG — OKCA correctly fails
-calculateContrast('#ff69b4', '#1a1a1a'); // 3.7
+contrast('#ff69b4', '#1a1a1a'); // 3.7
 ```
 
 Also accepts CSS `oklab()` and `oklch()` alongside hex:
 
 ```ts
-calculateContrast('oklab(1 0 0)', 'oklab(0 0 0)');           // 21.0
-calculateContrast('oklch(70% 37.5% 180deg)', '#ffffff');      // mixed formats ok
+contrast('oklab(1 0 0)', 'oklab(0 0 0)');           // 21.0
+contrast('oklch(70% 37.5% 180deg)', '#ffffff');      // mixed formats ok
 ```
 
 CommonJS:
 
 ```js
-const { calculateContrast } = require('@pawn002/okca');
+const { contrast } = require('@pawn002/okca');
 ```
 
 A class-based API is also available:
@@ -50,7 +50,7 @@ A class-based API is also available:
 ```ts
 import { OkcaService } from '@pawn002/okca';
 const okca = new OkcaService();
-okca.calculateContrast('#fff', '#000');  // 21.0
+okca.contrast('#fff', '#000');  // 21.0
 ```
 
 ## Properties
