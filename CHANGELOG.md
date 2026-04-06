@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] - 2026-04-06
+
+### Changed (breaking)
+- `calculateContrast` renamed to `contrast` on both `OkcaService` and the convenience function — consistent with chroma.js, culori, and other color library conventions
+- Parameters renamed from `textColor`/`bgColor` to `foreground`/`background` — argument order documents polarity intent
+- Algorithm: polarity-aware model replaces symmetric ratio — `contrast(fg, bg) ≠ contrast(bg, fg)` when lightness differs; L-o-D cap 21, D-o-L cap 20
+- Algorithm: green-hue correction (`K_DARK`) removed — pure OKLCH/Oklab model with no hue-specific patches
+
+### Added
+- CSS `oklab()` and `oklch()` string inputs (all CSS angle units supported for hue)
+- Dual CJS + ESM build output with `exports` field for bundler and Node ESM compatibility
+- New transform exports: `oklchToOklab`, `oklabToOklch`, `cssOklabToOklab`, `cssOklchToOklch`
+
 ## [0.1.1] - 2026-03-16
 
 ### Fixed

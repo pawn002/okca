@@ -1,8 +1,12 @@
 # okca — OK Contrast Algorithm
 
-OKLCH-native contrast ratio with **zero false passes** against WCAG 2.x.
+OKCA is a color contrast algorithm that improves on WCAG 2.x while staying fully compatible with it: same 1–21 scale, same AA (4.5) and AAA (7.0) thresholds, and a mathematical guarantee of **zero false passes** — OKCA never approves a pair that WCAG rejects.
 
-OKCA outputs ratios on the familiar 1–21 scale with the same AA (4.5) and AAA (7.0) thresholds as WCAG. Drop-in replacement for WCAG contrast — same numbers for achromatic pairs, stricter for saturated chromatic colors.
+WCAG 2.x has two well-documented failure modes that OKCA closes:
+
+1. **Saturated chromatic false passes.** WCAG passes hot pink on near-black at 6.6:1 — a comfortable AA score. Practitioners flag it as inadequate; OKCA scores it 3.7. The difference is that WCAG's luminance formula cannot distinguish saturated colour from grey at the same luminance, while OKCA can.
+
+2. **Polarity blindness.** WCAG treats `contrast(A on B)` and `contrast(B on A)` as identical. Design systems and practitioners do not — dark mode and light mode are different decisions. OKCA scores them differently.
 
 ## Install
 
@@ -12,106 +16,68 @@ npm install @pawn002/okca
 
 ## Usage
 
+`calculateContrast(foreground, background)` — first argument is the element being evaluated (text, icon, or other visual element), second is the surface it sits on. Argument order matters: `okca(A, B) ≠ okca(B, A)`.
+
 ```ts
 import { calculateContrast } from '@pawn002/okca';
 
-calculateContrast('#ffffff', '#000000');  // 21
-calculateContrast('#fff', '#767676');     // 4.5 — WCAG AA boundary anchor
-calculateContrast('#ff69b4', '#1a1a1a'); // ~4.0 (WCAG gives 6.6 — a known false pass)
+calculateContrast('#ffffff', '#000000');  // 21.0 — white on black
+calculateContrast('#000000', '#ffffff');  // 20.0 — black on white
+
+// WCAG AA boundary grey — fails in both directions
+calculateContrast('#ffffff', '#767676');  // 3.5
+calculateContrast('#767676', '#ffffff');  // 3.3
+
+// Chromatic false pass in WCAG — OKCA correctly fails
+calculateContrast('#ff69b4', '#1a1a1a'); // 3.7
 ```
 
-Or use the class:
+Also accepts CSS `oklab()` and `oklch()` alongside hex:
+
+```ts
+calculateContrast('oklab(1 0 0)', 'oklab(0 0 0)');           // 21.0
+calculateContrast('oklch(70% 37.5% 180deg)', '#ffffff');      // mixed formats ok
+```
+
+CommonJS:
+
+```js
+const { calculateContrast } = require('@pawn002/okca');
+```
+
+A class-based API is also available:
 
 ```ts
 import { OkcaService } from '@pawn002/okca';
-
 const okca = new OkcaService();
-okca.calculateContrast('#fff', '#000');  // 21
+okca.calculateContrast('#fff', '#000');  // 21.0
 ```
-
-Accepts 3- and 6-digit hex strings (e.g. `#fff`, `#ff8000`).
-
-## What OKCA solves
-
-WCAG 2.x contrast has two well-documented failure modes:
-
-1. **False passes for saturated chromatic text.** Hot pink on near-black scores 6.6:1 under WCAG — a comfortable AA pass — but is demonstrably harder to read than achromatic pairs at equivalent luminance.
-
-2. **False passes for green hues near the AA boundary.** OKLCH $L^3$ (the perceptually uniform luminance proxy) underestimates WCAG Y for greens because sRGB weights green at 71.5%. A pair that WCAG rates 4.4 can appear to score 4.7 when uncorrected.
-
-OKCA corrects both while guaranteeing **FP = 0** — OKCA never approves a pair that WCAG rejects.
-
-## Algorithm
-
-OKCA uses OKLCH $L^3$ as a luminance proxy ($L^3 \approx Y_{\text{WCAG}}$ for neutral grays), with two targeted corrections:
-
-### 1. Chroma compression on lighter element
-
-Saturated lighter colors get a power-compression penalty proportional to their Oklab chroma. A saturation weight ramps quadratically from 0 (achromatic) to 1 (vivid):
-
-$$\text{satW} = \min\left(1, \left(\frac{C}{0.15}\right)^{2}\right)$$
-
-This drives a variable exponent that compresses the lighter element's luminance:
-
-$$\text{exp} = 1 + 0.75 \times \text{satW} \qquad Y_{\text{lighter}} = \left(L_{\text{lighter}}^{\text{exp}}\right)^3$$
-
-Since $L \le 1$, a higher exponent always produces a smaller value — the ratio can only decrease. Achromatic colors (C = 0) pass through unchanged.
-
-### 2. Green correction on darker element
-
-For darker elements with Oklab `a < -0.05` (true greens), a correction boosts the luminance proxy to close the gap between $L^3$ and WCAG Y:
-
-$$L_{\text{eff}} = L_{\text{darker}} + \max\left(0, \ 0.155 \times (-a - 0.05)\right)$$
-
-$$Y_{\text{darker}} = L_{\text{eff}}^{3}$$
-
-A larger denominator means a lower ratio — preventing green false passes.
-
-### Output
-
-$$\text{ratio} = \frac{Y_{\text{lighter}} + 0.05}{Y_{\text{darker}} + 0.05}$$
-
-Clamped to [1, 21], rounded to 1 decimal place.
-
-## FP = 0 guarantee
-
-Both corrections push the ratio in one direction:
-
-- **Chroma compression** can only *reduce* the numerator (lighter element penalty)
-- **Green correction** can only *increase* the denominator (darker element boost)
-
-$$\text{ratio}_{\text{OKCA}} \le \text{ratio}_{\text{WCAG}} \quad \text{for any input}$$
-
-A pair that fails WCAG will also fail OKCA. **Zero false passes by construction.**
-
-## Key constants
-
-| Constant | Value | Role |
-|----------|------:|------|
-| `C_THRESH` | 0.15 | Oklab chroma at which lighter-element penalty is fully active |
-| `CHROMA_K` | 0.75 | Maximum additional power exponent at full saturation |
-| `K_DARK` | 0.155 | Green correction coefficient on darker element |
-| `A_THRESH` | 0.05 | Oklab `a` gate: green correction fires only when `a < -0.05` |
 
 ## Properties
 
-- **Achromatic exactness:** white/black = 21, white/#767676 = 4.5 — matches WCAG exactly
-- **Symmetric:** okca(A, B) = okca(B, A) — order doesn't matter
+- **Polarity-aware:** `okca(foreground, background) ≠ okca(background, foreground)` — scores differ by direction
+- **Conservative:** all scores at or below WCAG equivalent; AA/AAA thresholds unchanged
 - **Zero dependencies:** pure TypeScript, no runtime deps
 - **Clean-room implementation:** no third-party contrast algorithm source code
 
 ## Validation
 
-Tested against 2,587 color pairs across three batteries (light-on-dark, dark-on-light, design systems from Tailwind/Material/Radix):
+Tested against 1,249 color pairs across three batteries (light-on-dark, dark-on-light, design systems from Tailwind/GOV.UK/USWDS):
 
-| Battery | Pairs | False Passes | False Failures |
-|---------|------:|:------------:|:--------------:|
-| Light-on-dark | 53 | 0 | 1 |
-| Dark-on-light | 54 | 0 | 0 |
-| Design systems | 2,480 | 0 | 28 |
-| **Total** | **2,587** | **0** | **29** |
+| Battery | Pairs | False Passes | WCAG Disagreements |
+|---------|------:|:------------:|:-----------------:|
+| Light-on-dark | 53 | 0 | — |
+| Dark-on-light | 54 | 0 | — |
+| Design systems | 1,142 | 0 | 111 |
+| **Total** | **1,249** | **0** | **111** |
 
-All false failures are warm saturated hues (red, fuchsia, pink) — principled conservatism, not miscalibration.
+**False passes: zero.** OKCA never approves a pair that WCAG rejects.
+
+**WCAG disagreements** are pairs where OKCA scores below 4.5 but WCAG scores ≥ 4.5. These are intentional. WCAG's 4.5:1 AA threshold is widely considered too permissive — white on `#767676` (WCAG's own AA boundary anchor) is not production-ready in most real-world designs. All 111 disagreements involve colors in that marginal zone.
+
+## Further reading
+
+Algorithm design, calibration rationale, FP = 0 proof, and extension guidelines: [`docs/OKCA_DESIGN.md`](docs/OKCA_DESIGN.md).
 
 ## License
 
