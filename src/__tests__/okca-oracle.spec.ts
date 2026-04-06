@@ -5,7 +5,7 @@
  * Strategy: run both implementations on the same color pairs, assert exact match.
  */
 import Color from 'colorjs.io';
-import { calculateContrast } from '../index';
+import { contrast } from '../index';
 
 // ── Reference implementation (colorjs-backed, copied from original) ──────────
 
@@ -133,13 +133,13 @@ const RANDOM_PAIRS = randomHexPairs(1000, 7);
 describe('OKCA contrast — zero-dep vs colorjs.io reference', () => {
   describe('edge-case pairs', () => {
     it.each(EDGE_PAIRS)('%s vs %s', (a, b) => {
-      expect(calculateContrast(a, b)).toBe(refContrast(a, b));
+      expect(contrast(a, b)).toBe(refContrast(a, b));
     });
   });
 
   describe('1000 random pairs', () => {
     it.each(RANDOM_PAIRS)('%s vs %s', (a, b) => {
-      expect(calculateContrast(a, b)).toBe(refContrast(a, b));
+      expect(contrast(a, b)).toBe(refContrast(a, b));
     });
   });
 });

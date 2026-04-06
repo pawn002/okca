@@ -29,7 +29,7 @@
  * WCAG 2.x relative luminance is computed inline (no colorjs dependency)
  * so we can cross-check OKCA scores independently.
  */
-import { calculateContrast } from '../index';
+import { contrast } from '../index';
 
 // ── WCAG 2.x reference (inline, zero-dep) ───────────────────────────────────
 
@@ -166,7 +166,7 @@ describe('design-system probe', () => {
     const falsePassPairs: string[] = [];
 
     for (const { fg, bg, label } of ALL_PAIRS) {
-      const okca = calculateContrast(fg, bg)!;
+      const okca = contrast(fg, bg)!;
       const wcag = wcagContrast(fg, bg);
 
       if (okca >= AA && wcag < AA) {
@@ -177,14 +177,11 @@ describe('design-system probe', () => {
     expect(falsePassPairs).toEqual([]);
   });
 
-  // "WCAG disagreements" are pairs where OKCA scores below 4.5 AA but WCAG
-  // scores ≥ 4.5. These are intentional — they identify colours in the
-  // marginal zone that WCAG passes but practitioners routinely reject.
   it('WCAG disagreement count matches baseline (111 total)', () => {
     let ffCount = 0;
 
     for (const { fg, bg } of ALL_PAIRS) {
-      const okca = calculateContrast(fg, bg)!;
+      const okca = contrast(fg, bg)!;
       const wcag = wcagContrast(fg, bg);
       if (okca < AA && wcag >= AA) ffCount++;
     }
@@ -192,13 +189,11 @@ describe('design-system probe', () => {
     expect(ffCount).toBe(111);
   });
 
-  // tw:46 — mid-range chromatic shades used as general-purpose colours.
-  // govuk:15 and uswds:50 — mid-range shades near WCAG's boundary.
   it('WCAG disagreement counts match per system', () => {
     const ffBySystem: Record<string, number> = {};
 
     for (const { fg, bg, system } of ALL_PAIRS) {
-      const okca = calculateContrast(fg, bg)!;
+      const okca = contrast(fg, bg)!;
       const wcag = wcagContrast(fg, bg);
       if (okca < AA && wcag >= AA) {
         ffBySystem[system] = (ffBySystem[system] || 0) + 1;
@@ -212,7 +207,7 @@ describe('design-system probe', () => {
 
   it('all results are in [1, 21] range', () => {
     for (const { fg, bg } of ALL_PAIRS) {
-      const r = calculateContrast(fg, bg);
+      const r = contrast(fg, bg);
       expect(r).not.toBeNull();
       expect(r!).toBeGreaterThanOrEqual(1);
       expect(r!).toBeLessThanOrEqual(21);

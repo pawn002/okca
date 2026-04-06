@@ -7,7 +7,7 @@
  * Each pair has a known expected OKCA contrast ratio. Any change to the
  * algorithm that shifts a value here is a regression that needs review.
  */
-import { calculateContrast } from '../index';
+import { contrast } from '../index';
 import { hexToOklab, hexToOklch } from '../transforms';
 
 // [fg, bg, expected OKCA, group + description]
@@ -71,7 +71,7 @@ const LIGHT_ON_DARK: ProbePair[] = [
 
   // G: Chromatic light text on dark neutral
   ['#ffff00', '#1a1a1a', 14.3, 'G  yellow on near-black'],
-  ['#00ff00', '#1a1a1a',  8.3, 'G  pure green on near-black'],  // unchanged
+  ['#00ff00', '#1a1a1a',  8.3, 'G  pure green on near-black'],
   ['#00ffff', '#1a1a1a', 10.3, 'G  cyan on near-black'],
   ['#ff69b4', '#1a1a1a',  3.7, 'G  hot pink on near-black'],
   ['#7fff00', '#333333',  6.5, 'G  chartreuse on dark gray'],
@@ -141,7 +141,7 @@ const DARK_ON_LIGHT: ProbePair[] = [
   ['#009090', '#ffffff',  2.9, 'N  #009090 on white'],
 
   // O: Light chromatic backgrounds
-  ['#000000', '#90ee90',  9.9, 'O  black on light green'],  // unchanged
+  ['#000000', '#90ee90',  9.9, 'O  black on light green'],
   ['#000000', '#add8e6', 11.6, 'O  black on light blue'],
   ['#000000', '#ffff99', 18.1, 'O  black on light yellow'],
   ['#000000', '#ffcccc', 13.2, 'O  black on light pink'],
@@ -155,7 +155,7 @@ const DARK_ON_LIGHT: ProbePair[] = [
   ['#2c2c2c', '#f8f8f8', 11.5, 'P  body text on off-white'],
   ['#444444', '#ffffff',  8.1, 'P  medium dark on white'],
   ['#1e3a5f', '#ffffff',  9.8, 'P  dark navy blue on white'],
-  ['#2d4a1e', '#ffffff',  8.6, 'P  dark forest text on white'],  // unchanged
+  ['#2d4a1e', '#ffffff',  8.6, 'P  dark forest text on white'],
   ['#5c1a1a', '#ffffff', 10.8, 'P  dark burgundy on white'],
   ['#1a1a5c', '#ffffff', 13.6, 'P  very dark indigo on white'],
 ];
@@ -164,13 +164,13 @@ const DARK_ON_LIGHT: ProbePair[] = [
 
 describe('curated probe: light on dark (WoB)', () => {
   it.each(LIGHT_ON_DARK)('%s on %s → %s (%s)', (fg, bg, expected, _note) => {
-    expect(calculateContrast(fg, bg)).toBe(expected);
+    expect(contrast(fg, bg)).toBe(expected);
   });
 });
 
 describe('curated probe: dark on light (BoW)', () => {
   it.each(DARK_ON_LIGHT)('%s on %s → %s (%s)', (fg, bg, expected, _note) => {
-    expect(calculateContrast(fg, bg)).toBe(expected);
+    expect(contrast(fg, bg)).toBe(expected);
   });
 });
 
@@ -186,7 +186,7 @@ describe('curated probe: invariants', () => {
 
   it('all results are in [1, 21] range', () => {
     for (const [fg, bg] of ALL_PAIRS) {
-      const r = calculateContrast(fg, bg);
+      const r = contrast(fg, bg);
       expect(r).not.toBeNull();
       expect(r!).toBeGreaterThanOrEqual(1);
       expect(r!).toBeLessThanOrEqual(21);
@@ -215,18 +215,18 @@ const PARITY_PAIRS: [string, string][] = [
 describe('CSS oklab() / oklch() input parity with hex', () => {
   for (const [fg, bg] of PARITY_PAIRS) {
     it(`${fg} / ${bg}`, () => {
-      const expected = calculateContrast(fg, bg)!;
+      const expected = contrast(fg, bg)!;
 
       const [fgL, fgA, fgB] = hexToOklab(fg)!;
       const [bgL, bgA, bgB] = hexToOklab(bg)!;
       const [fgLch0, fgC, fgH] = hexToOklch(fg)!;
       const [bgLch0, bgC, bgH] = hexToOklch(bg)!;
 
-      const viaOklab = calculateContrast(
+      const viaOklab = contrast(
         `oklab(${fgL} ${fgA} ${fgB})`,
         `oklab(${bgL} ${bgA} ${bgB})`,
       );
-      const viaOklch = calculateContrast(
+      const viaOklch = contrast(
         `oklch(${fgLch0} ${fgC} ${fgH})`,
         `oklch(${bgLch0} ${bgC} ${bgH})`,
       );

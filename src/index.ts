@@ -49,7 +49,7 @@ function parseToOklab(color: string): [number, number, number] | null {
 }
 
 export class OkcaService {
-  calculateContrast(foreground: string, background: string): number | null {
+  contrast(foreground: string, background: string): number | null {
     const tOklab = parseToOklab(foreground);
     const bOklab = parseToOklab(background);
     if (!tOklab || !bOklab) return null;
@@ -85,7 +85,7 @@ export class OkcaService {
 
   /**
    * Chroma-weighted power exponent for the lighter element.
-   * Returns 1.0 for achromatic colors, up to 1.75 for fully saturated (C ≥ C_THRESH).
+   * Returns 1.0 for achromatic colors, up to 1.5 for fully saturated (C ≥ C_THRESH).
    */
   private chromaExp(oklab: [number, number, number]): number {
     const a = oklab[1];
@@ -94,8 +94,6 @@ export class OkcaService {
     const satW = Math.min(1, (C / C_THRESH) ** 2);
     return 1 + CHROMA_K * satW;
   }
-
-
 }
 
 /**
@@ -112,8 +110,8 @@ export class OkcaService {
  * @param background - The surface it sits on
  * @returns Contrast ratio in [1, 21] rounded to 1 decimal place, or null if either color is invalid
  */
-export function calculateContrast(foreground: string, background: string): number | null {
-  return new OkcaService().calculateContrast(foreground, background);
+export function contrast(foreground: string, background: string): number | null {
+  return new OkcaService().contrast(foreground, background);
 }
 
 export {
