@@ -1,20 +1,5 @@
 # OKCA — Executive Brief
 
-> **Persona note** *(internal framing, not for distribution)*
->
-> **Dr. Mira Voss** — Senior Accessibility Researcher, W3C AG Working Group contributor.
-> Mira has spent twelve years on accessibility standards and tooling. She co-authored
-> a published critique of WCAG 2.x luminance scoring, follows the APCA debate closely,
-> and is actively involved in the WCAG 3.0 / Silver working group. She knows exactly
-> why hot pink on black passes WCAG and shouldn't. What she needs is not an explanation
-> of the problem — she wrote the paper on it — but evidence that a proposed fix is
-> methodologically sound, backward-compatible, and deployable today while the working
-> group process grinds forward. Her skepticism is high: she has seen many "WCAG
-> replacements" that introduced false passes while fixing false passes. Her first
-> question will be: *how do you prove it never passes what WCAG fails?*
-
----
-
 ## Executive Summary
 
 WCAG 2.x has two known measurement gaps: it over-rates saturated chromatic text on
