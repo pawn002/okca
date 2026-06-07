@@ -1,6 +1,6 @@
 # okca — OK Contrast Algorithm
 
-OKCA is a color contrast algorithm that improves on WCAG 2.x while staying fully compatible with it: same 1–21 scale, same AA (4.5) and AAA (7.0) thresholds, and — because every OKCA score is at or below the WCAG score for the same pair — **zero false passes relative to WCAG**: it never approves a pair that WCAG rejects. (See the FP = 0 proof in [the design notes](https://github.com/pawn002/okca/blob/main/docs/OKCA_DESIGN.md).)
+OKCA is a color contrast algorithm that improves on WCAG 2.x while staying fully compatible with it: same 1–21 scale, same AA (4.5) and AAA (7.0) thresholds, and — every OKCA score lands at or below the WCAG score for the same pair — **zero false passes relative to WCAG**: it never approves a pair that WCAG rejects. (FP = 0 holds by construction on the achromatic axis and is verified across the sRGB gamut for chromatic colors; see [the design notes](https://github.com/pawn002/okca/blob/main/docs/OKCA_DESIGN.md).)
 
 WCAG 2.x has two well-documented failure modes that OKCA closes:
 
@@ -77,7 +77,7 @@ Tested against 1,249 color pairs across three batteries (light-on-dark, dark-on-
 
 ## Further reading
 
-Algorithm design, calibration rationale, FP = 0 proof, and extension guidelines: [`docs/OKCA_DESIGN.md`](https://github.com/pawn002/okca/blob/main/docs/OKCA_DESIGN.md).
+Algorithm design, calibration rationale, the FP = 0 analysis (by-construction on the achromatic axis + gamut verification), and extension guidelines: [`docs/OKCA_DESIGN.md`](https://github.com/pawn002/okca/blob/main/docs/OKCA_DESIGN.md).
 
 ## License
 
