@@ -75,6 +75,8 @@ Tested against 1,249 color pairs across three batteries (light-on-dark, dark-on-
 
 **WCAG disagreements** are pairs where OKCA scores below 4.5 but WCAG scores ≥ 4.5. These are intentional. WCAG's 4.5:1 AA threshold is widely considered too permissive — white on `#767676` (WCAG's own AA boundary anchor) is not production-ready in most real-world designs. All 111 disagreements involve colors in that marginal zone.
 
+**Found a false pass?** FP = 0 is the invariant. If you run your palette through OKCA and find a pair it scores **above** the WCAG ratio (an sRGB input), that's a bug — [open an issue](https://github.com/pawn002/okca/issues) and I'll fix it.
+
 ## Further reading
 
 Algorithm design, calibration rationale, the FP = 0 analysis (by-construction on the achromatic axis + gamut verification), and extension guidelines: [`docs/OKCA_DESIGN.md`](https://github.com/pawn002/okca/blob/main/docs/OKCA_DESIGN.md).
