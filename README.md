@@ -1,6 +1,6 @@
 # okca — OK Contrast Algorithm
 
-OKCA is a color contrast algorithm that improves on WCAG 2.x while staying fully compatible with it: same 1–21 scale, same AA (4.5) and AAA (7.0) thresholds, and a mathematical guarantee of **zero false passes** — OKCA never approves a pair that WCAG rejects.
+OKCA is a color contrast algorithm that improves on WCAG 2.x while staying fully compatible with it: same 1–21 scale, same AA (4.5) and AAA (7.0) thresholds, and — every OKCA score lands at or below the WCAG score for the same pair — **zero false passes relative to WCAG**: it never approves a pair that WCAG rejects. (FP = 0 holds by construction on the achromatic axis and is verified across the sRGB gamut for chromatic colors; see [the design notes](https://github.com/pawn002/okca/blob/main/docs/OKCA_DESIGN.md).)
 
 WCAG 2.x has two well-documented failure modes that OKCA closes:
 
@@ -28,7 +28,7 @@ contrast('#000000', '#ffffff');  // 20.0 — black on white
 contrast('#ffffff', '#767676');  // 3.5
 contrast('#767676', '#ffffff');  // 3.3
 
-// Chromatic false pass in WCAG — OKCA correctly fails
+// WCAG over-rates this chromatic pair (6.6:1); OKCA scores it below AA
 contrast('#ff69b4', '#1a1a1a'); // 3.7
 ```
 
@@ -75,9 +75,11 @@ Tested against 1,249 color pairs across three batteries (light-on-dark, dark-on-
 
 **WCAG disagreements** are pairs where OKCA scores below 4.5 but WCAG scores ≥ 4.5. These are intentional. WCAG's 4.5:1 AA threshold is widely considered too permissive — white on `#767676` (WCAG's own AA boundary anchor) is not production-ready in most real-world designs. All 111 disagreements involve colors in that marginal zone.
 
+**Found a false pass?** FP = 0 is the invariant. If you run your palette through OKCA and find a pair it scores **above** the WCAG ratio (an sRGB input), that's a bug — [open an issue](https://github.com/pawn002/okca/issues) and I'll fix it.
+
 ## Further reading
 
-Algorithm design, calibration rationale, FP = 0 proof, and extension guidelines: [`docs/OKCA_DESIGN.md`](docs/OKCA_DESIGN.md).
+Algorithm design, calibration rationale, the FP = 0 analysis (by-construction on the achromatic axis + gamut verification), and extension guidelines: [`docs/OKCA_DESIGN.md`](https://github.com/pawn002/okca/blob/main/docs/OKCA_DESIGN.md).
 
 ## License
 

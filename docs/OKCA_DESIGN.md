@@ -29,7 +29,7 @@ OKCA processes a foreground/background color pair in five steps:
 4. **Compute the darker element's proxy.** The darker element uses $L^3$ directly — no chroma correction applied.
 5. **Apply polarity-aware scaling.** Form a raw ratio from the two luminance proxies, then scale with a power curve that differs by polarity: L-o-D uses a cap of 21; D-o-L uses 20. Output is in [1, 21].
 
-Sections 3–7 cover each step in depth. Section 4 proves FP = 0 holds across all inputs.
+Sections 3–7 cover each step in depth. Section 4 establishes FP = 0 — by construction on the achromatic axis, and by gamut-wide verification for chromatic inputs.
 
 ---
 
@@ -37,7 +37,7 @@ Sections 3–7 cover each step in depth. Section 4 proves FP = 0 holds across al
 
 ### 2.1 Safety: FP = 0 Is Non-Negotiable
 
-A contrast algorithm used for accessibility decisions must never approve a pair that WCAG rejects. This is not a calibration preference --- it is the definition of a safe accessibility tool. OKCA guarantees this mathematically (see [Section 4](#4-the-fp--0-guarantee)).
+A contrast algorithm used for accessibility decisions must never approve a pair that WCAG rejects. This is not a calibration preference --- it is the definition of a safe accessibility tool. FP = 0 holds by construction on the achromatic axis and is verified across the sRGB gamut for chromatic inputs (see [Section 4](#4-the-fp--0-guarantee)).
 
 ### 2.2 WCAG-Compatible Scale and Thresholds
 
@@ -87,37 +87,73 @@ OKLCH $L^3$ addresses both points directly. For neutral greys, $L^3 \approx Y_{\
 
 ## 4. The FP = 0 Guarantee
 
-### Step 3: chroma compression reduces the lighter-element proxy
+FP = 0 means that for **every** input pair the final OKCA score is at most the
+WCAG ratio, so OKCA never approves a pair WCAG rejects. The argument below
+separates the part that holds **by construction** from the part that is a
+**calibration property verified across the gamut** — they are not the same, and
+conflating them overstates the guarantee.
+
+### Step 3: chroma compression reduces the lighter-element proxy (by construction)
 
 The exponent applied to the lighter element is $\ge 1$ and $L_{\text{lighter}} \le 1$, so:
 
-$$L^{\text{exp}} \le L^1 \quad \Rightarrow \quad Y_{\text{lighter}} \le L^3$$
+$$L^{\text{exp}} \le L^1 \quad \Rightarrow \quad Y_{\text{lighter}} = (L^{\text{exp}})^3 \le L^3$$
 
-The numerator in the raw ratio can only decrease or stay the same.
+The raw-ratio numerator can only decrease relative to the uncompressed $L^3$.
 
-### Step 4: pure $L^3$ for the darker element
+### The luminance proxy is exact only on the achromatic axis
 
-No correction is applied to the darker element. With $Y_{\text{lighter}}$ at most equal to its WCAG equivalent, and the denominator at most equal to its WCAG equivalent:
+OKCA uses $L^3$ as its luminance proxy. For neutral greys this equals WCAG
+luminance to floating-point precision ($L^3 = Y_{\text{WCAG}}$). **Off the
+achromatic axis it does not.** OKLCH L is not a fixed-weight sum of linearised
+RGB, so $L^3$ diverges from $Y_{\text{WCAG}}$ by hue — greens **undershoot**
+($L^3 < Y_{\text{WCAG}}$; pure green $L^3 = 0.65$ vs $Y = 0.715$), reds and blues
+overshoot. When the **darker** element is chromatic — especially green — its
+proxy can fall below $Y_{\text{WCAG}}$, shrinking the denominator and pushing the
+**raw** ratio *above* the WCAG ratio. So, for chromatic darker elements:
 
-$$r_{\text{raw}} = \frac{Y_{\text{lighter}} + 0.05}{Y_{\text{darker}} + 0.05} \le r_{\text{WCAG}}$$
+$$r_{\text{raw}} = \frac{Y_{\text{lighter}} + 0.05}{Y_{\text{darker}} + 0.05} \;\not\le\; r_{\text{WCAG}} \quad\text{in general.}$$
 
-### Step 5: polarity power curve cannot exceed the raw ratio
+This is the step where a naive "$L^3 = Y_{\text{WCAG}}$, therefore $r_{\text{raw}} \le r_{\text{WCAG}}$" argument fails. FP = 0 is **not** carried by the raw ratio.
 
-The ratio formula is:
+### Step 5: the polarity curve supplies the margin (by construction)
 
-$$\text{ratio} = \text{CAP} \times \left(\frac{r_{\text{raw}}}{21}\right)^{k}$$
+The final ratio is
 
-where $k =$ `POL_K` $= 1.175 \ge 1$ and $\text{CAP} \le 21$.
+$$\text{ratio} = \text{CAP} \times \left(\frac{r_{\text{raw}}}{21}\right)^{k}, \qquad k = \text{POL\_K} = 1.175 \ge 1, \quad \text{CAP} \le 21.$$
 
-Rewriting:
+Rewriting, $\text{ratio} = r_{\text{raw}} \times (r_{\text{raw}}/21)^{k-1} \times (\text{CAP}/21)$. Since $k \ge 1$ and $r_{\text{raw}} \le 21$, the factor $(r_{\text{raw}}/21)^{k-1} \le 1$; and $\text{CAP}/21 \le 1$. Therefore, **unconditionally**:
 
-$$\text{ratio} = r_{\text{raw}} \times \left(\frac{r_{\text{raw}}}{21}\right)^{k-1} \times \frac{\text{CAP}}{21}$$
+$$\text{ratio} \le r_{\text{raw}}$$
 
-Since $k \ge 1$, $(r_{\text{raw}}/21)^{k-1} \le 1$ for $r_{\text{raw}} \le 21$. Since $\text{CAP} \le 21$, $\text{CAP}/21 \le 1$. Therefore:
+The compression is what creates **headroom**: the final score sits below the raw
+ratio by a margin that grows as the ratio falls below 21.
 
-$$\text{ratio} \le r_{\text{raw}} \le r_{\text{WCAG}}$$
+### Why FP = 0 holds
 
-**FP = 0 holds for both polarities.** A pair WCAG fails will also fail OKCA.
+- **Achromatic axis — by construction.** $L^3 = Y_{\text{WCAG}}$ exactly, so
+  $r_{\text{raw}} = r_{\text{WCAG}}$, and $\text{ratio} \le r_{\text{raw}} = r_{\text{WCAG}}$. FP = 0 follows deductively.
+- **Chromatic inputs — by calibrated headroom, verified across the gamut.** The
+  raw ratio can exceed WCAG, but the Step-5 headroom exceeds that overshoot
+  everywhere in the sRGB gamut, so the final score lands at or below WCAG. This
+  is a quantitative property of the calibrated constants ($k$, CAP, the chroma
+  penalty) and the gamut geometry — **not a closed-form bound** — and is
+  established by exhaustive gamut verification, not deduction.
+
+**Verification.** Across a sweep of the sRGB gamut — the full grey×grey grid,
+hundreds of thousands of random pairs, an OKLCH lightness/chroma/hue grid, and a
+green-darker stress band, in both polarities (~1.2M evaluations) — the final
+OKCA score never exceeded the WCAG ratio: **0 false passes**, at full precision
+and at the rounded output. The largest raw-ratio overshoot observed (≈ 0.44,
+light-pink on dark-green: $r_{\text{raw}} = 9.55$ vs $r_{\text{WCAG}} = 9.11$)
+was fully absorbed by Step-5 compression (final 8.3, well under WCAG 9.1).
+
+**Honest scope.** FP = 0 is *guaranteed by construction only on the achromatic
+axis*; for chromatic inputs it is a *calibration property verified across the
+sRGB gamut*, not a closed-form theorem. It is sensitive to (a) any change to
+$k$, CAP, or the chroma penalty, and (b) inputs outside sRGB (e.g. wide-gamut
+P3/Rec.2020 `oklch()` values), neither of which the verification covers — both
+must be re-verified (see [Section 11](#11-extension-guidelines)).
 
 ---
 
@@ -194,7 +230,7 @@ For L-o-D ($\text{CAP} = 21$): the formula pins exactly at 21.0 when $r = 21$ an
 
 $$k = \frac{\ln(3.5/21)}{\ln(4.57/21)} \approx 1.1746 \rightarrow 1.175$$
 
-**FP = 0 proof for Step 5.** Restated from Section 4: for $k \ge 1$ and $\text{CAP} \le 21$, the polarity ratio is always $\le r_{\text{raw}} \le r_{\text{WCAG}}$.
+**FP = 0 and Step 5.** For $k \ge 1$ and $\text{CAP} \le 21$ the polarity ratio is always $\le r_{\text{raw}}$ (Section 4). On the achromatic axis $r_{\text{raw}} = r_{\text{WCAG}}$; for chromatic inputs the resulting headroom is what holds the final score $\le r_{\text{WCAG}}$ across the gamut.
 
 ---
 
@@ -254,7 +290,7 @@ Understanding the scope prevents incorrect use and misguided extension attempts.
 
 When modifying the algorithm, these properties must be preserved:
 
-1. **FP = 0.** Run all three probe batteries after any constant change. A false pass in the production service requires that the probe test be run with rounding applied (`toFixed(1)` on the raw ratio), not just with raw floats.
+1. **FP = 0.** Re-verify FP = 0 **across the sRGB gamut**, not only on the three probe batteries — the property is calibration-dependent off the achromatic axis (Section 4), so a constant change can introduce a false pass in a hue region the batteries miss. Run checks with rounding applied (`toFixed(1)` on the raw ratio), not just raw floats.
 
 2. **Achromatic anchors.** White/black = 21.0 (L-o-D) / 20.0 (D-o-L). White/`#767676` = 3.5 (L-o-D) / 3.3 (D-o-L). These are the calibration reference points. Any unintended deviation breaks the polarity model calibration.
 

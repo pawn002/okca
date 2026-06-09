@@ -9,10 +9,11 @@ reach production, where real users with contrast sensitivity loss cannot read th
 
 OKCA is a drop-in contrast algorithm that closes both gaps while preserving the
 familiar 1–21 scale and AA/AAA thresholds. It introduces no new compliance vocabulary.
-Its central guarantee — that it never passes a pair WCAG fails — is proven from the
-algorithm's structure, not inferred from test coverage. A 1,249-pair audit across
-Tailwind, GOV.UK Design System, and USWDS found zero false passes and flagged 111 pairs
-that WCAG passes but practitioners consistently reject as inadequate.
+Its central property — that it never passes a pair WCAG fails (zero false passes) — holds
+by construction on the achromatic axis and is verified across the sRGB gamut for chromatic
+colours. A 1,249-pair audit across Tailwind, GOV.UK Design System, and USWDS found zero
+false passes and flagged 111 pairs that WCAG passes but practitioners consistently reject
+as inadequate.
 
 ---
 
@@ -70,17 +71,28 @@ pink on near-black: WCAG 6.6, OKCA 3.7.
 ## The Safety Guarantee
 
 The property that matters most for a working group context: **OKCA produces zero
-false passes against WCAG 2.x.**
+false passes against WCAG 2.x** — it never approves a pair WCAG rejects.
 
-This is not a calibration claim — it is provable from the algorithm's structure.
-The chroma compression exponent is ≥ 1 applied to a value ≤ 1, so the lighter
-element's luminance proxy can only decrease or stay the same. The polarity power
-curve `CAP × (r/21)^k` satisfies `ratio ≤ r_raw ≤ r_WCAG` for k ≥ 1 and CAP ≤ 21
-by construction. Any pair WCAG 2.x fails, OKCA also fails — no exceptions,
-no heuristic boundary.
+The guarantee has two parts, held to different standards of certainty:
 
-The 1,249-pair test battery (curated probes + Tailwind, GOV.UK, USWDS) confirms
-zero false passes at production rounding precision (`toFixed(1)`).
+- **Achromatic axis — by construction.** For neutral greys `L³ = Y_WCAG` exactly, so
+  the raw OKCA ratio equals the WCAG ratio; the polarity curve `CAP × (r/21)^k`
+  (k ≥ 1, CAP ≤ 21) can only lower it. FP = 0 follows deductively.
+- **Chromatic inputs — by calibrated headroom, verified across the gamut.** Off the
+  achromatic axis the `L³` proxy diverges from WCAG luminance, so the *raw* ratio can
+  sit slightly above WCAG. What guarantees FP = 0 is the headroom the polarity curve
+  creates: across the sRGB gamut it exceeds that overshoot everywhere, so the final
+  score lands at or below WCAG. This is a calibration property of the tuned constants
+  and the gamut geometry — **not a closed-form theorem** — established by exhaustive
+  verification.
+
+**Verification.** A sweep of ~1.2M evaluations across the sRGB gamut (full grey grid,
+hundreds of thousands of random pairs, an OKLCH lightness/chroma/hue grid, and a
+green-darker stress band, both polarities) found the final OKCA score never exceeding
+the WCAG ratio — **0 false passes**, at full precision and at production rounding
+(`toFixed(1)`). The largest raw-ratio overshoot observed (≈ 0.44) was fully absorbed
+by the polarity compression. Full argument:
+[`docs/OKCA_DESIGN.md` §4](https://github.com/pawn002/okca/blob/main/docs/OKCA_DESIGN.md#4-the-fp--0-guarantee).
 
 ---
 
@@ -109,6 +121,6 @@ pairs.
 | AA / AAA thresholds | 4.5 / 7.0 | 4.5 / 7.0 |
 | Polarity | Symmetric | Asymmetric |
 | Chromatic lighter element | Over-rated | Chroma-penalised |
-| False passes vs. WCAG 2.x | Reference | **Zero (proven)** |
+| False passes vs. WCAG 2.x | Reference | **Zero** (by-construction on achromatic axis; gamut-verified for chromatic) |
 | Marginal pairs flagged in audit | 0 of 111 | 111 of 111 |
 | Deployable today | Yes | Yes |

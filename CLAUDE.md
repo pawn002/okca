@@ -11,7 +11,6 @@ be kept in sync:
 | `src/index.ts` | Algorithm doc-comment at top of file |
 | `README.md` | Public API consumers |
 | `docs/OKCA_DESIGN.md` | Contributors / architectural reference |
-| `docs/OKCA_DESIGN.tex` | LaTeX source (mirrors the Markdown design doc) |
 | `docs/WCAG_DISAGREEMENTS.md` | Counts and calibration reference |
 | `docs/OKCA_EXECUTIVE_BRIEF.md` | Non-technical stakeholders / decision-makers |
 
