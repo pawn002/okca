@@ -148,7 +148,7 @@ and at the rounded output. The largest raw-ratio overshoot observed (≈ 0.44,
 light-pink on dark-green: $r_{\text{raw}} = 9.55$ vs $r_{\text{WCAG}} = 9.11$)
 was fully absorbed by Step-5 compression (final 8.3, well under WCAG 9.1).
 
-**Honest scope.** FP = 0 is *guaranteed by construction only on the achromatic
+**Scope and caveats.** FP = 0 is *guaranteed by construction only on the achromatic
 axis*; for chromatic inputs it is a *calibration property verified across the
 sRGB gamut*, not a closed-form theorem. It is sensitive to (a) any change to
 $k$, CAP, or the chroma penalty, and (b) inputs outside sRGB (e.g. wide-gamut

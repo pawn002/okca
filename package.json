@@ -1,7 +1,7 @@
 {
   "name": "@pawn002/okca",
-  "version": "1.0.1",
-  "description": "OK Contrast Algorithm — OKLCH-native, WCAG-compatible contrast ratio with zero false passes",
+  "version": "1.0.2",
+  "description": "OK Contrast Algorithm — OKLCH-native, WCAG-compatible contrast ratio with zero false passes relative to WCAG",
   "author": "John Z. Rioflorido",
   "main": "./dist/index.js",
   "module": "./dist/esm/index.js",
