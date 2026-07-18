@@ -10,8 +10,9 @@ import { contrast } from '../index';
 // ── Reference implementation (colorjs-backed, copied from original) ──────────
 
 const C_THRESH  = 0.15;
-const CHROMA_K  = 0.50;
-const POL_K     = 1.175;
+const CHROMA_K  = 0.65;
+const POL_K     = 1.100;
+const LOD_CAP   = 20.9;
 const DOL_CAP   = 20;
 
 function refContrast(textColor: string, bgColor: string): number | null {
@@ -44,7 +45,7 @@ function refContrast(textColor: string, bgColor: string): number | null {
   // Step 5 — polarity-aware scaling
   const isLightOnDark = tL > bL;
   const rawRatio = (lighterY + 0.05) / (darkerY + 0.05);
-  const cap = isLightOnDark ? 21 : DOL_CAP;
+  const cap = isLightOnDark ? LOD_CAP : DOL_CAP;
   const ratio = cap * Math.pow(rawRatio / 21, POL_K);
   return parseFloat(Math.max(1, Math.min(21, ratio)).toFixed(1));
 }
