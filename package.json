@@ -13,13 +13,21 @@
       "types": "./dist/index.d.ts"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc && tsc -p tsconfig.esm.json",
     "test": "jest",
+    "calibrate": "tsc -p tsconfig.scripts.json && node dist-scripts/scripts/calibration-sweep.js",
+    "hue": "tsc -p tsconfig.scripts.json && node dist-scripts/scripts/hue-analysis.js",
+    "divergence": "tsc -p tsconfig.scripts.json && node dist-scripts/scripts/divergence-analysis.js",
     "release:patch": "npm version patch && git push origin main --follow-tags",
     "release:minor": "npm version minor && git push origin main --follow-tags",
-    "release:major": "npm version major && git push origin main --follow-tags"
+    "release:major": "npm version major && git push origin main --follow-tags",
+    "flexibility": "tsc -p tsconfig.scripts.json && node dist-scripts/scripts/flexibility-analysis.js",
+    "fp0": "tsc -p tsconfig.scripts.json && node dist-scripts/scripts/fp0-proof.js",
+    "capcost": "tsc -p tsconfig.scripts.json && node dist-scripts/scripts/cap-cost.js"
   },
   "devDependencies": {
     "colorjs.io": "^0.5.2",
