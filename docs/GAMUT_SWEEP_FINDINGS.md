@@ -1,17 +1,32 @@
 # Gamut Sweep Findings — Hue-Specific Behaviour & the L³/Y Divergence
 
 Research notes from sweeping OKCA across the sRGB gamut and stratifying by
-OKLCH hue and chroma. **Read-only analysis — no algorithm change.** Everything
-here is reproducible:
+OKLCH hue and chroma. This is *analysis* — running it changed no algorithm code.
+
+> **Snapshot — read this first.** This document is a **point-in-time
+> characterization of a specific calibration**, not a live spec. The figures
+> below were computed at `POL_K = 1.100`, `CHROMA_K = 0.65`, `LOD_CAP = 20.9`,
+> `DOL_CAP = 20`, `C_THRESH = 0.15`. Two kinds of finding live here, and they
+> age differently:
+>
+> - **Structural (constant-independent):** the `δ = L³ − Y` divergence in
+>   §0–§2. It depends only on OKCA's luminance proxy (`L³`) versus WCAG
+>   luminance — **not** on the scaling constants — so it is stable across any
+>   recalibration that keeps the `L³` proxy.
+> - **Calibration-dependent:** the conservatism/slack, disagreement counts, and
+>   FP-margin figures in §3–§4. These shift if the constants change (e.g.
+>   lowering `LOD_CAP` widened the green FP margin from 0.2 to 0.3). **Re-run
+>   `npm run hue` after any constant change to regenerate them.**
+
+Reproduce:
 
 ```
 npm run hue          # scripts/hue-analysis.ts       — conservatism & FP margin by hue
 npm run divergence   # scripts/divergence-analysis.ts — L³ vs WCAG-Y divergence
 ```
 
-All OKCA scores are at the current production constants (`POL_K = 1.100`,
-`CHROMA_K = 0.65`, anchor white/#767676 = 3.9). WCAG values use the standard
-relative-luminance formula, reimplemented inline (clean-room).
+WCAG values use the standard relative-luminance formula, reimplemented inline
+(clean-room).
 
 ---
 
@@ -111,21 +126,21 @@ disagreement-zone pairs (OKCA < 4.5 while WCAG ≥ 4.5):
 
 | hue | bin° | n | mean slack (L-o-D) | mean slack (D-o-L) | disagreements (LoD / DoL) |
 |-----|-----:|--:|-------------------:|-------------------:|--------------------------:|
-| red        |   0–30  |  981 | 1.04 | 1.26 | 171 / 200 |
-| red-orange |  30–60  |  679 | 0.85 | 1.04 |  82 / 88 |
-| orange     |  60–90  |  336 | 0.61 | 0.78 |  23 / 28 |
-| yellow     |  90–120 |  348 | 0.51 | 0.67 |  23 / 28 |
-| green      | 120–150 | 1011 | **0.36** | 0.54 |  41 / 65 |
-| green-teal | 150–180 |  459 | **0.36** | 0.54 |  24 / 29 |
-| cyan       | 180–210 |  244 | 0.41 | 0.58 |  13 / 16 |
-| sky-blue   | 210–240 |  336 | 0.47 | 0.64 |  15 / 22 |
-| blue       | 240–270 | 1014 | 0.95 | 1.24 |  95 / 124 |
-| purple     | 270–300 | 1021 | **1.22** | 1.51 | 135 / 170 |
-| magenta    | 300–330 | 1127 | 1.11 | 1.33 | **215 / 242** |
-| pink       | 330–360 |  977 | 1.04 | 1.23 | 148 / 171 |
+| red        |   0–30  |  981 | 1.06 | 1.26 | 174 / 200 |
+| red-orange |  30–60  |  679 | 0.86 | 1.04 |  82 / 88 |
+| orange     |  60–90  |  336 | 0.63 | 0.78 |  23 / 28 |
+| yellow     |  90–120 |  348 | 0.52 | 0.67 |  23 / 28 |
+| green      | 120–150 | 1011 | **0.38** | 0.54 |  43 / 65 |
+| green-teal | 150–180 |  459 | **0.38** | 0.54 |  25 / 29 |
+| cyan       | 180–210 |  244 | 0.43 | 0.58 |  13 / 16 |
+| sky-blue   | 210–240 |  336 | 0.48 | 0.64 |  15 / 22 |
+| blue       | 240–270 | 1014 | 0.98 | 1.24 |  97 / 124 |
+| purple     | 270–300 | 1021 | **1.25** | 1.51 | 136 / 170 |
+| magenta    | 300–330 | 1127 | 1.14 | 1.33 | **219 / 242** |
+| pink       | 330–360 |  977 | 1.05 | 1.23 | 150 / 171 |
 
 OKCA is most conservative on the **purple / magenta / pink / red / blue** arc
-(~1.0–1.2 points below WCAG) and least on **green / teal / cyan** (~0.36). The
+(~1.0–1.2 points below WCAG) and least on **green / teal / cyan** (~0.38). The
 disagreement zone — false failures — concentrates almost entirely in the former.
 The per-hue slack ranks **identically** to the per-hue raw bias in §2, so δ is
 the *mechanism*, not merely a correlate. D-o-L slack runs ~0.2 above L-o-D
@@ -141,8 +156,8 @@ everywhere — 0 false passes across ~14M pairs:
 
 | darker-element hue | bin° | pairs | min WCAG−OKCA margin | tightest pair |
 |--------------------|-----:|------:|---------------------:|---------------|
-| green      | 120–150 | 1,114,112 | **0.2** | `#ffffd8` on `#001800` (OKCA 18.0 / WCAG 18.2) |
-| green-teal | 150–180 |   491,776 | **0.2** | `#fcffd8` on `#00240c` (OKCA 16.0 / WCAG 16.2) |
+| green      | 120–150 | 1,114,112 | **0.3** | `#ffffd8` on `#002400` (OKCA 16.1 / WCAG 16.4) |
+| green-teal | 150–180 |   491,776 | **0.3** | `#fcffd8` on `#00240c` (OKCA 15.9 / WCAG 16.2) |
 | yellow     |  90–120 |   348,160 | 0.4 | |
 | cyan       | 180–210 |   187,136 | 0.4 | |
 | sky-blue   | 210–240 |   335,104 | 0.4 | |
@@ -150,12 +165,14 @@ everywhere — 0 false passes across ~14M pairs:
 | red        |   0–30  | 1,566,720 | 0.5 | |
 | orange     |  60–90  |   295,936 | 0.5 | |
 | purple     | 270–300 | 2,950,656 | 0.5 | |
-| magenta    | 300–330 | 1,840,896 | 0.5 | |
+| magenta    | 300–330 | 1,840,896 | 0.6 | |
 | pink       | 330–360 | 1,270,784 | 0.5 | |
 
-The FP=0 safety margin is tightest at **green/green-teal (0.2)** — every other
-hue keeps 0.4–0.5. The safety wall is effectively a *green* wall (consistent
+The FP=0 safety margin is tightest at **green/green-teal (0.3)** — every other
+hue keeps 0.4–0.6. The safety wall is effectively a *green* wall (consistent
 with the light-magenta-on-dark-green worst case seen during calibration).
+(At the earlier `LOD_CAP = 21` this margin was 0.2; lowering the cap to 20.9
+widened it — the same headroom that made FP=0 provable in `docs/FP0_PROOF.md`.)
 
 ---
 
@@ -165,7 +182,7 @@ Findings §2–§4 are one fact viewed three ways. Because `L³` **undershoots**
 for green and **overshoots** for blue/purple:
 
 - **Green / cyan** land ≈ WCAG → least conservative (small slack) **and**
-  tightest FP=0 margin (0.2). The FP=0 constraint is effectively *set by green*.
+  tightest FP=0 margin (0.3). The FP=0 constraint is effectively *set by green*.
 - **Blue → purple → magenta → red** land well below WCAG → most conservative
   (large slack), abundant FP margin, and nearly all the false failures.
 
@@ -187,8 +204,8 @@ FP = 0 forces `OKCA ≤ WCAG` for every pair. So OKCA can only ever express
 WCAG's **over-rating** (blue/purple/saturated, where δ > 0 makes OKCA stricter).
 Where OKCA's own proxy says WCAG is **too harsh** (green, δ < 0, OKCA would score
 *higher* than WCAG), FP = 0 clamps it — that signal is structurally hidden. The
-0.2 green FP margin is OKCA straining against its own leash. **OKCA surfaces half
-of WCAG's hue-luminance weakness by design.**
+tight (0.3) green FP margin is OKCA straining against its own leash. **OKCA
+surfaces half of WCAG's hue-luminance weakness by design.**
 
 ### Important limit
 
