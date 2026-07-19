@@ -7,13 +7,14 @@ dark backgrounds, and it scores contrast symmetrically when the perceptual reali
 not symmetric. Both cause marginal colour combinations to pass automated checks and
 reach production, where real users with contrast sensitivity loss cannot read them.
 
-OKCA is a drop-in contrast algorithm that closes both gaps while preserving the
-familiar 1–21 scale and AA/AAA thresholds. It introduces no new compliance vocabulary.
-Its central property — that it never passes a pair WCAG fails (zero false passes) — is
-guaranteed by construction across the full sRGB gamut (an exact identity plus
-interval-verified lemmas, `docs/FP0_PROOF.md`). A 1,249-pair audit across Tailwind, GOV.UK Design System, and USWDS found zero
-false passes and flagged 97 pairs that WCAG passes but practitioners consistently reject
-as inadequate.
+OKCA is a **stricter drop-in for WCAG 2.x** that closes both gaps on the familiar 1–21
+scale and the same AA/AAA thresholds — no new compliance vocabulary. Its one load-bearing
+property is safety: **it is never more permissive than WCAG.** Every score lands at or
+below the WCAG score for the same pair, so a pair that clears OKCA always clears WCAG.
+That property is verified across the full sRGB gamut (an exact identity plus
+interval-checked lemmas, `docs/FP0_PROOF.md`). A 1,249-pair audit across Tailwind, GOV.UK
+Design System, and USWDS found zero false passes and flagged 97 pairs that WCAG passes but
+practitioners consistently reject as inadequate.
 
 ---
 
@@ -73,8 +74,8 @@ pink on near-black: WCAG 6.6, OKCA 3.6.
 The property that matters most for a working group context: **OKCA produces zero
 false passes against WCAG 2.x** — it never approves a pair WCAG rejects.
 
-The guarantee is **proven by construction for the full sRGB gamut** — not
-calibration-dependent headroom. The proof has three parts:
+The guarantee is **verified for the full sRGB gamut** — not calibration-dependent
+headroom. The argument has three parts:
 
 - **Algebraic reduction.** `OKCA ≤ WCAG` separates into two single-element
   factors: it is equivalent to `(CAP/21^k)·A(lighter)·B(darker) ≤ 1`.
@@ -120,6 +121,6 @@ pairs.
 | AA / AAA thresholds | 4.5 / 7.0 | 4.5 / 7.0 |
 | Polarity | Symmetric | Asymmetric |
 | Chromatic lighter element | Over-rated | Chroma-penalised |
-| False passes vs. WCAG 2.x | Reference | **Zero** (proven by construction across sRGB: identity + interval-verified lemmas) |
+| False passes vs. WCAG 2.x | Reference | **Zero** (verified across sRGB: exact identity + interval-checked lemmas) |
 | Marginal pairs flagged in audit | 0 of 97 | 97 of 97 |
 | Deployable today | Yes | Yes |

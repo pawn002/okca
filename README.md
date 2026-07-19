@@ -1,19 +1,14 @@
 # okca — OK Contrast Algorithm
 
-OKCA is a color contrast algorithm that improves on WCAG 2.x while staying a drop-in for it: same **1–21 scale**, same AA (4.5) and AAA (7.0) thresholds, and — every OKCA score lands **strictly at or below** the WCAG score for the same pair — **zero false passes relative to WCAG**: it never approves a pair that WCAG rejects. FP = 0 is **guaranteed by construction** across the full sRGB gamut (an exact identity plus interval-verified lemmas; see [`docs/FP0_PROOF.md`](https://github.com/pawn002/okca/blob/main/docs/FP0_PROOF.md)).
+**A stricter drop-in for WCAG 2.x contrast.** Same 1–21 scale, same AA (4.5) and AAA (7.0) thresholds — use it exactly where you use a WCAG contrast check today. The one difference that matters: **OKCA is never more permissive than WCAG.** If a pair clears OKCA it clears WCAG; OKCA just also declines to rubber-stamp the cases WCAG over-rates.
 
-> **On the scale.** OKCA reports on WCAG's familiar 1–21 range against the same
-> 4.5 / 7.0 thresholds, so it drops into existing WCAG-based tooling unchanged.
-> The one deliberate difference at the very top: because OKCA is *strictly* ≤
-> WCAG by construction, its maximum (white on black) is **20.9**, a hair under
-> WCAG's 21 — the headroom that makes zero-false-pass a theorem rather than a
-> calibration. Thresholds and interpretation are otherwise identical.
+> **Scope.** OKCA is a stricter WCAG 2.x checker for sRGB. It isn't a new perceptual model and doesn't try to reinvent how contrast is predicted — it makes the WCAG check you already run harder to turn into a false pass.
 
-WCAG 2.x has two well-documented failure modes that OKCA closes:
+It closes the two WCAG 2.x gaps practitioners hit most:
 
-1. **Saturated chromatic false passes.** WCAG passes hot pink on near-black at 6.6:1 — a comfortable AA score. Practitioners flag it as inadequate; OKCA scores it 3.6. The difference is that WCAG's luminance formula cannot distinguish saturated colour from grey at the same luminance, while OKCA can.
+1. **Saturated colours.** WCAG scores hot pink on near-black 6.6:1 — a comfortable pass. OKCA scores it **3.6**: it tells saturated colour from grey at the same luminance, and WCAG can't.
 
-2. **Polarity blindness.** WCAG treats `contrast(A on B)` and `contrast(B on A)` as identical. Design systems and practitioners do not — dark mode and light mode are different decisions. OKCA scores them differently.
+2. **Polarity.** WCAG rates `contrast(A on B)` and `contrast(B on A)` identically. OKCA doesn't — light-on-dark and dark-on-light are different decisions and score differently.
 
 ## Install
 
@@ -62,10 +57,12 @@ okca.contrast('#fff', '#000');  // 20.9
 
 ## Properties
 
+- **Never more permissive than WCAG:** every score is at or below the WCAG equivalent for the same pair; AA/AAA thresholds unchanged
 - **Polarity-aware:** `okca(foreground, background) ≠ okca(background, foreground)` — scores differ by direction
-- **Conservative:** every score is *strictly* at or below the WCAG equivalent — FP = 0 by construction (`docs/FP0_PROOF.md`); AA/AAA thresholds unchanged
 - **Zero dependencies:** pure TypeScript, no runtime deps
 - **Clean-room implementation:** no third-party contrast algorithm source code
+
+*Never-more-permissive is verified, not hoped for:* `OKCA ≤ WCAG` holds for every sRGB pair — checked across the full gamut and re-run in CI on every change (`npm run fp0`; the argument is in [`docs/FP0_PROOF.md`](docs/FP0_PROOF.md)). OKCA's ceiling is 20.9, not 21 — the sliver of headroom that keeps the guarantee airtight.
 
 ## Validation
 
@@ -82,7 +79,7 @@ Tested against 1,249 color pairs across three batteries (light-on-dark, dark-on-
 
 **WCAG disagreements** are pairs where OKCA scores below 4.5 but WCAG scores ≥ 4.5. These are intentional. WCAG's 4.5:1 AA threshold is widely considered too permissive — white on `#767676` (WCAG's own AA boundary anchor) is not production-ready in most real-world designs. All 97 disagreements involve colors in that marginal zone.
 
-**Found a false pass?** FP = 0 is proven by construction for sRGB (`docs/FP0_PROOF.md`). If you somehow find an sRGB pair OKCA scores **above** the WCAG ratio, that's a bug — [open an issue](https://github.com/pawn002/okca/issues) and I'll fix it.
+**Found a false pass?** `OKCA ≤ WCAG` is verified across sRGB (`docs/FP0_PROOF.md`). If you somehow find an sRGB pair OKCA scores **above** the WCAG ratio, that's a bug — [open an issue](https://github.com/pawn002/okca/issues) and I'll fix it.
 
 ## Further reading
 

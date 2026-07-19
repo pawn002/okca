@@ -17,7 +17,9 @@ This has two well-documented failure modes:
 
 2. **Polarity blindness.** WCAG's ratio is symmetric: `ratio(A on B) = ratio(B on A)`. Designers and design systems treat the two directions as distinct --- dark mode and light mode are different design decisions, not interchangeable. WCAG does not model this asymmetry.
 
-OKCA corrects both, while maintaining **zero false passes** against WCAG --- meaning OKCA never tells a designer a pair is safe when WCAG says it fails.
+OKCA corrects both while being **never more permissive than WCAG** --- every score lands at or below the WCAG score for the same pair, so OKCA never tells a designer a pair is safe when WCAG says it fails.
+
+OKCA is a stricter WCAG 2.x checker for sRGB, not a new perceptual model: it keeps WCAG's scale and thresholds and tightens the two failure modes above. Its one guarantee is the safety bound.
 
 ### Algorithm overview
 
@@ -27,7 +29,7 @@ OKCA processes a foreground/background color pair in five steps:
 2. **Identify polarity.** The element with higher L is the lighter element. If the foreground is lighter the pair is light-on-dark (L-o-D); if the background is lighter it is dark-on-light (D-o-L).
 3. **Compress the lighter element.** Compute Oklab chroma $C = \sqrt{a^2+b^2}$. Apply a chroma-weighted power exponent to the lighter element's L, reducing its effective luminance proxy. Higher chroma → larger reduction.
 4. **Compute the darker element's proxy.** The darker element uses $L^3$ directly — no chroma correction applied.
-5. **Apply polarity-aware scaling.** Form a raw ratio from the two luminance proxies, then scale with a power curve that differs by polarity: L-o-D uses a cap of 21; D-o-L uses 20. Output is in [1, 21].
+5. **Apply polarity-aware scaling.** Form a raw ratio from the two luminance proxies, then scale with a power curve that differs by polarity: L-o-D uses a cap of 20.9 (`LOD_CAP`); D-o-L uses 20. Output is in [1, 21].
 
 Sections 3–7 cover each step in depth. Section 4 establishes FP = 0 — by construction on the achromatic axis, and by gamut-wide verification for chromatic inputs.
 
@@ -152,10 +154,10 @@ $A(l) \le A(\text{white})$ and $B(d) \le B(\text{black})$, each **verified by
 interval arithmetic** over the sRGB cube with **0 uncertified boxes**
 (`npm run fp0`; full argument in [`docs/FP0_PROOF.md`](FP0_PROOF.md)).
 
-So FP = 0 is **guaranteed by construction for all sRGB inputs** — an exact
-identity plus interval-verified lemmas, not a calibration-dependent headroom
-property. (The chroma penalty and Step-5 compression still shape *how far* below
-WCAG each score sits; they are no longer load-bearing for the guarantee itself.)
+So FP = 0 is **verified for all sRGB inputs** — an exact identity plus two
+interval-checked lemmas, not a calibration-dependent headroom property. (The
+chroma penalty and Step-5 compression still shape *how far* below WCAG each score
+sits; they are no longer load-bearing for the guarantee itself.)
 
 **Scope and caveats.** The proof covers **sRGB** inputs. It re-runs via
 `npm run fp0` after any change to $k$, the caps, or the chroma penalty (the
