@@ -13,22 +13,24 @@
  *        [_, a, b] = Oklab(lighter)
  *        C         = sqrt(a² + b²)
  *        satW      = min(1, (C / C_THRESH)²)    // quadratic ramp
- *        exp       = 1 + CHROMA_K × satW         // 1.0 … 1.5
+ *        exp       = 1 + CHROMA_K × satW         // 1.0 … 1.65
  *        lighterY  = (lighterL ^ exp) ^ 3        // L → luminance proxy
  *   4. Darker element — pure luminance proxy:
  *        darkerY   = darkerL ^ 3
  *   5. Polarity-aware contrast ratio:
  *        rawRatio  = (lighterY + 0.05) / (darkerY + 0.05)
- *        L-o-D:    ratio = 21       × (rawRatio / 21) ^ POL_K
+ *        L-o-D:    ratio = LOD_CAP  × (rawRatio / 21) ^ POL_K
  *        D-o-L:    ratio = DOL_CAP  × (rawRatio / 21) ^ POL_K
- *        Same power curve; DOL_CAP < 21 applies a proportional polarity penalty.
+ *        Same power curve; LOD_CAP < 21 < clamp keeps OKCA strictly below WCAG;
+ *        DOL_CAP < LOD_CAP applies a proportional polarity penalty.
  *        clamped to [1, 21], rounded to 1 decimal place.
  *
  * Luminance proxy: L³ (OKLCH L cubed ≈ WCAG Y for neutral grays).
  *
  * Properties:
- *   - FP = 0 guaranteed (chroma compression reduces lighter element; polarity
- *     model applies power factor < 1 so OKCA ≤ WCAG for all inputs)
+ *   - FP = 0 by construction (docs/FP0_PROOF.md): with LOD_CAP < 21 the score is
+ *     strictly ≤ WCAG for every sRGB pair — reduced to an exact identity plus two
+ *     interval-verified single-color lemmas, no calibration-dependent headroom.
  *   - Polarity-aware: light-on-dark scores higher than dark-on-light for the
  *     same color pair; direction is a design input, not a symmetric quantity
  *   - Pure OKLCH/Oklab — no WCAG luminance formula, no hue-specific patches
@@ -37,9 +39,10 @@ import { hexToOklab, cssOklabToOklab, cssOklchToOklch, oklchToOklab } from './tr
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 const C_THRESH = 0.15;  // Oklab chroma for full lighter-element penalty
-const CHROMA_K = 0.50;  // Power-compression exponent at full saturation
-const POL_K    = 1.175; // Shared polarity power exponent: CAP*(r/21)^k
-const DOL_CAP  = 20;    // D-o-L max contrast (vs 21 for L-o-D); proportional polarity penalty
+const CHROMA_K = 0.65;  // Power-compression exponent at full saturation
+const POL_K    = 1.100; // Shared polarity power exponent: CAP*(r/21)^k
+const LOD_CAP  = 20.9;  // L-o-D max contrast (< 21 keeps OKCA strictly below WCAG → FP=0 by construction)
+const DOL_CAP  = 20;    // D-o-L max contrast (< L-o-D); proportional polarity penalty
 
 /** Parse any supported color string to Oklab [L, a, b], or null if unrecognised. */
 function parseToOklab(color: string): [number, number, number] | null {
@@ -74,18 +77,19 @@ export class OkcaService {
     const darkerY  = Math.pow(darkerL, 3);
 
     // Step 5 — polarity-aware scaling: light-on-dark has higher perceived contrast.
-    // Both polarities use the same power curve CAP*(r/21)^POL_K; DOL_CAP < 21
-    // applies a proportional penalty at every contrast level.
+    // Both polarities use the same power curve CAP*(r/21)^POL_K; LOD_CAP < 21 keeps
+    // every score strictly below WCAG (FP=0 by construction), DOL_CAP < LOD_CAP
+    // applies the proportional polarity penalty.
     const isLightOnDark = tL > bL;
     const rawRatio = (lighterY + 0.05) / (darkerY + 0.05);
-    const cap = isLightOnDark ? 21 : DOL_CAP;
+    const cap = isLightOnDark ? LOD_CAP : DOL_CAP;
     const ratio = cap * Math.pow(rawRatio / 21, POL_K);
     return parseFloat(Math.max(1, Math.min(21, ratio)).toFixed(1));
   }
 
   /**
    * Chroma-weighted power exponent for the lighter element.
-   * Returns 1.0 for achromatic colors, up to 1.5 for fully saturated (C ≥ C_THRESH).
+   * Returns 1.0 for achromatic colors, up to 1.65 for fully saturated (C ≥ C_THRESH).
    */
   private chromaExp(oklab: [number, number, number]): number {
     const a = oklab[1];

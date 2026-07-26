@@ -1,54 +1,13 @@
 /**
- * Design-system probe battery — pairs from real-world palettes.
+ * Design-system palettes used by the calibration sweep.
  *
- * Palettes: Tailwind CSS v3.4, GOV.UK Design System (govuk-frontend MIT),
- *           US Web Design System v3.x (USWDS, MIT)
- *
- * Tests the critical invariant: OKCA must never produce a false pass
- * (OKCA ≥ 4.5 when WCAG < 4.5). Also pins WCAG-disagreement counts per
- * system to detect unexpected shifts.
- *
- * "WCAG disagreements" (pairs where OKCA < 4.5 but WCAG ≥ 4.5) are
- * intentional: WCAG's 4.5:1 AA threshold is widely considered too
- * permissive. White on #767676 — WCAG's own AA boundary anchor — is not
- * production-ready in practice. The disagreements below identify colours
- * that sit in the same marginal zone.
- *
- * Disagreement character varies by system:
- *
- * - Tailwind presents mid-range chromatic shades (500–700) as general-purpose
- *   colours without pairing restrictions. Its disagreements are the most
- *   practitioner-relevant: these are colours a designer might reach for as
- *   text or icon colour.
- *
- * - GOV.UK and USWDS disagreements are mid-range chromatic shades that land
- *   in WCAG's marginal zone. Both systems make explicit WCAG 2.x AA claims
- *   and document approved text pairings; disagreements here identify shades
- *   that pass WCAG's threshold but sit close to its boundary.
- *
- * WCAG 2.x relative luminance is computed inline (no colorjs dependency)
- * so we can cross-check OKCA scores independently.
+ * Independent copy of the palette data in probe-design-systems.spec.ts. The
+ * sweep re-derives the 111 WCAG-disagreement baseline from these; matching the
+ * spec's pinned counts cross-validates both. Sources: Tailwind CSS v3.4,
+ * GOV.UK Design System (govuk-frontend, MIT), USWDS v3.x (MIT).
  */
-import { contrast } from '../index';
 
-// ── WCAG 2.x reference (inline, zero-dep) ───────────────────────────────────
-
-function wcagContrast(hex1: string, hex2: string): number {
-  const lum = (hex: string) => {
-    const r = parseInt(hex.slice(1, 3), 16) / 255;
-    const g = parseInt(hex.slice(3, 5), 16) / 255;
-    const b = parseInt(hex.slice(5, 7), 16) / 255;
-    const lin = (c: number) => c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
-    return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
-  };
-  const l1 = lum(hex1), l2 = lum(hex2);
-  const lighter = Math.max(l1, l2), darker = Math.min(l1, l2);
-  return parseFloat(((lighter + 0.05) / (darker + 0.05)).toFixed(1));
-}
-
-// ── Palette data ─────────────────────────────────────────────────────────────
-
-const TAILWIND: Record<string, Record<string, string>> = {
+export const TAILWIND: Record<string, Record<string, string>> = {
   slate:   { 50:'#f8fafc',100:'#f1f5f9',200:'#e2e8f0',300:'#cbd5e1',400:'#94a3b8',500:'#64748b',600:'#475569',700:'#334155',800:'#1e293b',900:'#0f172a',950:'#020617' },
   gray:    { 50:'#f9fafb',100:'#f3f4f6',200:'#e5e7eb',300:'#d1d5db',400:'#9ca3af',500:'#6b7280',600:'#4b5563',700:'#374151',800:'#1f2937',900:'#111827',950:'#030712' },
   zinc:    { 50:'#fafafa',100:'#f4f4f5',200:'#e4e4e7',300:'#d4d4d8',400:'#a1a1aa',500:'#71717a',600:'#52525b',700:'#3f3f46',800:'#27272a',900:'#18181b',950:'#09090b' },
@@ -73,9 +32,8 @@ const TAILWIND: Record<string, Record<string, string>> = {
   rose:    { 50:'#fff1f2',100:'#ffe4e6',200:'#fecdd3',300:'#fda4af',400:'#fb7185',500:'#f43f5e',600:'#e11d48',700:'#be123c',800:'#9f1239',900:'#881337',950:'#4c0519' },
 };
 
-// GOV.UK Design System — govuk-frontend (MIT). Explicit WCAG 2.2 AA claims.
-// Source: github.com/alphagov/govuk-frontend _colours-palette.scss
-const GOVUK: Record<string, Record<string, string>> = {
+// GOV.UK Design System — govuk-frontend (MIT).
+export const GOVUK: Record<string, Record<string, string>> = {
   blue:    { primary:'#1d70b8', shade10:'#1a65a6', shade25:'#16548a', shade50:'#0f385c', tint25:'#5694ca', tint50:'#8eb8dc', tint80:'#d2e2f1', tint95:'#f4f8fb' },
   green:   { primary:'#0f7a52', shade25:'#0b5c3e', shade50:'#083d29', tint25:'#4b9b7d', tint50:'#87bca8', tint80:'#cfe4dc', tint95:'#f3f8f6' },
   teal:    { primary:'#158187', shade25:'#106165', shade50:'#0b4144', tint25:'#50a1a5', tint50:'#8ac0c3', tint80:'#d0e6e7', tint95:'#f3f9f9' },
@@ -88,10 +46,8 @@ const GOVUK: Record<string, Record<string, string>> = {
   grey:    { black:'#0b0c0c', tint25:'#484949', tint50:'#858686', tint80:'#cecece', tint95:'#f3f3f3' },
 };
 
-// US Web Design System v3.x (USWDS, MIT). Explicit WCAG 2.x AA claims.
-// Source: github.com/uswds/uswds packages/uswds-core/src/styles/tokens/color/
-// Base (non-vivid) grades only — grades 5–90 for chromatic, 1–90/100 for grays.
-const USWDS: Record<string, Record<string, string>> = {
+// US Web Design System v3.x (USWDS, MIT). Base (non-vivid) grades.
+export const USWDS: Record<string, Record<string, string>> = {
   'red-cool':    { '5':'#f8eff1','10':'#f3e1e4','20':'#ecbec6','30':'#e09aa6','40':'#e16b80','50':'#cd425b','60':'#9e394b','70':'#68363f','80':'#40282c','90':'#1e1517' },
   red:           { '5':'#f9eeee','10':'#f8e1de','20':'#f7bbb1','30':'#f2938c','40':'#e9695f','50':'#d83933','60':'#a23737','70':'#6f3331','80':'#3e2927','90':'#1b1616' },
   'red-warm':    { '5':'#f6efea','10':'#f4e3db','20':'#ecc0a7','30':'#dca081','40':'#d27a56','50':'#c3512c','60':'#805039','70':'#524236','80':'#332d29','90':'#1f1c18' },
@@ -118,99 +74,3 @@ const USWDS: Record<string, Record<string, string>> = {
   gray:          { '1':'#fcfcfc','2':'#f9f9f9','3':'#f6f6f6','4':'#f3f3f3','5':'#f0f0f0','10':'#e6e6e6','20':'#c9c9c9','30':'#adadad','40':'#919191','50':'#757575','60':'#5c5c5c','70':'#454545','80':'#2e2e2e','90':'#1b1b1b','100':'#000000' },
   'gray-warm':   { '1':'#fcfcfb','2':'#f9f9f7','3':'#f6f6f2','4':'#f5f5f0','5':'#f0f0ec','10':'#e6e6e2','20':'#cac9c0','30':'#afaea2','40':'#929285','50':'#76766a','60':'#5d5d52','70':'#454540','80':'#2e2e2a','90':'#171716' },
 };
-
-
-// ── Build pairs ──────────────────────────────────────────────────────────────
-
-interface PalettePair {
-  fg: string;
-  bg: string;
-  label: string;
-  system: string;
-}
-
-function buildPairs(): PalettePair[] {
-  const pairs: PalettePair[] = [];
-  const WHITE = '#ffffff';
-
-  const addSystem = (sysId: string, families: Record<string, Record<string, string>>) => {
-    for (const [family, shades] of Object.entries(families)) {
-      for (const [shade, hex] of Object.entries(shades)) {
-        const label = `${sysId}:${family}-${shade}`;
-        const h = hex.toLowerCase();
-        pairs.push({ fg: WHITE, bg: h, label: `white / ${label}`, system: sysId });
-        pairs.push({ fg: h, bg: WHITE, label: `${label} / white`, system: sysId });
-      }
-    }
-  };
-
-  addSystem('tw', TAILWIND);
-  addSystem('govuk', GOVUK);
-  addSystem('uswds', USWDS);
-
-  return pairs;
-}
-
-const ALL_PAIRS = buildPairs();
-
-// ── Tests ────────────────────────────────────────────────────────────────────
-
-const AA = 4.5;
-
-describe('design-system probe', () => {
-  it('covers 1,142 pairs', () => {
-    expect(ALL_PAIRS.length).toBe(1142);
-  });
-
-  it('CRITICAL: zero false passes across all design systems', () => {
-    const falsePassPairs: string[] = [];
-
-    for (const { fg, bg, label } of ALL_PAIRS) {
-      const okca = contrast(fg, bg)!;
-      const wcag = wcagContrast(fg, bg);
-
-      if (okca >= AA && wcag < AA) {
-        falsePassPairs.push(`${label}: OKCA=${okca}, WCAG=${wcag}`);
-      }
-    }
-
-    expect(falsePassPairs).toEqual([]);
-  });
-
-  it('WCAG disagreement count matches baseline (97 total)', () => {
-    let ffCount = 0;
-
-    for (const { fg, bg } of ALL_PAIRS) {
-      const okca = contrast(fg, bg)!;
-      const wcag = wcagContrast(fg, bg);
-      if (okca < AA && wcag >= AA) ffCount++;
-    }
-
-    expect(ffCount).toBe(97);
-  });
-
-  it('WCAG disagreement counts match per system', () => {
-    const ffBySystem: Record<string, number> = {};
-
-    for (const { fg, bg, system } of ALL_PAIRS) {
-      const okca = contrast(fg, bg)!;
-      const wcag = wcagContrast(fg, bg);
-      if (okca < AA && wcag >= AA) {
-        ffBySystem[system] = (ffBySystem[system] || 0) + 1;
-      }
-    }
-
-    expect(ffBySystem['tw'] ?? 0).toBe(34);
-    expect(ffBySystem['govuk'] ?? 0).toBe(13);
-    expect(ffBySystem['uswds'] ?? 0).toBe(50);
-  });
-
-  it('all results are in [1, 21] range', () => {
-    for (const { fg, bg } of ALL_PAIRS) {
-      const r = contrast(fg, bg);
-      expect(r).not.toBeNull();
-      expect(r!).toBeGreaterThanOrEqual(1);
-      expect(r!).toBeLessThanOrEqual(21);
-    }
-  });
-});
