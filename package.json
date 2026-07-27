@@ -17,7 +17,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc && tsc -p tsconfig.esm.json",
+    "build": "tsc && tsc -p tsconfig.esm.json && node scripts/finalize-esm.mjs",
     "test": "jest",
     "calibrate": "tsc -p tsconfig.scripts.json && node dist-scripts/scripts/calibration-sweep.js",
     "hue": "tsc -p tsconfig.scripts.json && node dist-scripts/scripts/hue-analysis.js",
