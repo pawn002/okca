@@ -35,7 +35,7 @@
  *     same color pair; direction is a design input, not a symmetric quantity
  *   - Pure OKLCH/Oklab — no WCAG luminance formula, no hue-specific patches
  */
-import { hexToOklab, cssOklabToOklab, cssOklchToOklch, oklchToOklab } from './transforms';
+import { hexToOklab, cssOklabToOklab, cssOklchToOklch, oklchToOklab } from './transforms.js';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 const C_THRESH = 0.15;  // Oklab chroma for full lighter-element penalty
@@ -122,4 +122,4 @@ export {
   hexToOklab, hexToOklch, hexToSrgb, srgbToOklab, srgbToOklch,
   oklchToOklab, oklabToOklch,
   cssOklabToOklab, cssOklchToOklch,
-} from './transforms';
+} from './transforms.js';

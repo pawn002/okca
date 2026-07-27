@@ -33,6 +33,21 @@ Shared symbols, so the docs read as one notation: $L^3$, $\delta$, $Y$,
 $Y_{\text{lighter}}$ / $Y_{\text{darker}}$ (OKCA proxies) vs $Y_l$ / $Y_d$
 (WCAG luminances), $r_{\text{raw}}$, $\text{CAP}$, $k$, $A(l)$, $B(d)$.
 
+### Scope — `docs/` only, deliberately
+
+`README.md` and `src/index.ts` are **excluded on purpose**. Both contain
+algorithm descriptions and both look like unfinished conversions. They are not.
+
+- **`README.md` must stay free of `$` math.** It is the npm package page, and
+  **npmjs.com does not render GitHub's math syntax** — LaTeX there prints as
+  literal `$...$` to every visitor. Use Unicode (`≤`, `≥`) or backticked code,
+  which render correctly on both npm and GitHub.
+- **`src/index.ts` is a source comment**, not Markdown. ASCII (`sqrt(a² + b²)`,
+  `L³`) is right there; nothing renders it.
+
+So the notation rule is scoped to `docs/*.md`, and `docs-lint.spec.ts` globs
+exactly that. Widening either the rule or the lint glob breaks the npm listing.
+
 ### The one thing to understand
 
 GitHub runs its **Markdown pass first**, then hands the result to KaTeX. So
