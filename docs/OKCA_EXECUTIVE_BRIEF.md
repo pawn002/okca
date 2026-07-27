@@ -77,13 +77,16 @@ false passes against WCAG 2.x** — it never approves a pair WCAG rejects.
 The guarantee is **verified for the full sRGB gamut** — not calibration-dependent
 headroom. The argument has three parts:
 
-- **Algebraic reduction.** `OKCA ≤ WCAG` separates into two single-element
-  factors: it is equivalent to `(CAP/21^k)·A(lighter)·B(darker) ≤ 1`.
-- **An exact identity.** At the achromatic anchors, `21^(1−k)·A(white)·B(black) = 1`
-  for any k. Because the light-on-dark cap is set just below 21 (`LOD_CAP = 20.9`),
-  the anchor bound is `20.9/21 = 0.99524 < 1` — a strict margin, so OKCA is
-  *strictly* below WCAG everywhere (no equality point).
-- **Two verified lemmas.** `A(l) ≤ A(white)` and `B(d) ≤ B(black)` are each
+- **Algebraic reduction.** $\text{OKCA} \le \text{WCAG}$ separates into two
+  single-element factors: it is equivalent to
+  $(\text{CAP}/21^{k}) \cdot A(\text{lighter}) \cdot B(\text{darker}) \le 1$.
+- **An exact identity.** At the achromatic anchors,
+  $21^{1-k} \cdot A(\text{white}) \cdot B(\text{black}) = 1$ for any $k$. Because
+  the light-on-dark cap is set just below 21 (`LOD_CAP = 20.9`), the anchor bound
+  is $20.9/21 = 0.99524 < 1$ — a strict margin, so OKCA is *strictly* below WCAG
+  everywhere (no equality point).
+- **Two verified lemmas.** $A(l) \le A(\text{white})$ and
+  $B(d) \le B(\text{black})$ are each
   confirmed by interval arithmetic over the sRGB cube with **0 uncertified boxes**
   — a machine-checked proof over continuous regions, not a sample.
 
@@ -116,7 +119,7 @@ pairs.
 
 | Property | WCAG 2.x | OKCA |
 |---|---|---|
-| Luminance input | IEC 61966-2-1 sRGB | OKLCH L³ (Oklab) |
+| Luminance input | IEC 61966-2-1 sRGB | OKLCH $L^3$ (Oklab) |
 | Scale | 1–21 | 1–21 |
 | AA / AAA thresholds | 4.5 / 7.0 | 4.5 / 7.0 |
 | Polarity | Symmetric | Asymmetric |

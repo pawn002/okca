@@ -1,7 +1,7 @@
 # FP=0 — guaranteed by construction (issue #14)
 
-**Status: proven.** `OKCA ≤ WCAG` for every sRGB pair is now an **exact
-algebraic identity** plus **two single-colour lemmas verified by interval
+**Status: proven.** $\text{OKCA} \le \text{WCAG}$ for every sRGB pair is now an
+**exact algebraic identity** plus **two single-colour lemmas verified by interval
 arithmetic** — no calibration-dependent headroom, no residual. Reproduce:
 `npm run fp0` (certifies with **0 uncertified boxes**).
 
@@ -9,58 +9,73 @@ Constants: `POL_K` = 1.100, `CHROMA_K` = 0.65, `LOD_CAP` = 20.9, `DOL_CAP` = 20.
 
 ## 1. Algebraic reduction
 
-The final score is `OKCA = CAP·(raw/21)^k` with `raw = (lY+0.05)/(dY+0.05)`,
-`lY = (L_light^exp)^3` the chroma-penalised lighter proxy, `dY = L_dark^3`,
-`k = POL_K`, and `CAP = LOD_CAP` (light-on-dark) or `DOL_CAP` (dark-on-light).
-WCAG is `(Y_l+0.05)/(Y_d+0.05)`. Rearranging separates the two elements:
+The final score is
 
-```
-OKCA ≤ WCAG   ⇔   (CAP / 21^k) · A(lighter) · B(darker) ≤ 1
-  A(l) = (lY_l + 0.05)^k / (Y_l + 0.05)      (lighter element only)
-  B(d) = (Y_d + 0.05)   / (dY_d + 0.05)^k    (darker element only)
-```
+$$\text{OKCA} = \text{CAP} \cdot \left(\frac{r_{\text{raw}}}{21}\right)^{k}, \qquad r_{\text{raw}} = \frac{Y_{\text{lighter}} + 0.05}{Y_{\text{darker}} + 0.05},$$
+
+where $Y_{\text{lighter}} = \left(L_{\text{lighter}}^{\text{exp}}\right)^{3}$ is
+the chroma-penalised lighter proxy, $Y_{\text{darker}} = L_{\text{darker}}^{3}$,
+$k =$ `POL_K`, and $\text{CAP} =$ `LOD_CAP` (light-on-dark) or `DOL_CAP`
+(dark-on-light). Writing $Y_l$ and $Y_d$ for the **WCAG** luminances of the
+lighter and darker elements,
+
+$$r_{\text{WCAG}} = \frac{Y_l + 0.05}{Y_d + 0.05}.$$
+
+Rearranging separates the two elements:
+
+$$\text{OKCA} \le \text{WCAG} \iff \frac{\text{CAP}}{21^{k}} \cdot A(l) \cdot B(d) \le 1,$$
+
+$$A(l) = \frac{\left(Y_{\text{lighter}} + 0.05\right)^{k}}{Y_l + 0.05}, \qquad B(d) = \frac{Y_d + 0.05}{\left(Y_{\text{darker}} + 0.05\right)^{k}},$$
+
+where $A$ depends on the **lighter element only** and $B$ on the **darker element
+only**.
 
 ## 2. The exact identity
 
-At the achromatic anchors, for **any** k:
+At the achromatic anchors, for **any** $k$:
 
-```
-21^(1−k) · A(white) · B(black)
-  = 21^(1−k) · 1.05^(k−1) · 0.05^(1−k)
-  = (21·0.05)^(1−k) · 1.05^(k−1) = 1.05^(1−k) · 1.05^(k−1) = 1     (21·0.05 = 1.05)
-```
+$$\begin{aligned}
+21^{1-k} \cdot A(\text{white}) \cdot B(\text{black})
+  &= 21^{1-k} \cdot 1.05^{k-1} \cdot 0.05^{1-k} \\
+  &= (21 \cdot 0.05)^{1-k} \cdot 1.05^{k-1} \\
+  &= 1.05^{1-k} \cdot 1.05^{k-1} = 1,
+\end{aligned}$$
 
-(Verified to 1e-12 by `npm run fp0`.) `A` is maximised over sRGB at white,
-`B` at black — confirmed by a full-gamut search: `max A = A(white)`,
-`max B = B(black)`.
+since $21 \cdot 0.05 = 1.05$.
+
+(Verified to $10^{-12}$ by `npm run fp0`.) $A$ is maximised over sRGB at white,
+$B$ at black — confirmed by a full-gamut search: $\max A = A(\text{white})$,
+$\max B = B(\text{black})$.
 
 ## 3. The lowered cap removes the equality
 
-With `CAP = 21` the bound at the anchor is `21/21 = 1` — **tight**, so white-on-
-black would be the single point where `OKCA = WCAG`, which interval arithmetic
-cannot certify (it cannot prove a non-strict equality). Setting **`LOD_CAP =
-20.9 < 21`** makes the anchor bound
+With $\text{CAP} = 21$ the bound at the anchor is $21/21 = 1$ — **tight**, so
+white-on-black would be the single point where $\text{OKCA} = \text{WCAG}$, which
+interval arithmetic cannot certify (it cannot prove a non-strict equality).
+Setting **`LOD_CAP` $= 20.9 < 21$** — write $c$ for this cap — makes the anchor
+bound
 
-```
-(LOD_CAP / 21^k) · A(white) · B(black) = LOD_CAP / 21 = 0.99524 < 1,
-```
+$$\frac{c}{21^{k}} \cdot A(\text{white}) \cdot B(\text{black}) = \frac{c}{21} = 0.99524 < 1,$$
 
 a **uniform strict margin**. There is now no equality point anywhere: OKCA is
-*strictly* below WCAG for every sRGB pair. (Dark-on-light, `CAP = 20`, is looser
-still.) The `20.9/21` factor is the deliberate, minimal step that converts the
-guarantee from "gamut-verified headroom" to "strict by construction".
+*strictly* below WCAG for every sRGB pair. (Dark-on-light, $\text{CAP} = 20$, is
+looser still.) The $20.9/21$ factor is the deliberate, minimal step that converts
+the guarantee from "gamut-verified headroom" to "strict by construction".
 
 ## 4. Reduction to two verified lemmas
 
-`A ≥ 0`, `B ≥ 0`, and the identity give: the pair inequality follows from
+$A \ge 0$, $B \ge 0$, and the identity give: the pair inequality follows from
 
-```
-(L-A)  A(l) ≤ A(white)·s        for all sRGB l
-(L-B)  B(d) ≤ B(black)·s        for all sRGB d,     s = √(21 / LOD_CAP) = 1.00239
-```
+$$\begin{aligned}
+\text{(L-A)} \quad & A(l) \le A(\text{white}) \cdot s && \text{for all sRGB } l, \\
+\text{(L-B)} \quad & B(d) \le B(\text{black}) \cdot s && \text{for all sRGB } d,
+\end{aligned}$$
 
-since then `(LOD_CAP/21^k)·A·B ≤ (LOD_CAP/21^k)·A(white)·B(black)·s² =
-LOD_CAP/21 · (21/LOD_CAP) = 1`. `scripts/fp0-proof.ts` branch-and-bounds each
+with $s = \sqrt{21 / c} = 1.00239$, since then
+
+$$\frac{c}{21^{k}} \cdot A \cdot B \le \frac{c}{21^{k}} \cdot A(\text{white}) \cdot B(\text{black}) \cdot s^{2} = \frac{c}{21} \cdot \frac{21}{c} = 1.$$
+
+`scripts/fp0-proof.ts` branch-and-bounds each
 lemma over the sRGB cube with sound outward-rounded interval arithmetic
 (`scripts/interval.ts`, exact Ottosson OKLab matrices + the WCAG luminance
 formula; enclosures validated to contain production values). A box is certified
@@ -71,20 +86,19 @@ Result (`npm run fp0`):
 
 | lemma | boxes | certified | equality corners | **uncertified** |
 |-------|------:|----------:|-----------------:|----------------:|
-| A(l) ≤ A(white)·s | ~96k | all | 0 | **0** |
-| B(d) ≤ B(black)·s | ~272k | all | 0 | **0** |
+| $A(l) \le A(\text{white}) \cdot s$ | ~96k | all | 0 | **0** |
+| $B(d) \le B(\text{black}) \cdot s$ | ~272k | all | 0 | **0** |
 
-Every sRGB point is certified; the slack `s > 1` from the lowered cap lets even
+Every sRGB point is certified; the slack $s > 1$ from the lowered cap lets even
 the anchors certify, so no neighbourhood is excluded.
 
 ## 5. Conclusion
 
 For every ordered sRGB pair:
 
-```
-(LOD_CAP / 21^k) · A(l) · B(d) ≤ (LOD_CAP / 21^k) · A(white) · B(black) = LOD_CAP/21 < 1
-⇒ OKCA ≤ WCAG,  strictly.
-```
+$$\frac{c}{21^{k}} \cdot A(l) \cdot B(d) \le \frac{c}{21^{k}} \cdot A(\text{white}) \cdot B(\text{black}) = \frac{c}{21} < 1,$$
+
+hence $\text{OKCA} \le \text{WCAG}$, strictly.
 
 **FP = 0 is guaranteed by construction across the full sRGB gamut** — the
 chromatic case (issue #14's gap) is closed. The argument depends only on the
