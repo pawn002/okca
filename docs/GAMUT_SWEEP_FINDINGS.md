@@ -9,10 +9,10 @@ OKLCH hue and chroma. This is *analysis* — running it changed no algorithm cod
 > `DOL_CAP = 20`, `C_THRESH = 0.15`. Two kinds of finding live here, and they
 > age differently:
 >
-> - **Structural (constant-independent):** the `δ = L³ − Y` divergence in
->   §0–§2. It depends only on OKCA's luminance proxy (`L³`) versus WCAG
+> - **Structural (constant-independent):** the $\delta = L^3 - Y$ divergence in
+>   §0–§2. It depends only on OKCA's luminance proxy ($L^3$) versus WCAG
 >   luminance — **not** on the scaling constants — so it is stable across any
->   recalibration that keeps the `L³` proxy.
+>   recalibration that keeps the $L^3$ proxy.
 > - **Calibration-dependent:** the conservatism/slack, disagreement counts, and
 >   FP-margin figures in §3–§4. These shift if the constants change (e.g.
 >   lowering `LOD_CAP` widened the green FP margin from 0.2 to 0.3). **Re-run
@@ -32,20 +32,24 @@ WCAG values use the standard relative-luminance formula, reimplemented inline
 
 ## 0. The core quantity: δ = L³ − Y
 
-OKCA's darker-element luminance proxy is **L³** (OKLCH lightness cubed). WCAG
-uses **relative luminance Y** = `0.2126 R + 0.7152 G + 0.0722 B` (linearised).
-Their gap
+OKCA's darker-element luminance proxy is $L^3$ (OKLCH lightness cubed). WCAG
+uses relative luminance
 
-> **δ = L³ − Y**
+$$Y = 0.2126\,R_{\text{lin}} + 0.7152\,G_{\text{lin}} + 0.0722\,B_{\text{lin}}$$
+
+(linearised sRGB). Their gap
+
+$$\delta = L^3 - Y$$
 
 is the single quantity behind every hue-specific effect below. Sign convention:
-`δ > 0` means OKCA's proxy reads a colour **lighter** than WCAG's luminance does
-(so, as a background, *less* contrast with white → OKCA scores it **stricter**);
-`δ < 0` means OKCA reads it **darker** → OKCA would score it **looser**.
+$\delta > 0$ means OKCA's proxy reads a colour **lighter** than WCAG's luminance
+does (so, as a background, *less* contrast with white → OKCA scores it
+**stricter**); $\delta < 0$ means OKCA reads it **darker** → OKCA would score it
+**looser**.
 
-**Achromatic validation.** Over greys (C < 0.02, n = 318): mean `|δ| = 0.0015`
-≈ 0. On the neutral axis `L³ = Y` by construction — *all* divergence is
-chromatic.
+**Achromatic validation.** Over greys ($C < 0.02$, $n = 318$): mean
+$|\delta| = 0.0015 \approx 0$. On the neutral axis $L^3 = Y$ by construction —
+*all* divergence is chromatic.
 
 ---
 
@@ -53,7 +57,7 @@ chromatic.
 
 (`npm run divergence`, sRGB grid step 8)
 
-| colour | hex | OKLCH L | L³ (OKCA) | Y (WCAG) | δ = L³−Y | L³/Y |
+| colour | hex | OKLCH $L$ | $L^3$ (OKCA) | $Y$ (WCAG) | $\delta = L^3 - Y$ | $L^3/Y$ |
 |--------|-----|--------:|----------:|---------:|---------:|-----:|
 | pure green   | `#00ff00` | 0.866 | 0.650 | 0.715 | **−0.065** | 0.91 |
 | pure cyan    | `#00ffff` | 0.905 | 0.742 | 0.787 | −0.045 | 0.94 |
@@ -67,19 +71,20 @@ chromatic.
 
 **Root cause.** WCAG's coefficients **under-weight blue** (0.0722) and
 **over-weight green** (0.7152) relative to perceptual OKLCH lightness. So WCAG
-treats pure blue as nearly black (Y = 0.072) and green as bright (Y = 0.715);
-OKCA's perceptual lightness disagrees in both directions. Note pure blue has the
-largest *ratio* (L³/Y = 1.28) because Y is tiny, while magenta has the largest
-*absolute* δ (+0.061).
+treats pure blue as nearly black ($Y = 0.072$) and green as bright
+($Y = 0.715$); OKCA's perceptual lightness disagrees in both directions. Note
+pure blue has the largest *ratio* ($L^3/Y = 1.28$) because $Y$ is tiny, while
+magenta has the largest *absolute* $\delta$ ($+0.061$).
 
 ---
 
 ## 2. Divergence by hue (the hue-specific deltas)
 
-Mean δ over saturated colours (C ≥ 0.10), 30° OKLCH hue bins, and the implied
-white-on-colour raw bias `OKCA_raw / WCAG = (Y + 0.05)/(L³ + 0.05)`:
+Mean $\delta$ over saturated colours ($C \ge 0.10$), 30° OKLCH hue bins, and the
+implied white-on-colour raw bias
+$\text{OKCA}_{\text{raw}} / \text{WCAG} = (Y + 0.05)/(L^3 + 0.05)$:
 
-| hue | bin° | n | mean δ | OKCA_raw / WCAG | direction |
+| hue | bin° | $n$ | mean $\delta$ | $\text{OKCA}_{\text{raw}} / \text{WCAG}$ | direction |
 |-----|-----:|--:|-------:|----------------:|-----------|
 | red        |   0–30  | 2545 | +0.022 | 0.911 | stricter |
 | red-orange |  30–60  | 1628 | +0.018 | 0.937 | stricter |
@@ -94,13 +99,14 @@ white-on-colour raw bias `OKCA_raw / WCAG = (Y + 0.05)/(L³ + 0.05)`:
 | magenta    | 300–330 | 2975 | +0.026 | **0.899** | stricter (max) |
 | pink       | 330–360 | 2708 | +0.028 | 0.901 | stricter |
 
-**Two neutral hues** where δ ≈ 0 (**~yellow, 105°** and **~sky-blue, 225°**)
+**Two neutral hues** where $\delta \approx 0$ (**~yellow, 105°** and
+**~sky-blue, 225°**)
 split the wheel: a green/cyan lobe where OKCA runs up to **6% looser** than WCAG
 (raw), and a blue→magenta→red arc where OKCA runs up to **10% stricter**.
 
 ### δ scales with chroma
 
-δ is ≈ 0 for near-neutral colours and grows toward the primaries — the
+$\delta$ is $\approx 0$ for near-neutral colours and grows toward the primaries — the
 conservatism is a **vivid-colour** phenomenon; pastels barely diverge:
 
 | chroma band | GREEN (120–150°) | BLUE (240–270°) | MAGENTA (300–330°) |
@@ -112,19 +118,21 @@ conservatism is a **vivid-colour** phenomenon; pastels barely diverge:
 | 0.15–0.20 | −0.025 | +0.004 | +0.020 |
 | 0.20–0.40 | −0.044 | +0.013 | +0.033 |
 
-**Key consequence:** at *matched* chroma (C ≈ 0.17) the divergence is green
-−0.025, blue +0.004, magenta +0.020 — **opposite signs at equal chroma.** No
-function of chroma magnitude alone (`C = √(a²+b²)`) can flatten it; only the
-*direction* of `a`/`b` (i.e. hue) distinguishes green from magenta.
+**Key consequence:** at *matched* chroma ($C \approx 0.17$) the divergence is
+green $-0.025$, blue $+0.004$, magenta $+0.020$ — **opposite signs at equal
+chroma.** No function of chroma magnitude alone ($C = \sqrt{a^2 + b^2}$) can
+flatten it; only the *direction* of $a$/$b$ (i.e. hue) distinguishes green from
+magenta.
 
 ---
 
 ## 3. Conservatism by hue (chromatic colours vs white)
 
-(`npm run hue`, sRGB grid step 12) — mean WCAG − OKCA slack, and count of
-disagreement-zone pairs (OKCA < 4.5 while WCAG ≥ 4.5):
+(`npm run hue`, sRGB grid step 12) — mean $\text{WCAG} - \text{OKCA}$ slack, and
+count of disagreement-zone pairs ($\text{OKCA} < 4.5$ while
+$\text{WCAG} \ge 4.5$):
 
-| hue | bin° | n | mean slack (L-o-D) | mean slack (D-o-L) | disagreements (LoD / DoL) |
+| hue | bin° | $n$ | mean slack (L-o-D) | mean slack (D-o-L) | disagreements (LoD / DoL) |
 |-----|-----:|--:|-------------------:|-------------------:|--------------------------:|
 | red        |   0–30  |  981 | 1.06 | 1.26 | 174 / 200 |
 | red-orange |  30–60  |  679 | 0.86 | 1.04 |  82 / 88 |
@@ -142,19 +150,19 @@ disagreement-zone pairs (OKCA < 4.5 while WCAG ≥ 4.5):
 OKCA is most conservative on the **purple / magenta / pink / red / blue** arc
 (~1.0–1.2 points below WCAG) and least on **green / teal / cyan** (~0.38). The
 disagreement zone — false failures — concentrates almost entirely in the former.
-The per-hue slack ranks **identically** to the per-hue raw bias in §2, so δ is
-the *mechanism*, not merely a correlate. D-o-L slack runs ~0.2 above L-o-D
+The per-hue slack ranks **identically** to the per-hue raw bias in §2, so
+$\delta$ is the *mechanism*, not merely a correlate. D-o-L slack runs ~0.2 above L-o-D
 (the polarity penalty).
 
 ---
 
 ## 4. FP=0 headroom by hue (the "green wall")
 
-Tightest WCAG − OKCA margin when each hue is the **darker** element under
+Tightest $\text{WCAG} - \text{OKCA}$ margin when each hue is the **darker** element under
 light-chromatic foregrounds (the overshoot-risk configuration). FP = 0 holds
 everywhere — 0 false passes across ~14M pairs:
 
-| darker-element hue | bin° | pairs | min WCAG−OKCA margin | tightest pair |
+| darker-element hue | bin° | pairs | min $\text{WCAG} - \text{OKCA}$ margin | tightest pair |
 |--------------------|-----:|------:|---------------------:|---------------|
 | green      | 120–150 | 1,114,112 | **0.3** | `#ffffd8` on `#002400` (OKCA 16.1 / WCAG 16.4) |
 | green-teal | 150–180 |   491,776 | **0.3** | `#fcffd8` on `#00240c` (OKCA 15.9 / WCAG 16.2) |
@@ -178,7 +186,7 @@ widened it — the same headroom that made FP=0 provable in `docs/FP0_PROOF.md`.
 
 ## 5. Synthesis
 
-Findings §2–§4 are one fact viewed three ways. Because `L³` **undershoots** Y
+Findings §2–§4 are one fact viewed three ways. Because $L^3$ **undershoots** $Y$
 for green and **overshoots** for blue/purple:
 
 - **Green / cyan** land ≈ WCAG → least conservative (small slack) **and**
@@ -188,11 +196,11 @@ for green and **overshoots** for blue/purple:
 
 ### Two mechanistically distinct sources of OKCA's conservatism
 
-1. **Achromatic compression** (`POL_K` / the anchor). δ = 0 on the grey axis, so
+1. **Achromatic compression** (`POL_K` / the anchor). $\delta = 0$ on the grey axis, so
    the grey-500 / neutral over-conservatism is *pure calibration*, unrelated to
    luminance divergence. This is the legitimately tunable part (and what the
    white/#767676 → 3.9 anchor move targeted).
-2. **Chromatic divergence** (δ). The blue/purple/magenta strictness is a
+2. **Chromatic divergence** ($\delta$). The blue/purple/magenta strictness is a
    *principled* correction of WCAG's blue-underweighting — arguably the most
    defensible part of OKCA's conservatism, not an error.
 
@@ -200,17 +208,18 @@ A global `POL_K` lever conflates the two: it relieves (1) but also erodes (2).
 
 ### OKCA is a one-sided detector of WCAG's luminance weakness
 
-FP = 0 forces `OKCA ≤ WCAG` for every pair. So OKCA can only ever express
-WCAG's **over-rating** (blue/purple/saturated, where δ > 0 makes OKCA stricter).
-Where OKCA's own proxy says WCAG is **too harsh** (green, δ < 0, OKCA would score
+FP = 0 forces $\text{OKCA} \le \text{WCAG}$ for every pair. So OKCA can only ever
+express WCAG's **over-rating** (blue/purple/saturated, where $\delta > 0$ makes
+OKCA stricter). Where OKCA's own proxy says WCAG is **too harsh** (green,
+$\delta < 0$, OKCA would score
 *higher* than WCAG), FP = 0 clamps it — that signal is structurally hidden. The
 tight (0.3) green FP margin is OKCA straining against its own leash. **OKCA
 surfaces half of WCAG's hue-luminance weakness by design.**
 
 ### Important limit
 
-Calling δ a "weakness of WCAG" is a perceptual value judgement OKCA *supports*
-but does not *prove*: `L³` is itself a proxy, not validated legibility ground
+Calling $\delta$ a "weakness of WCAG" is a perceptual value judgement OKCA
+*supports* but does not *prove*: $L^3$ is itself a proxy, not validated legibility ground
 truth. What the sweep establishes rigorously is that the divergence is real,
 hue-systematic, chroma-scaled, and centred on WCAG's known luminance blind spot.
 Which model is *correct* needs empirical legibility data OKCA does not have.
@@ -222,10 +231,10 @@ Which model is *correct* needs empirical legibility data OKCA does not have.
 The properties above are limited by tethers OKCA inherits from WCAG 2, not by
 its OKLCH foundation:
 
-- **FP = 0 (`OKCA ≤ WCAG`)** — the ceiling that makes OKCA one-sided.
-- **`L³` calibrated to equal Y on the grey axis** — makes the chroma term an
-  approximation of Y rather than a free perceptual model.
-- **The 1–21 luminance-ratio scale** with the `+0.05` flare term.
+- **FP = 0 ($\text{OKCA} \le \text{WCAG}$)** — the ceiling that makes OKCA one-sided.
+- **$L^3$ calibrated to equal $Y$ on the grey axis** — makes the chroma term an
+  approximation of $Y$ rather than a free perceptual model.
+- **The 1–21 luminance-ratio scale** with the $+0.05$ flare term.
 - **Single size-independent AA/AAA thresholds.**
 - **Polarity bolted on** as a cap (`DOL_CAP`) atop a symmetric ratio.
 
@@ -235,11 +244,11 @@ perceptual contrast metric in its own right. Sketch of what that could be
 
 1. **Effective perceptual lightness** that folds the Helmholtz–Kohlrausch effect
    (saturated colours appear brighter than their luminance) into lightness as a
-   *smooth function of `(a, b)`* — no hue angle, no hue bands. Freed from
-   matching Y, this chroma term becomes a legitimate appearance model rather than
-   a "Y in disguise" correction:
-   `Ł = L + f(a, b)`, with `f` smooth and ≈ 0 at `a = b = 0`.
-2. **Polarity-native, difference-based contrast** on `Ł` (signed by direction,
+   *smooth function of $(a, b)$* — no hue angle, no hue bands. Freed from
+   matching $Y$, this chroma term becomes a legitimate appearance model rather
+   than a "$Y$ in disguise" correction:
+   $\text{Ł} = L + f(a, b)$, with $f$ smooth and $\approx 0$ at $a = b = 0$.
+2. **Polarity-native, difference-based contrast** on $\text{Ł}$ (signed by direction,
    with distinct exponents per polarity and a soft clamp near black) instead of a
    luminance ratio.
 3. **Usability thresholds decoupled from the metric** — a lookup on
@@ -265,5 +274,5 @@ gamut before such data exists.
 | script | npm | produces |
 |--------|-----|----------|
 | `scripts/hue-analysis.ts` | `npm run hue` | §3 conservatism-by-hue, §4 FP-margin-by-hue |
-| `scripts/divergence-analysis.ts` | `npm run divergence` | §0–§2 δ = L³ − Y landmarks, by-hue, chroma scaling |
+| `scripts/divergence-analysis.ts` | `npm run divergence` | §0–§2 $\delta = L^3 - Y$ landmarks, by-hue, chroma scaling |
 | `scripts/calibration-sweep.ts` | `npm run calibrate` | full-gamut FP=0 verification |

@@ -6,7 +6,7 @@
 > anchor at 3.9 (`POL_K = 1.100`) and the light-on-dark cap lowered to `LOD_CAP
 > = 20.9` (which keeps OKCA strictly below WCAG — white-on-black = 20.9, not 21 —
 > so FP=0 is guaranteed by construction; see `docs/FP0_PROOF.md`). The lowered
-> cap scales light-on-dark scores by 20.9/21 (dark-on-light is unaffected); the
+> cap scales light-on-dark scores by $20.9/21$ (dark-on-light is unaffected); the
 > disagreement membership is unchanged from the 3.9 recalibration. FP=0 holds
 > across the full sRGB gamut (interval-verified).
 
@@ -18,7 +18,7 @@
 | GOV.UK Design System | govuk-frontend (MIT) | [github.com/alphagov/govuk-frontend](https://github.com/alphagov/govuk-frontend) `_colours-palette.scss` |
 | US Web Design System | USWDS v3.x (MIT) | [github.com/uswds/uswds](https://github.com/uswds/uswds) `packages/uswds-core/src/styles/tokens/color/` |
 
-All 97 are pairs where OKCA scores below 4.5 AA but WCAG scores ≥ 4.5. These are intentional — they represent colours in the marginal zone that WCAG's threshold passes but real-world practitioners routinely reject. Each colour is scored twice due to OKCA's polarity model — once as a L-o-D pair (white text on colour) and once as a D-o-L pair (colour on white) — and counted separately; a "D-o-L only" note marks colours where just one direction falls below 4.5.
+All 97 are pairs where OKCA scores below 4.5 AA but WCAG scores $\ge 4.5$. These are intentional — they represent colours in the marginal zone that WCAG's threshold passes but real-world practitioners routinely reject. Each colour is scored twice due to OKCA's polarity model — once as a L-o-D pair (white text on colour) and once as a D-o-L pair (colour on white) — and counted separately; a "D-o-L only" note marks colours where just one direction falls below 4.5.
 
 WCAG score shown is symmetric. OKCA scores differ by polarity — L-o-D is always slightly higher than D-o-L for the same colour.
 
@@ -73,7 +73,7 @@ GOV.UK makes explicit WCAG 2.2 AA claims and documents approved text pairings. T
 
 ## USWDS v3.x — 50 disagreements
 
-USWDS makes explicit WCAG 2.x AA claims. The 50 disagreements are the grade-50 shade across every chromatic family plus all three gray families. Grade 50 is calibrated to land at WCAG ≈ 4.6 system-wide — just above the 4.5 threshold.
+USWDS makes explicit WCAG 2.x AA claims. The 50 disagreements are the grade-50 shade across every chromatic family plus all three gray families. Grade 50 is calibrated to land at WCAG $\approx 4.6$ system-wide — just above the 4.5 threshold.
 
 | Family | Hex | WCAG | OKCA L-o-D | OKCA D-o-L |
 |--------|-----|-----:|----------:|----------:|
@@ -117,7 +117,7 @@ USWDS makes explicit WCAG 2.x AA claims. The 50 disagreements are the grade-50 s
 
 ### Where OKCA consistently disagrees
 1. **Gray 500 zone** — the entire Tailwind neutral scale at 500 (~4.7–4.8 WCAG, OKCA 3.9–4.2). The most important disagreements from a practitioner standpoint.
-2. **USWDS grade 50 across all families** — calibrated to WCAG ≈ 4.6 system-wide. A single threshold shift of 0.1 WCAG points separates these from USWDS grade 40 (which passes both).
+2. **USWDS grade 50 across all families** — calibrated to WCAG $\approx 4.6$ system-wide. A single threshold shift of 0.1 WCAG points separates these from USWDS grade 40 (which passes both).
 3. **Saturated chromatics at medium depth** — high-chroma hues near the WCAG boundary (fuchsia, pink, magenta, red). The chroma compression penalty is largest here.
 4. **Blue / indigo / purple hues** — perceptually darker than luminance alone predicts.
 

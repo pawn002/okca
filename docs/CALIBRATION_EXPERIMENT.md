@@ -47,12 +47,13 @@ the anchors pins two of them:
 
 - white/#767676 → 3.5 (L-o-D) **pins `POL_K = 1.175`**.
 - black/white → 20.0 (D-o-L) **pins `DOL_CAP = 20`** — that pair evaluates to
-  `cap * (21/21)^POL_K = DOL_CAP`.
+  $\text{CAP} \cdot (21/21)^{k} = \text{DOL\_CAP}$.
 
 So under constraints (2)+(4) the only genuinely free knobs are **`C_THRESH` and
 `CHROMA_K`** — the lighter-element chroma penalty (`chromaExp`,
-`src/index.ts:90-96`). Because every anchor is achromatic (`C=0 → exp=1`),
-retuning these two cannot move any anchor by construction.
+`src/index.ts:90-96`). Because every anchor is achromatic
+($C = 0 \Rightarrow \text{exp} = 1$), retuning these two cannot move any anchor
+by construction.
 
 ---
 
@@ -65,7 +66,7 @@ Three corrections shaped the harness instead:
    be the calibration target (OKCA deliberately undercuts it; calibrating toward
    it just reproduces WCAG). With no external perceptual model allowed, the only
    legitimate signal is the WCAG ceiling used **one-sidedly**: "reduce the
-   WCAG − OKCA gap wherever FP=0 does not require it."
+   $\text{WCAG} - \text{OKCA}$ gap wherever FP=0 does not require it."
 2. **Uniform *RGB* is the wrong space.** The free knobs act on **chroma** in
    OKLCH; most of sRGB's volume sits far from the 4.5/7.0 decision boundary and
    carries ~no calibration information. The harness samples a gamut-valid sRGB
@@ -90,16 +91,19 @@ without editing source.
 `contrast()` on all design-system pairs + 5,000 random pairs — **0 mismatches**.
 It reproduces the documented baseline exactly:
 
-- FP count (strong: OKCA_rounded > WCAG_rounded) over 2.79M pairs: **0**
-- worst overshoot `max(OKCA_raw − WCAG_raw)`: **−0.0000** (the white/black anchor)
+- FP count (strong: $\text{OKCA}_{\text{rounded}} > \text{WCAG}_{\text{rounded}}$)
+  over 2.79M pairs: **0**
+- worst overshoot
+  $\max(\text{OKCA}_{\text{raw}} - \text{WCAG}_{\text{raw}})$: **−0.0000** (the
+  white/black anchor)
 - design-system WCAG disagreements: **111** (matches `probe-design-systems.spec.ts`)
 
 ---
 
 ## 4. Result 1 — the free knobs cannot move the 111
 
-Grid search over `C_THRESH ∈ {0.15…0.30}` × `CHROMA_K ∈ {0.20…0.50}` (POL_K,
-DOL_CAP, anchors all fixed):
+Grid search over `C_THRESH` $\in \lbrace 0.15 \ldots 0.30 \rbrace$ × `CHROMA_K`
+$\in \lbrace 0.20 \ldots 0.50 \rbrace$ (`POL_K`, `DOL_CAP`, anchors all fixed):
 
 - **Every one of the 35 candidates holds FP=0** across all 2.79M pairs,
   including the green-darker stress band. Worst overshoot never leaves the
@@ -108,7 +112,7 @@ DOL_CAP, anchors all fixed):
   111.
 
 **Why:** every design-system pair is a colour paired with **white**, and white
-(L≈1) is always the *lighter* element. The chroma penalty acts only on the
+($L \approx 1$) is always the *lighter* element. The chroma penalty acts only on the
 lighter element, so it **never fires on any of the 111**. Those under-calls are
 driven by the *darker* element's chroma through the global `POL_K` compression —
 which the fixed anchors lock. The two in-scope knobs are orthogonal to the
@@ -142,7 +146,7 @@ the agreed constraints.**
 
 The 111 are governed by `POL_K`, pinned by the white/#767676 anchor. An
 out-of-scope, **measurement-only** probe (changes no source) raised that anchor
-and re-derived `POL_K = ln(target/21) / ln(raw₇₆₇/21)`, then re-checked FP=0
+and re-derived `POL_K` $= \ln(\text{target}/21) / \ln(r_{767}/21)$, then re-checked FP=0
 over the full 2.79M-pair corpus and disagreement recovery:
 
 | white/#767676 | POL_K | FP=0 held? | of 111 recovered |
@@ -190,7 +194,7 @@ L-o-D cap 21 are unchanged.
 
 **(a) Anchor: white/#767676 → 3.9 (`POL_K` 1.175 → 1.100).** Raised to 3.9 (a
 balanced point below the ~4.0–4.1 FP=0 wall). Exact derivation
-`POL_K = ln(3.9/21)/ln(4.54/21) ≈ 1.0996`, rounded to **1.100** (the value at
+`POL_K` $= \ln(3.9/21)/\ln(4.54/21) \approx 1.0996$, rounded to **1.100** (the value at
 which `contrast('#ffffff','#767676')` rounds to 3.9).
 
 **(b) Chroma penalty: `CHROMA_K` 0.50 → 0.65.** `POL_K` is global, so lowering
@@ -200,7 +204,7 @@ pink thinned from 3.7 to 4.1. Strengthening the chroma penalty re-docks vivid
 foregrounds to their intended sub-AA scores. This lever is **cleanly decoupled**
 from step (a): the penalty acts only on the *lighter* element, and every
 design-system disagreement pairs a colour with white (white is the lighter
-element), so the 97-count is untouched; achromatic anchors (C=0) are untouched;
+element), so the 97-count is untouched; achromatic anchors ($C = 0$) are untouched;
 and strengthening a penalty only *lowers* chromatic scores, so FP=0 is preserved
 by construction. `CHROMA_K = 0.65` was chosen as the value that restores dark
 orange to 4.2 and hot pink to 3.7 — their exact pre-recalibration scores — while
@@ -218,7 +222,7 @@ leaving light pastels (low chroma → small penalty) essentially unchanged.
   and light pastels still pass, unchanged.
 - **FP = 0 preserved**, verified at the final constants: the 2.79M-pair broad
   sweep (0 FP), a **106M-pair** dense green-darker adversarial scan (0 FP), and
-  the design-system `probe-design-systems.spec.ts` FP=0 test. `POL_K ≥ 1` keeps
+  the design-system `probe-design-systems.spec.ts` FP=0 test. `POL_K` $\ge 1$ keeps
   the achromatic FP=0-by-construction proof intact.
 
 All five synced docs, both probe specs, the oracle mirror, and this file were
@@ -233,7 +237,7 @@ This removes the single white-on-black equality point, so OKCA is *strictly*
 below WCAG everywhere and the interval verifier certifies the full gamut with 0
 uncertified boxes.
 
-Effect on the numbers above: all **light-on-dark** scores scale by 20.9/21
+Effect on the numbers above: all **light-on-dark** scores scale by $20.9/21$
 (dark-on-light, cap 20, is unchanged). So white/black = **20.9**, hot
 pink/near-black **3.7 → 3.6**; dark orange stays 4.2. The **disagreement count is
 unchanged at 97** (34/13/50), and no design-system pair flips. Cost measured by

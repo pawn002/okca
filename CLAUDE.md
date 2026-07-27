@@ -23,16 +23,34 @@ and the WCAG disagreement counts. Probe test expectations
 (`okca-oracle.spec.ts`), and the FP=0 verifier (`npm run fp0`, which must
 still certify with 0 uncertified boxes) must also be updated/re-run.
 
-### LaTeX rule — `\texttt{}` must never appear inside `$...$`
+## Math notation in `docs/`
 
-When writing a constant name inline with an equation, split the math:
+All maths in `docs/*.md` is authored in LaTeX (`$...$` inline, `$$...$$`
+display) and rendered by GitHub with KaTeX. Do not introduce ASCII or Unicode
+formulas (`L³`, `δ = L³ − Y`, `21^(1−k)·A(white)`) — convert them.
 
-```latex
-% CORRECT
-$k =$ \texttt{POL\_K} $= 1.100$
+Shared symbols, so the docs read as one notation: $L^3$, $\delta$, $Y$,
+$Y_{\text{lighter}}$ / $Y_{\text{darker}}$ (OKCA proxies) vs $Y_l$ / $Y_d$
+(WCAG luminances), $r_{\text{raw}}$, $\text{CAP}$, $k$, $A(l)$, $B(d)$.
 
-% WRONG — causes "'_' allowed only in math mode"
-$k = \texttt{POL\_K} = 1.100$
-```
+Four rules the `docs-lint.spec.ts` suite enforces across every `docs/*.md`:
 
-A test in `docs-lint.spec.ts` enforces this automatically.
+1. **`\texttt{}` must never appear inside `$...$`.** The renderer treats `_` as
+   a subscript operator even inside `\texttt{}`. Split the span instead:
+
+   ```latex
+   $k =$ `POL_K` $= 1.100$      % CORRECT
+   $k = \texttt{POL\_K} = 1.1$  % WRONG — "'_' allowed only in math mode"
+   ```
+
+2. **Balanced `$` on every line.** An inline span may not wrap onto the next
+   line — GitHub will not render it. Reflow it onto one line.
+3. **Use `\lbrace` / `\rbrace`, never `\{` / `\}`.** Markdown consumes the
+   backslash-escape before KaTeX sees it, silently turning literal set braces
+   into grouping.
+4. Code stays code: constant identifiers, function names, CLI commands, and hex
+   colours belong in backticks, not math. The exception is a constant appearing
+   as a quantity inside an equation, where `\text{LOD\_CAP}` (`\text`, escaped
+   underscore) is used.
+
+Headings stay plain text — math in a heading mangles its anchor.
