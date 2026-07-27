@@ -43,6 +43,14 @@ const toUrl = (p: string) => 'file:///' + p.replace(/\\/g, '/');
 
 describeBuilt('published entry points', () => {
   describe('dist/esm (the "import" condition)', () => {
+    /**
+     * NOT redundant with the load test below — do not remove as duplicate
+     * coverage. Node >= 22.7 detects ESM syntax and reparses, so a missing
+     * "type" still loads there once specifiers are valid; the load test only
+     * catches this on Node 18/20. This assertion is the one that holds on
+     * every version. Verified by deleting dist/esm/package.json: on Node 24
+     * this test fails alone while the load test still passes.
+     */
     it('is marked as ESM by its own package.json', () => {
       const pkg = JSON.parse(fs.readFileSync(path.join(ESM_DIR, 'package.json'), 'utf8'));
       expect(pkg.type).toBe('module');
