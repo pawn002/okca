@@ -33,24 +33,45 @@ Shared symbols, so the docs read as one notation: $L^3$, $\delta$, $Y$,
 $Y_{\text{lighter}}$ / $Y_{\text{darker}}$ (OKCA proxies) vs $Y_l$ / $Y_d$
 (WCAG luminances), $r_{\text{raw}}$, $\text{CAP}$, $k$, $A(l)$, $B(d)$.
 
-Four rules the `docs-lint.spec.ts` suite enforces across every `docs/*.md`:
+### The one thing to understand
 
-1. **`\texttt{}` must never appear inside `$...$`.** The renderer treats `_` as
-   a subscript operator even inside `\texttt{}`. Split the span instead:
+GitHub runs its **Markdown pass first**, then hands the result to KaTeX. So
+Markdown rewrites your TeX before the renderer ever sees it. Every rule below
+follows from that, and none of it is visible locally — only on github.com.
 
-   ```latex
-   $k =$ `POL_K` $= 1.100$      % CORRECT
-   $k = \texttt{POL\_K} = 1.1$  % WRONG — "'_' allowed only in math mode"
-   ```
+**A multi-line `$$` block is passed through literally and is exempt.** A
+single-line `$$...$$` is not: it is processed like any other inline content.
 
-2. **Balanced `$` on every line.** An inline span may not wrap onto the next
-   line — GitHub will not render it. Reflow it onto one line.
-3. **Use `\lbrace` / `\rbrace`, never `\{` / `\}`.** Markdown consumes the
-   backslash-escape before KaTeX sees it, silently turning literal set braces
-   into grouping.
-4. Code stays code: constant identifiers, function names, CLI commands, and hex
-   colours belong in backticks, not math. The exception is a constant appearing
-   as a quantity inside an equation, where `\text{LOD\_CAP}` (`\text`, escaped
-   underscore) is used.
+Rules `docs-lint.spec.ts` enforces across every `docs/*.md`:
+
+1. **No backslash-escaped punctuation inside single-line math.** Markdown eats
+   the backslash. `\_`→`_` and `\%`→`%` become hard KaTeX parse errors; `\,`→`,`
+   `\;`→`;` `\\`→`\` silently render the wrong glyph. Letter-named commands
+   survive, so use `\thinspace`, `\quad`, `\lbrace`, `\rbrace`. For `\\` row
+   breaks, write the `$$` block across multiple lines.
+2. **Never put a constant name inside math.** `\texttt{POL\_K}` and
+   `\text{POL\_K}` both break — the escaped underscore does not survive. Split
+   the span: `` $k =$ `POL_K` $= 1.100$ ``. If the constant is a quantity in an
+   equation, give it a symbol (`$c$` for the L-o-D cap in `FP0_PROOF.md`) or
+   inline its value.
+3. **No `$` jammed against `"`, `-`, `/`, or a single `*`.** GitHub then fails
+   to recognise the span at all and prints literal `$...$`. Add a space or
+   reword. Bold `**` is fine.
+4. **Balanced `$` on every line.** An inline span may not wrap onto the next
+   line — GitHub will not render it. Reflow it.
+5. Code stays code: constant identifiers, function names, CLI commands, and hex
+   colours belong in backticks, not math.
 
 Headings stay plain text — math in a heading mangles its anchor.
+
+**Verifying a change.** The lint catches the known traps, but it is not a
+renderer. To check real output, POST the file to GitHub's markdown API and parse
+what comes back:
+
+```sh
+gh api -X POST markdown -f mode=gfm -f text="$(cat docs/FP0_PROOF.md)"
+```
+
+Math arrives as `<math-renderer>` elements holding the post-Markdown TeX — that
+string, not your source, is what KaTeX receives. A span missing from the output
+entirely was not recognised as math (rule 3).

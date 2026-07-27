@@ -47,7 +47,7 @@ the anchors pins two of them:
 
 - white/#767676 → 3.5 (L-o-D) **pins `POL_K = 1.175`**.
 - black/white → 20.0 (D-o-L) **pins `DOL_CAP = 20`** — that pair evaluates to
-  $\text{CAP} \cdot (21/21)^{k} = \text{DOL\_CAP}$.
+  $\text{CAP} \cdot (21/21)^{k} = \text{CAP} = 20$.
 
 So under constraints (2)+(4) the only genuinely free knobs are **`C_THRESH` and
 `CHROMA_K`** — the lighter-element chroma penalty (`chromaExp`,
@@ -91,11 +91,9 @@ without editing source.
 `contrast()` on all design-system pairs + 5,000 random pairs — **0 mismatches**.
 It reproduces the documented baseline exactly:
 
-- FP count (strong: $\text{OKCA}_{\text{rounded}} > \text{WCAG}_{\text{rounded}}$)
-  over 2.79M pairs: **0**
-- worst overshoot
-  $\max(\text{OKCA}_{\text{raw}} - \text{WCAG}_{\text{raw}})$: **−0.0000** (the
-  white/black anchor)
+- FP count (strong: rounded $\text{OKCA} > \text{WCAG}$) over 2.79M pairs: **0**
+- worst overshoot, $\max(\text{OKCA} - \text{WCAG})$ on raw scores: **−0.0000**
+  (the white/black anchor)
 - design-system WCAG disagreements: **111** (matches `probe-design-systems.spec.ts`)
 
 ---

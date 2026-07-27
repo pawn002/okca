@@ -52,9 +52,10 @@ $\max B = B(\text{black})$.
 With $\text{CAP} = 21$ the bound at the anchor is $21/21 = 1$ — **tight**, so
 white-on-black would be the single point where $\text{OKCA} = \text{WCAG}$, which
 interval arithmetic cannot certify (it cannot prove a non-strict equality).
-Setting **`LOD_CAP` $= 20.9 < 21$** makes the anchor bound
+Setting **`LOD_CAP` $= 20.9 < 21$** — write $c$ for this cap — makes the anchor
+bound
 
-$$\frac{\text{LOD\_CAP}}{21^{k}} \cdot A(\text{white}) \cdot B(\text{black}) = \frac{\text{LOD\_CAP}}{21} = 0.99524 < 1,$$
+$$\frac{c}{21^{k}} \cdot A(\text{white}) \cdot B(\text{black}) = \frac{c}{21} = 0.99524 < 1,$$
 
 a **uniform strict margin**. There is now no equality point anywhere: OKCA is
 *strictly* below WCAG for every sRGB pair. (Dark-on-light, $\text{CAP} = 20$, is
@@ -70,9 +71,9 @@ $$\begin{aligned}
 \text{(L-B)} \quad & B(d) \le B(\text{black}) \cdot s && \text{for all sRGB } d,
 \end{aligned}$$
 
-with $s = \sqrt{21 / \text{LOD\_CAP}} = 1.00239$, since then
+with $s = \sqrt{21 / c} = 1.00239$, since then
 
-$$\frac{\text{LOD\_CAP}}{21^{k}} \cdot A \cdot B \le \frac{\text{LOD\_CAP}}{21^{k}} \cdot A(\text{white}) \cdot B(\text{black}) \cdot s^{2} = \frac{\text{LOD\_CAP}}{21} \cdot \frac{21}{\text{LOD\_CAP}} = 1.$$
+$$\frac{c}{21^{k}} \cdot A \cdot B \le \frac{c}{21^{k}} \cdot A(\text{white}) \cdot B(\text{black}) \cdot s^{2} = \frac{c}{21} \cdot \frac{21}{c} = 1.$$
 
 `scripts/fp0-proof.ts` branch-and-bounds each
 lemma over the sRGB cube with sound outward-rounded interval arithmetic
@@ -95,7 +96,7 @@ the anchors certify, so no neighbourhood is excluded.
 
 For every ordered sRGB pair:
 
-$$\frac{\text{LOD\_CAP}}{21^{k}} \cdot A(l) \cdot B(d) \le \frac{\text{LOD\_CAP}}{21^{k}} \cdot A(\text{white}) \cdot B(\text{black}) = \frac{\text{LOD\_CAP}}{21} < 1,$$
+$$\frac{c}{21^{k}} \cdot A(l) \cdot B(d) \le \frac{c}{21^{k}} \cdot A(\text{white}) \cdot B(\text{black}) = \frac{c}{21} < 1,$$
 
 hence $\text{OKCA} \le \text{WCAG}$, strictly.
 

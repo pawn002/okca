@@ -35,7 +35,7 @@ WCAG values use the standard relative-luminance formula, reimplemented inline
 OKCA's darker-element luminance proxy is $L^3$ (OKLCH lightness cubed). WCAG
 uses relative luminance
 
-$$Y = 0.2126\,R_{\text{lin}} + 0.7152\,G_{\text{lin}} + 0.0722\,B_{\text{lin}}$$
+$$Y = 0.2126\thinspace R_{\text{lin}} + 0.7152\thinspace G_{\text{lin}} + 0.0722\thinspace B_{\text{lin}}$$
 
 (linearised sRGB). Their gap
 
@@ -121,7 +121,7 @@ conservatism is a **vivid-colour** phenomenon; pastels barely diverge:
 **Key consequence:** at *matched* chroma ($C \approx 0.17$) the divergence is
 green $-0.025$, blue $+0.004$, magenta $+0.020$ — **opposite signs at equal
 chroma.** No function of chroma magnitude alone ($C = \sqrt{a^2 + b^2}$) can
-flatten it; only the *direction* of $a$/$b$ (i.e. hue) distinguishes green from
+flatten it; only the *direction* of $a$ and $b$ (i.e. hue) distinguishes green from
 magenta.
 
 ---
@@ -244,9 +244,9 @@ perceptual contrast metric in its own right. Sketch of what that could be
 
 1. **Effective perceptual lightness** that folds the Helmholtz–Kohlrausch effect
    (saturated colours appear brighter than their luminance) into lightness as a
-   *smooth function of $(a, b)$* — no hue angle, no hue bands. Freed from
+   *smooth function of* $(a, b)$ — no hue angle, no hue bands. Freed from
    matching $Y$, this chroma term becomes a legitimate appearance model rather
-   than a "$Y$ in disguise" correction:
+   than a "Y in disguise" correction:
    $\text{Ł} = L + f(a, b)$, with $f$ smooth and $\approx 0$ at $a = b = 0$.
 2. **Polarity-native, difference-based contrast** on $\text{Ł}$ (signed by direction,
    with distinct exponents per polarity and a soft clamp near black) instead of a
