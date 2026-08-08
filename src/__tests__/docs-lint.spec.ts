@@ -14,8 +14,39 @@
  */
 import * as fs from 'fs';
 import * as path from 'path';
+import { contrast } from '../index';
 
 const DOCS_DIR = path.resolve(__dirname, '../../docs');
+
+/**
+ * Docs that quote current anchor values drift silently when the constants are
+ * retuned — CALIBRATION_EXPERIMENT.md carried three stale ones through two
+ * recalibrations, because nothing tied the prose to the code.
+ *
+ * A doc opts in by wrapping a table in `<!-- ANCHORS:BEGIN -->` /
+ * `<!-- ANCHORS:END -->`, with rows shaped:
+ *
+ *     | `#ffffff` on `#000000` | 20.9 | ...ignored... |
+ *
+ * Only the first two columns are read, so a table may carry extra commentary
+ * columns. Returns null when the file has no such block.
+ */
+interface AnchorRow { fg: string; bg: string; quoted: number; line: number }
+
+function findAnchorTable(src: string): AnchorRow[] | null {
+  const begin = src.indexOf('<!-- ANCHORS:BEGIN');
+  if (begin < 0) return null;
+  const end = src.indexOf('<!-- ANCHORS:END', begin);
+  if (end < 0) throw new Error('ANCHORS:BEGIN without a matching ANCHORS:END');
+
+  const before = src.slice(0, begin).split('\n').length;
+  const rows: AnchorRow[] = [];
+  src.slice(begin, end).split('\n').forEach((text, i) => {
+    const m = text.match(/^\s*\|\s*`(#[0-9a-fA-F]{6})`\s+on\s+`(#[0-9a-fA-F]{6})`\s*\|\s*([\d.]+)\s*\|/);
+    if (m) rows.push({ fg: m[1], bg: m[2], quoted: parseFloat(m[3]), line: before + i });
+  });
+  return rows;
+}
 
 const MD_FILES = fs
   .readdirSync(DOCS_DIR)
@@ -172,6 +203,16 @@ describe('docs-lint', () => {
 
     it('has no $ delimiter jammed against " - / or a single *', () => {
       expect(findBadDelimiterAdjacency(lines)).toEqual([]);
+    });
+
+    it('quotes anchor values that match the live algorithm', () => {
+      const rows = findAnchorTable(fs.readFileSync(path.join(DOCS_DIR, filename), 'utf8'));
+      if (rows === null) return; // no ANCHORS block in this file
+      expect(rows.length).toBeGreaterThan(0);
+      for (const { fg, bg, quoted, line } of rows) {
+        expect({ line, pair: `${fg} on ${bg}`, value: contrast(fg, bg) })
+          .toEqual({ line, pair: `${fg} on ${bg}`, value: quoted });
+      }
     });
   });
 });
