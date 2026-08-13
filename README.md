@@ -77,7 +77,7 @@ Tested against 1,249 color pairs across three batteries (light-on-dark, dark-on-
 
 **False passes: zero.** OKCA never approves a pair that WCAG rejects.
 
-**WCAG disagreements** are pairs where OKCA scores below 4.5 but WCAG scores ≥ 4.5. These are intentional. WCAG's 4.5:1 AA threshold is widely considered too permissive — white on `#767676` (WCAG's own AA boundary anchor) is not production-ready in most real-world designs. All 97 disagreements involve colors in that marginal zone.
+**WCAG disagreements** are pairs where OKCA scores below 4.5 but WCAG scores ≥ 4.5. These are intentional. WCAG's 4.5:1 AA threshold is widely considered too permissive: white on `#767676` — WCAG's own AA boundary anchor — sits exactly on the line, where the verdict turns on the display and the room rather than on the colors. The same pair can read acceptably on a bright screen and not on a dimmer one ([#22](https://github.com/pawn002/okca/issues/22#issuecomment-5282357292)). A threshold with no margin against viewing conditions is the problem, and all 97 disagreements sit in that zone.
 
 **Found a false pass?** `OKCA ≤ WCAG` is verified across sRGB (`docs/FP0_PROOF.md`). If you somehow find an sRGB pair OKCA scores **above** the WCAG ratio, that's a bug — [open an issue](https://github.com/pawn002/okca/issues) and I'll fix it.
 

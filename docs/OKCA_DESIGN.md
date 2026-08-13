@@ -263,7 +263,7 @@ Three independent batteries:
 
 **False passes are zero** --- the non-negotiable invariant holds across all 1,249 pairs.
 
-**WCAG disagreements** (pairs where OKCA < 4.5 but WCAG ≥ 4.5) are intentional and should not be read as miscalibration. WCAG's 4.5:1 AA threshold is widely considered too permissive by practitioners. White on `#767676` --- the canonical WCAG AA boundary anchor --- is not production-ready in most real designs. All 97 disagreements involve colours in that marginal zone: proximity to the boundary is not the same as being safely above it. (The count was 111 before the white/#767676 anchor was raised 3.5 → 3.9; that recalibration cleared 14 mid-range chromatics that sat just under 4.5.)
+**WCAG disagreements** (pairs where OKCA < 4.5 but WCAG ≥ 4.5) are intentional and should not be read as miscalibration. WCAG's 4.5:1 AA threshold is widely considered too permissive by practitioners. White on `#767676` --- the canonical WCAG AA boundary anchor --- sits exactly on the line, where the verdict turns on the display and the room rather than on the colours (see *Does not model viewing conditions* in §10 below). All 97 disagreements involve colours in that marginal zone: proximity to the boundary is not the same as being safely above it, and a pair on the line has no margin against the conditions it will be read in. (The count was 111 before the white/#767676 anchor was raised 3.5 → 3.9; that recalibration cleared 14 mid-range chromatics that sat just under 4.5.)
 
 By system: Tailwind CSS v3.4 (34), GOV.UK Design System (13), USWDS v3.x (50). See `docs/WCAG_DISAGREEMENTS.md` for full enumeration with hex values.
 
@@ -300,6 +300,8 @@ Understanding the scope prevents incorrect use and misguided extension attempts.
 **Does not model font size or weight.** WCAG AA (4.5:1) applies uniformly regardless of text size. OKCA outputs a single ratio; size-dependent thresholds are the caller's responsibility.
 
 **Does not replace perceptual judgement.** An OKCA score of 4.5 on a warm fuchsia text/white background means the pair clears the numerical threshold. A designer may still find it unpleasant. OKCA is a safety floor, not a design recommendation.
+
+**Does not model viewing conditions.** The contrast at which text becomes acceptable moves substantially with display luminance and ambient light — far enough that a pair near the AA boundary can be judged shippable under one setup and not another by the same person in the same room ([#22](https://github.com/pawn002/okca/issues/22#issuecomment-5282357292)). OKCA is a relative metric over sRGB with no access to absolute luminance, so it does not model this and no constant of its own could: a level-dependent term was measured for and not detected, while the effect that does exist tracks a quantity the algorithm cannot observe. The safety bound is unaffected, being a relation between two relative metrics. The practical consequence is that OKCA's floors are viewing-condition independent by construction, which is a reason to keep them conservative rather than to tune them.
 
 **Does not patch WCAG's channel weighting.** OKCA does not compensate for the IEC 61966-2-1 green-channel weighting in WCAG's luminance formula. The chroma compression is rotationally symmetric in ab-space — no hue branch, no asymmetric treatment of $a$ vs $b$. Hue-varying outcomes arise from Oklab geometry (different hues reach different C values at similar lightness), not from explicit hue targeting.
 
