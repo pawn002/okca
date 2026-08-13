@@ -49,7 +49,7 @@ The 500-level neutral greys are the most practically significant: designers reac
 | pink-600 | `#db2777` | 4.6 | 3.5 | 3.3 |  |
 | rose-600 | `#e11d48` | 4.7 | 3.5 | 3.4 |  |
 
-**Pattern:** The Tailwind neutral 500 scale lands at WCAG ~4.7–4.8 but OKCA scores it 3.9–4.2 — a designer would generally not call any of these comfortable for body text on white. Magenta-adjacent hues (fuchsia-600, pink-600 at 3.5/3.3) carry the largest chroma-compression penalty. The deep-700 greens (lime, green) clear AA with white text on them (L-o-D) but still fall just short as text on white (D-o-L).
+**Pattern:** The Tailwind neutral 500 scale lands at WCAG ~4.7–4.8 but OKCA scores it 3.9–4.2 — squarely in the zone where whether a pair reads comfortably as body text turns on the viewing conditions rather than on the pair (see *Practitioner benchmark* below). Magenta-adjacent hues (fuchsia-600, pink-600 at 3.5/3.3) carry the largest chroma-compression penalty. The deep-700 greens (lime, green) clear AA with white text on them (L-o-D) but still fall just short as text on white (D-o-L).
 
 ---
 
@@ -126,3 +126,7 @@ Most colours appear as both a L-o-D and D-o-L failure. The polarity model means 
 
 ### Practitioner benchmark
 The canonical marginal pair — white on `#767676` — scores WCAG 4.5, OKCA 3.9 (L-o-D). Everything in this document is in the same zone or worse. A designer who accepts `#767676` as passing AA is accepting the same risk for every entry here.
+
+That risk is not a matter of taste. In a threshold experiment reported in [#22](https://github.com/pawn002/okca/issues/22#issuecomment-5282357292), the contrast at which body text was judged shippable measured **5.2 at one display brightness and 2.8 at another** — same observer, same room, same session. OKCA 3.9 falls between those two figures, so the verdict on this exact pair inverts across ordinary viewing conditions.
+
+That is n = 1 and a single datum, not a population estimate, and it is quoted here for direction rather than magnitude. The direction is the point: a pair sitting on the AA line carries no margin against the conditions it will actually be read in. That is an argument for a floor above the line rather than at it — and it is a stronger argument for OKCA's conservatism than any claim about how a given pair looks, because it does not depend on anyone agreeing about appearance.
