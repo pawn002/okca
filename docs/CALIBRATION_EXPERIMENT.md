@@ -8,8 +8,29 @@ Tailwind 46→34, GOV.UK 15→13, USWDS 50→50) while preserving FP=0. Because 
 global `POL_K` lift also loosened OKCA's saturated-colour catches, the chroma
 penalty was strengthened in tandem (**`CHROMA_K` 0.50 → 0.65**) to re-dock vivid
 foregrounds — a lever cleanly decoupled from the grey recovery. See
-**§8 — Applied change** below. The body (§1–§7) records the method and data
-that led there; the tables in §5–§6 use the pre-change baseline.
+**§8 — Applied change** below. A second, separate step then lowered the
+light-on-dark cap (**`LOD_CAP` 21 → 20.9**, issue #14) to make FP=0 a theorem
+rather than a gamut-verified property — see **§9**.
+
+The body (§1–§7) records the method and data that led there; the tables in
+§5–§6 use the pre-change baseline. **Three of the four achromatic anchors named
+in §1's constraint list moved as a result**, so that list states the values as
+they stood when the experiment was designed, not the current ones. Current
+values are always these:
+
+<!-- ANCHORS:BEGIN — checked against contrast() by src/__tests__/docs-lint.spec.ts -->
+
+| pair | OKCA | was, at §1 |
+|---|---:|---:|
+| `#ffffff` on `#000000` | 20.9 | 21.0 |
+| `#000000` on `#ffffff` | 20.0 | 20.0 |
+| `#ffffff` on `#767676` | 3.9 | 3.5 |
+| `#767676` on `#ffffff` | 3.7 | 3.3 |
+
+<!-- ANCHORS:END -->
+
+That table is asserted against the live algorithm in CI, so it cannot drift
+from the code the way the prose below did.
 
 Reproduce all numbers below with:
 
@@ -33,7 +54,10 @@ less conservative **without** giving up its core safety property?
 1. **FP=0 stays hard** — OKCA must never score above WCAG for any sRGB pair
    (with production rounding). Non-negotiable (`OKCA_DESIGN.md` §2.1).
 2. **All 4 achromatic anchors stay fixed** (white/black 21.0, black/white 20.0,
-   white/#767676 3.5, #767676/white 3.3).
+   white/#767676 3.5, #767676/white 3.3). *These are the values as of the
+   experiment's design. The experiment concluded by moving the grey anchor
+   (§8) and a follow-on lowered the light-on-dark cap (§9); three of the four
+   are different today — see the table at the top.*
 3. **Clean-room origin preserved** — no source, formula, or model from any
    external contrast library. The published WCAG 2.x relative-luminance formula
    is exempt (OKCA already references it and reimplements it inline in tests).
@@ -45,7 +69,8 @@ less conservative **without** giving up its core safety property?
 The four constants (`src/index.ts:39-42`) are the only tunable surface. Fixing
 the anchors pins two of them:
 
-- white/#767676 → 3.5 (L-o-D) **pins `POL_K = 1.175`**.
+- white/#767676 → 3.5 (L-o-D) **pins `POL_K = 1.175`**. *(This is the pin the
+  experiment went on to release: the anchor is 3.9 and `POL_K` 1.100 today.)*
 - black/white → 20.0 (D-o-L) **pins `DOL_CAP = 20`** — that pair evaluates to
   $\text{CAP} \cdot (21/21)^{k} = \text{CAP} = 20$.
 
