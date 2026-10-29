@@ -1,5 +1,5 @@
 /**
- * Mid-tone-on-near-black survey. Read-only; no algorithm change.
+ * Mid-tone-on-near-black survey — the evidence for Step 6 (flare ceiling).
  * Run: npm run midtone
  *
  * Question: is OKCA too liberal for mid-tone foregrounds on near-black
@@ -18,7 +18,10 @@
  *   1. Yardsticks for just-passing pairs (score 4.5–5.4), by background band.
  *   2. Achromatic continuum: the grey that first reaches 4.5 on each grey bg.
  *   3. CVD check: OKCA AA passes that fall below WCAG 4.5 under simulation.
- *   4. Candidate: a flare-robustness ceiling, and what it changes.
+ *   4. Step 6, the flare-robustness ceiling, and what it changed.
+ *
+ * "Before Step 6" is OKCA 2.x (steps 1–5), reimplemented locally; "with Step 6"
+ * is the live contrast().
  *
  * All formulas are reimplemented from their published specifications.
  */
@@ -82,10 +85,22 @@ const CVD: Record<string, number[][]> = {
 const simulate = (M: number[][], l: V3) =>
   M.map((r) => Math.min(1, Math.max(0, r[0] * l[0] + r[1] * l[1] + r[2] * l[2]))) as V3;
 
-// ── Candidate: flare-robustness ceiling ───────────────────────────────────────
+// ── OKCA before Step 6 (2.x, steps 1–5) ──────────────────────────────────────
+function before(fg: string, bg: string): number {
+  const t = hexToOklab(fg)!, b = hexToOklab(bg)!;
+  const tL = Math.max(0, t[0]), bL = Math.max(0, b[0]);
+  if (Math.abs(tL - bL) < 1e-6) return 1;
+  const lt = tL > bL ? t : b;
+  const exp = 1 + 0.65 * Math.min(1, (Math.hypot(lt[1], lt[2]) / 0.15) ** 2);
+  const r = (Math.max(tL, bL) ** (3 * exp) + 0.05) / (Math.min(tL, bL) ** 3 + 0.05);
+  return parseFloat(Math.max(1, Math.min(21, (tL > bL ? 20.9 : 20) * (r / 21) ** 1.1)).toFixed(1));
+}
+
+// ── Step 6: flare-robustness ceiling ──────────────────────────────────────────
 // The polarity curve re-run on the uncompressed L^3 proxies with a flare term
-// of FLARE instead of 0.05, re-anchored so white/black is unchanged. The final
-// score is min(OKCA, ceiling), so FP=0 is inherited, not re-proved.
+// of FLARE instead of 0.05, re-anchored so white/black is unchanged. The score
+// is min(steps 1–5, ceiling), so FP=0 is inherited, not re-proved. Mirrors
+// src/index.ts; kept here so section 4 can sweep FLARE and k.
 const FLARE = 0.10;
 const FLARE_K = 1.5; // largest exponent that leaves every white/grey pair untouched (see section 4)
 
@@ -96,8 +111,7 @@ function ceiling(fg: string, bg: string, flare = FLARE, k = FLARE_K): number {
   const r = (Math.max(tL, bL) ** 3 + flare) / (Math.min(tL, bL) ** 3 + flare);
   return cap * Math.pow(r / ((1 + flare) / flare), k);
 }
-const candidate = (fg: string, bg: string) =>
-  parseFloat(Math.max(1, Math.min(contrast(fg, bg)!, ceiling(fg, bg))).toFixed(1));
+const candidate = (fg: string, bg: string) => contrast(fg, bg)!;
 
 // ── Survey rows ───────────────────────────────────────────────────────────────
 interface Row {
@@ -116,7 +130,7 @@ function measure(fg: string, bg: string): Row {
     cvdWcag = Math.min(cvdWcag, ratio(lumY(sf), lumY(sb), 0.05));
   }
   return {
-    fg, bg, okca: contrast(fg, bg)!, cand: candidate(fg, bg), wcag: ratio(yf, yb, 0.05),
+    fg, bg, okca: before(fg, bg), cand: candidate(fg, bg), wcag: ratio(yf, yb, 0.05),
     Lb: okB[0], Cf: Math.hypot(okF[1], okF[2]),
     dE00: de2000(labF, labB), dLs: Math.abs(labF[0] - labB[0]), flare10: ratio(yf, yb, 0.10), cvdDE00, cvdWcag,
   };
@@ -148,7 +162,7 @@ const CHROMA: [string, (r: Row) => boolean][] = [
 ];
 
 // ── 1. Yardsticks at the AA line ──────────────────────────────────────────────
-for (const [label, score] of [['current OKCA', (r: Row) => r.okca], ['candidate', (r: Row) => r.cand]] as const) {
+for (const [label, score] of [['before Step 6', (r: Row) => r.okca], ['with Step 6', (r: Row) => r.cand]] as const) {
   console.log(`\n=== 1. Just-passing pairs (${label} 4.5-5.4): medians ===`);
   console.log('fg chroma   background band        n    dL*   dE00  cvdE00  flare.10   AA passes');
   for (const [cn, cf] of CHROMA)
@@ -165,9 +179,9 @@ for (const [label, score] of [['current OKCA', (r: Row) => r.okca], ['candidate'
 
 // ── 2. Achromatic continuum ───────────────────────────────────────────────────
 console.log('\n=== 2. Grey that first reaches 4.5, per grey background ===');
-console.log('bg       | current: fg       WCAG    dL*  flare.10 | candidate: fg     WCAG    dL*  flare.10');
+console.log('bg       | before:  fg       WCAG    dL*  flare.10 | with Step 6: fg   WCAG    dL*  flare.10');
 for (const bv of [0, 10, 18, 26, 34, 51, 68, 255, 245, 230, 200]) {
-  const cells = [contrast, candidate].map((fn) => {
+  const cells = [before, candidate].map((fn) => {
     let fv = bv;
     while (fv >= 0 && fv <= 255 && fn(grey(fv), grey(bv))! < 4.5) fv += bv < 128 ? 1 : -1;
     const m = measure(grey(fv), grey(bv));
@@ -177,20 +191,20 @@ for (const bv of [0, 10, 18, 26, 34, 51, 68, 255, 245, 230, 200]) {
 }
 
 // ── 3. CVD check ──────────────────────────────────────────────────────────────
-console.log('\n=== 3. Current OKCA AA passes whose worst CVD simulation drops WCAG below 4.5 ===');
+console.log('\n=== 3. AA passes before Step 6 whose worst CVD simulation drops WCAG below 4.5 ===');
 for (const [bn, bf] of BANDS) {
   const p = rows.filter((r) => bf(r) && r.okca >= 4.5);
   console.log(bn.padEnd(20), 'passes', String(p.length).padStart(5), '  CVD WCAG<4.5:', pct(p.filter((r) => r.cvdWcag < 4.5).length, p.length));
 }
 
 // ── 4. Candidate ceiling ──────────────────────────────────────────────────────
-console.log(`\n=== 4. Candidate flare ceiling (FLARE=${FLARE}, k=${FLARE_K}) ===`);
+console.log(`\n=== 4. Step 6 flare ceiling (FLARE=${FLARE}, k=${FLARE_K}) ===`);
 const kMax = (flare: number) => {
   let k = 1;
   const binds = (kk: number) => {
     for (let v = 0; v < 256; v++)
       for (const [f, b] of [['#ffffff', grey(v)], [grey(v), '#ffffff']]) {
-        const o = contrast(f, b)!;
+        const o = before(f, b);
         if (o >= 2 && ceiling(f, b, flare, kk) < o - 0.05) return true;
       }
     return false;
@@ -200,10 +214,10 @@ const kMax = (flare: number) => {
 };
 for (const f of [0.075, 0.1, 0.125]) console.log(`largest k leaving white/grey pairs untouched at FLARE=${f}: ${kMax(f)}`);
 
-console.log('\nanchors and calibration pairs (current -> candidate):');
+console.log('\nanchors and calibration pairs (before -> with Step 6):');
 for (const [f, b] of [['#ffffff', '#000000'], ['#000000', '#ffffff'], ['#ffffff', '#767676'], ['#767676', '#ffffff'],
   ['#ff69b4', '#1a1a1a'], ['#ff8c00', '#1a1a1a'], ['#9f9f9f', '#1a1a1a'], ['#888888', '#000000'], ['#000000', '#767676']])
-  console.log(`  ${f} on ${b}: ${contrast(f, b)} -> ${candidate(f, b)}`);
+  console.log(`  ${f} on ${b}: ${before(f, b)} -> ${candidate(f, b)}`);
 
 const SURFACES = ['#000000', '#121212', '#1a1a1a', '#0f172a', '#111827', '#18181b', '#0b0c0c', '#1b1616', '#1c1d1f'];
 const palette: { hex: string; label: string }[] = [];
@@ -232,6 +246,6 @@ let fills = 0, fillsLost = 0;
 for (const text of ['#000000', '#111111', '#1a1a1a'])
   for (const { hex } of palette) {
     fills++;
-    if (contrast(text, hex)! >= 4.5 && candidate(text, hex) < 4.5) fillsLost++;
+    if (before(text, hex) >= 4.5 && candidate(text, hex) < 4.5) fillsLost++;
   }
 console.log(`dark text (#000000, #111111, #1a1a1a) on palette fills: ${fills} pairs, AA lost ${fillsLost}`);

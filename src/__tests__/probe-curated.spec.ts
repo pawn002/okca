@@ -22,7 +22,7 @@ const LIGHT_ON_DARK: ProbePair[] = [
   ['#ffffff', '#333333', 12.0, 'A  white on dark gray'],
   ['#ffffff', '#555555',  6.7, 'A  white on mid-dark gray'],
   ['#ffffff', '#767676',  3.9, 'A  white on WCAG-AA-boundary gray'],
-  ['#cccccc', '#333333',  7.1, 'A  light gray on dark gray'],
+  ['#cccccc', '#333333',  7.0, 'A  light gray on dark gray'],
   ['#eeeeee', '#444444',  7.6, 'A  near-white on dark gray'],
 
   // B: Dark green backgrounds
@@ -97,7 +97,7 @@ const DARK_ON_LIGHT: ProbePair[] = [
   ['#767676', '#ffffff',  3.7, 'I  #767676 on white (AA boundary)'],
   ['#777777', '#ffffff',  3.7, 'I  #777777 on white (just below AA)'],
   ['#444444', '#eeeeee',  7.3, 'I  dark gray on near-white'],
-  ['#333333', '#cccccc',  6.8, 'I  dark gray on light gray'],
+  ['#333333', '#cccccc',  6.7, 'I  dark gray on light gray'],
 
   // J: Dark green text on white
   ['#004000', '#ffffff', 11.4, 'J  very dark green on white'],
@@ -142,10 +142,10 @@ const DARK_ON_LIGHT: ProbePair[] = [
 
   // O: Light chromatic backgrounds
   ['#000000', '#90ee90',  9.7, 'O  black on light green'],
-  ['#000000', '#add8e6', 12.0, 'O  black on light blue'],
+  ['#000000', '#add8e6', 10.8, 'O  black on light blue'],
   ['#000000', '#ffff99', 18.1, 'O  black on light yellow'],
-  ['#000000', '#ffcccc', 13.4, 'O  black on light pink'],
-  ['#000000', '#e6ccff', 12.8, 'O  black on light lavender'],
+  ['#000000', '#ffcccc', 12.5, 'O  black on light pink'],
+  ['#000000', '#e6ccff', 12.1, 'O  black on light lavender'],
   ['#333333', '#90ee90',  5.6, 'O  dark gray on light green'],
   ['#1a237e', '#e3f2fd',  9.8, 'O  dark navy on very light blue'],
   ['#004d00', '#e8f5e9',  8.3, 'O  very dark green on near-white green bg'],

@@ -14,6 +14,8 @@ const CHROMA_K  = 0.65;
 const POL_K     = 1.100;
 const LOD_CAP   = 20.9;
 const DOL_CAP   = 20;
+const FLARE     = 0.10;
+const FLARE_K   = 1.5;
 
 function refContrast(textColor: string, bgColor: string): number | null {
   let tp: Color, bp: Color;
@@ -47,7 +49,11 @@ function refContrast(textColor: string, bgColor: string): number | null {
   const rawRatio = (lighterY + 0.05) / (darkerY + 0.05);
   const cap = isLightOnDark ? LOD_CAP : DOL_CAP;
   const ratio = cap * Math.pow(rawRatio / 21, POL_K);
-  return parseFloat(Math.max(1, Math.min(21, ratio)).toFixed(1));
+
+  // Step 6 — flare-robustness ceiling
+  const flareRatio = (Math.pow(lighterL, 3) + FLARE) / (darkerY + FLARE);
+  const ceiling = cap * Math.pow(flareRatio / ((1 + FLARE) / FLARE), FLARE_K);
+  return parseFloat(Math.max(1, Math.min(21, ratio, ceiling)).toFixed(1));
 }
 
 // ── Test pairs ───────────────────────────────────────────────────────────────

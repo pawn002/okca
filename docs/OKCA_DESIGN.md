@@ -11,25 +11,28 @@ WCAG 2.x contrast uses the ratio formula:
 
 $$\text{ratio} = \frac{Y_1 + 0.05}{Y_2 + 0.05}$$
 
-This has two well-documented failure modes:
+This has three failure modes OKCA addresses:
 
 1. **False passes for saturated chromatic text.** Hot pink on near-black scores 6.6:1 under WCAG --- a comfortable AA pass. Accessibility practitioners consistently identify it as inadequate, and it is one of the most commonly cited examples of WCAG producing a result that does not match production experience. WCAG's luminance formula treats it identically to an achromatic pair at the same luminance ratio.
 
 2. **Polarity blindness.** WCAG's ratio is symmetric: `ratio(A on B) = ratio(B on A)`. Designers and design systems treat the two directions as distinct --- dark mode and light mode are different design decisions, not interchangeable. WCAG does not model this asymmetry.
 
-OKCA corrects both while being **never more permissive than WCAG** --- every score lands at or below the WCAG score for the same pair, so OKCA never tells a designer a pair is safe when WCAG says it fails.
+3. **Fragile passes on near-black backgrounds.** On a near-black background the ratio gets most of its value from the near-zero denominator --- the term stray light erodes first. A just-passing grey on black keeps a ratio of 3.1 when the flare allowance doubles; a just-passing grey on white keeps 4.5. Two pairs at the same score carry very different margins against the room they are read in ([`MIDTONE_SURVEY_FINDINGS.md`](MIDTONE_SURVEY_FINDINGS.md)).
 
-OKCA is a stricter WCAG 2.x checker for sRGB, not a new perceptual model: it keeps WCAG's scale and thresholds and tightens the two failure modes above. Its one guarantee is the safety bound.
+OKCA corrects all three while being **never more permissive than WCAG** --- every score lands at or below the WCAG score for the same pair, so OKCA never tells a designer a pair is safe when WCAG says it fails.
+
+OKCA is a stricter WCAG 2.x checker for sRGB, not a new perceptual model: it keeps WCAG's scale and thresholds and tightens the three failure modes above. Its one guarantee is the safety bound.
 
 ### Algorithm overview
 
-OKCA processes a foreground/background color pair in five steps:
+OKCA processes a foreground/background color pair in six steps:
 
 1. **Extract lightness.** Parse each color to OKLCH L — a perceptually uniform lightness measure used as the luminance input throughout.
 2. **Identify polarity.** The element with higher L is the lighter element. If the foreground is lighter the pair is light-on-dark (L-o-D); if the background is lighter it is dark-on-light (D-o-L).
 3. **Compress the lighter element.** Compute Oklab chroma $C = \sqrt{a^2+b^2}$. Apply a chroma-weighted power exponent to the lighter element's L, reducing its effective luminance proxy. Higher chroma → larger reduction.
 4. **Compute the darker element's proxy.** The darker element uses $L^3$ directly — no chroma correction applied.
-5. **Apply polarity-aware scaling.** Form a raw ratio from the two luminance proxies, then scale with a power curve that differs by polarity: L-o-D uses a cap of 20.9 (`LOD_CAP`); D-o-L uses 20. Output is in $[1, 21]$.
+5. **Apply polarity-aware scaling.** Form a raw ratio from the two luminance proxies, then scale with a power curve that differs by polarity: L-o-D uses a cap of 20.9 (`LOD_CAP`); D-o-L uses 20.
+6. **Apply the flare-robustness ceiling.** Re-run the same curve on the uncompressed $L^3$ proxies with twice WCAG's flare allowance, and keep the lower of the two scores. Binds only where the ratio leans on a near-black darker element. Output is in $[1, 21]$.
 
 Sections 3–7 cover each step in depth. Section 4 establishes FP = 0 — by construction on the achromatic axis, and by gamut-wide verification for chromatic inputs.
 
@@ -156,6 +159,8 @@ $A(l) \le A(\text{white})$ and $B(d) \le B(\text{black})$, each **verified by
 interval arithmetic** over the sRGB cube with **0 uncertified boxes**
 (`npm run fp0`; full argument in [`docs/FP0_PROOF.md`](FP0_PROOF.md)).
 
+Step 6 takes a minimum with this score, so it can only lower it and the bound carries over unchanged ([`FP0_PROOF.md`](FP0_PROOF.md) §5).
+
 So FP = 0 is **verified for all sRGB inputs** — an exact identity plus two
 interval-checked lemmas, not a calibration-dependent headroom property. (The
 chroma penalty and Step-5 compression still shape *how far* below WCAG each score
@@ -179,9 +184,9 @@ Because WCAG contrast is a function of $Y$ alone, any two foreground colors shar
 | Foreground | $Y$ | WCAG on `#1a1a1a` | OKCA on `#1a1a1a` |
 |---|---:|---:|---:|
 | `#ff69b4` (hot pink) | 0.347 | 6.6 | 3.6 |
-| `#9f9f9f` (grey at the same $Y$) | 0.347 | 6.6 | 5.8 |
+| `#9f9f9f` (grey at the same $Y$) | 0.347 | 6.6 | 4.7 |
 
-WCAG scores them identically. OKCA scores hot pink 3.6 (fails AA) and the grey 5.8 (passes AA).
+WCAG scores them identically. OKCA scores hot pink 3.6 (fails AA) and the grey 4.7 (passes AA). The grey's score is set by the flare ceiling (Step 6), not the chroma penalty; hot pink sits below both.
 
 **Mechanism.** The lighter element's luminance proxy is penalised by a chroma-weighted power exponent. First, a saturation weight is computed from the Oklab chroma:
 
@@ -223,7 +228,7 @@ The WCAG AA boundary grey (`#767676`) fails AA under OKCA in both polarities.
 
 ---
 
-## 7. Polarity Model (Step 5)
+## 7. Polarity Model and Flare Ceiling (Steps 5–6)
 
 OKCA is **polarity-aware**: `okca(A, B) ≠ okca(B, A)` when A and B differ in lightness. The ratio formula takes the designated text and background roles into account via a final power-curve scaling.
 
@@ -247,6 +252,40 @@ For L-o-D (`LOD_CAP`, $\text{CAP} = 20.9$): the formula pins at 20.9 when $r = 2
 $$k = \frac{\ln(3.9/21)}{\ln(4.54/21)} \approx 1.0996 \rightarrow 1.100$$
 
 **FP = 0 and Step 5.** For $k \ge 1$ and $\text{CAP} \le 21$ the polarity ratio is always $\le r_{\text{raw}}$ (Section 4). On the achromatic axis $r_{\text{raw}} = r_{\text{WCAG}}$; for chromatic inputs the resulting headroom is what holds the final score $\le r_{\text{WCAG}}$ across the gamut.
+
+### Step 6 — flare-robustness ceiling
+
+**Problem.** For achromatic pairs $L^3 = Y$, so Steps 1–5 inherit WCAG's behaviour on dark backgrounds. There the ratio is carried by the near-zero denominator $Y_{\text{darker}} + 0.05$, and that is the term stray light raises first. The chroma penalty masks this for saturated foregrounds, but greys get no protection. At the AA line the gap is large:
+
+| Background | Grey reaching 4.5 before Step 6 | Its ratio with flare 0.10 |
+|---|---|---:|
+| `#000000` | `#7e7e7e` | 3.09 |
+| `#1a1a1a` | `#8c8c8c` | 3.28 |
+| `#ffffff` | `#6a6a6a` | 4.51 |
+
+Colour difference (CIEDE2000) and colour-vision-deficiency simulation do **not** flag these pairs. The leniency is in luminance margin, not in separation ([`MIDTONE_SURVEY_FINDINGS.md`](MIDTONE_SURVEY_FINDINGS.md)).
+
+**Mechanism.** Recompute the raw ratio on the uncompressed proxies with a flare term $F$, re-anchor it so white on black keeps its cap, and take the minimum:
+
+$$
+\text{ceiling} = \text{CAP} \times \left( \frac{(L_{\text{lighter}}^3 + F)/(L_{\text{darker}}^3 + F)}{(1 + F)/F} \right)^{k_F}
+$$
+
+$$
+\text{score} = \min\left(\text{ratio}, \thinspace \text{ceiling}\right)
+$$
+
+with $F =$ `FLARE` $= 0.10$ and $k_F =$ `FLARE_K` $= 1.5$.
+
+**Calibration.**
+
+- $F = 0.10$ is twice WCAG's flare allowance. At this value the grey that first reaches 4.5 keeps about 3.95 under doubled flare on **every** dark background, from `#000000` to `#444444`.
+- $k_F = 1.5$ is the largest exponent at which the ceiling never binds on a white-on-grey or grey-on-white pair scoring 2 or above. The light side, the four achromatic anchors and the 97 WCAG disagreements are therefore unchanged.
+- The ceiling uses the **uncompressed** $L^3$, so it rarely binds where the chroma penalty already has: hot pink and dark orange on near-black stay at 3.6 and 4.2.
+
+**Effect.** Grey and near-grey text on dark surfaces moves up about one palette grade. USWDS gray-40 (`#919191`) on `#121212` goes from 5.2 to 3.9, and `#888888` on black from 5.2 to 3.7. Across Tailwind, GOV.UK and USWDS palettes on nine real dark surfaces, 45 of 4,938 light-on-dark pairs lose AA, 44 of them grey or near-grey. The ceiling is polarity-independent because flare is: dark text on mid-tone fills tightens too (`#000000` on `#767676`: 3.8 to 2.6).
+
+**Not a viewing-conditions model.** The ceiling does not estimate a room (see §10). It measures how much of a pair's contrast depends on its darkest patch staying dark. Pairs with the same score now carry comparable margin against whatever room they are read in. That is the variance argument §10 makes for conservative floors, applied evenly across backgrounds.
 
 ---
 
@@ -278,6 +317,8 @@ By system: Tailwind CSS v3.4 (34), GOV.UK Design System (13), USWDS v3.x (50). S
 | `POL_K` | 1.100 | Shared polarity power exponent: $\text{CAP} \times (r/21)^{k}$ |
 | `LOD_CAP` | 20.9 | Light-on-dark contrast cap (< 21 → OKCA strictly below WCAG, FP=0 by construction) |
 | `DOL_CAP` | 20 | Dark-on-light contrast cap (< LOD_CAP); proportional polarity penalty |
+| `FLARE` | 0.10 | Flare term for the Step 6 ceiling (twice WCAG's 0.05) |
+| `FLARE_K` | 1.5 | Step 6 ceiling exponent |
 
 **Calibration anchors:**
 
@@ -290,6 +331,10 @@ By system: Tailwind CSS v3.4 (34), GOV.UK Design System (13), USWDS v3.x (50). S
 - **`LOD_CAP` = 20.9** --- Light-on-dark cap, one notch below 21. This is the strict-margin lever for the FP=0 proof: with the cap below 21 the identity $21^{1-k} \cdot A(\text{white}) \cdot B(\text{black}) = 1$ becomes $20.9/21 = 0.99524 < 1$, removing the single white-on-black equality point so OKCA is strictly below WCAG everywhere (Section 4). White on black: 20.9.
 
 - **`DOL_CAP` = 20** --- Proportional polarity penalty for D-o-L: at any given raw ratio, D-o-L scores $20/20.9 \approx 0.96$ — about 96% — of the equivalent L-o-D score. Black on white: 20.0. `#767676` on white: $(20/20.9) \times 3.9 \approx 3.7$.
+
+- **`FLARE` = 0.10** --- Twice WCAG's flare allowance. Chosen because it equalises flare robustness at the AA line: the grey that first reaches 4.5 keeps about 3.95 under doubled flare on every dark background (§7).
+
+- **`FLARE_K` = 1.5** --- The largest exponent that leaves every white/grey pair scoring 2 or above untouched (1.505 before rounding). Asserted in `flare-ceiling.spec.ts`.
 
 ---
 
@@ -318,3 +363,5 @@ When modifying the algorithm, these properties must be preserved:
 3. **No third-party contrast algorithm source code.** Mathematical derivations from public specifications are permitted; copying control flow or constant blocks from third-party packages is not.
 
 4. **Update probe battery expectations.** If any probe result changes intentionally, document the rationale before committing.
+
+5. **Flare ceiling.** `FLARE_K` must stay the largest exponent that leaves white/grey pairs untouched for the chosen `FLARE`; retuning one means re-deriving the other (`npm run midtone` reports the bound). The ceiling must stay a minimum --- that is what keeps it outside the FP=0 proof.

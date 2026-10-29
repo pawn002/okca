@@ -1,13 +1,15 @@
 # Mid-tone on Near-Black — Survey Findings
 
 Research notes on whether OKCA scores mid-tone foregrounds on near-black
-backgrounds too permissively. This is *analysis*. Running it changed no
-algorithm code. Section 5 describes a candidate change. It has **not** been
-applied.
+backgrounds too permissively. Section 5's candidate has since been **applied**
+as Step 6 of the algorithm ([`OKCA_DESIGN.md`](OKCA_DESIGN.md) §7). The
+decisions in §5 were taken as recommended: both polarities, $F = 0.10$, and a
+major version.
 
-> **Snapshot.** Figures were computed at `POL_K` $= 1.100$, `CHROMA_K` $= 0.65$,
-> `LOD_CAP` $= 20.9$, `DOL_CAP` $= 20$, `C_THRESH` $= 0.15$. Re-run after any
-> constant change.
+> **Snapshot.** §2–§3 describe OKCA *before* Step 6, at `POL_K` $= 1.100$,
+> `CHROMA_K` $= 0.65$, `LOD_CAP` $= 20.9$, `DOL_CAP` $= 20$, `C_THRESH`
+> $= 0.15$. `npm run midtone` reimplements that version locally and prints it
+> beside the live `contrast()`, so both columns reproduce.
 
 Reproduce:
 
@@ -111,7 +113,7 @@ The design-system survey matches. Typical lenient passes are a USWDS gray-40
 
 **Coverage gap.** The curated light-on-dark battery barely samples this
 region. That is why it went unnoticed: only one of its 53 pairs moves under
-the candidate in §5.
+Step 6 (§5).
 
 ---
 
@@ -129,11 +131,11 @@ room. The case for tightening dark-background greys is the same variance case
 
 ---
 
-## 5. Candidate (not applied): a flare-robustness ceiling
+## 5. The change: a flare-robustness ceiling (applied as Step 6)
 
 **Form.** Re-run OKCA's own polarity curve on the uncompressed $L^3$ proxies
 with a flare term $F$ in place of $0.05$. Re-anchor it so white on black keeps
-its cap, and take the lower of that and the current score:
+its cap, and take the lower of that and the steps 1–5 score:
 
 $$
 \text{ceiling} = \text{CAP} \times \left( \frac{(L_{\text{lighter}}^3 + F)/(L_{\text{darker}}^3 + F)}{(1 + F)/F} \right)^{k_F},
@@ -153,7 +155,7 @@ with $F = 0.10$ (twice WCAG's flare allowance) and $k_F = 1.5$.
   robustness on every dark background**, about 3.95. It also brings the
   `#1a1a1a` lightness gap to 55.5, level with white's 55.2.
 
-**Grey that first reaches 4.5, candidate:**
+**Grey that first reaches 4.5, with Step 6:**
 
 | Background | Grey at 4.5 | WCAG | CIELAB lightness difference | Ratio at flare 0.10 |
 |---|---|---:|---:|---:|
@@ -165,7 +167,7 @@ with $F = 0.10$ (twice WCAG's flare allowance) and $k_F = 1.5$.
 
 **Properties.**
 
-- **FP = 0 is inherited.** The score is a minimum with the current score, so
+- **FP = 0 is inherited.** The score is a minimum with the steps 1–5 score, so
   it cannot exceed it. [`FP0_PROOF.md`](FP0_PROOF.md) would need one added
   line, not a new lemma.
 - **Anchors unchanged.** White/black stays 20.9/20.0 and white/`#767676`
@@ -180,7 +182,7 @@ with $F = 0.10$ (twice WCAG's flare allowance) and $k_F = 1.5$.
 
 **What it changes.**
 
-| | Current | Candidate |
+| | Before Step 6 | With Step 6 |
 |---|---:|---:|
 | `#888888` on `#000000` | 5.2 | 3.7 |
 | `#9f9f9f` on `#1a1a1a` | 5.8 | 4.7 |
@@ -192,19 +194,17 @@ Verdicts lost: **AA 45, AAA 52, large-text 3.0 69**. Of the 45 AA losses,
 practice, dark-mode grey text moves up about one grade. For example, USWDS
 gray-40 on `#121212` goes from 5.2 to 3.9.
 
-**Open decisions before this could ship:**
+**Decisions taken** (all as recommended):
 
-1. **Polarity.** The ceiling also tightens *dark text on mid-tone fills*
-   (black on `#767676`: 3.8 to 2.6). Physically that is the same flare
-   exposure. It is outside the original complaint, though, and could be
-   limited to light-on-dark if wanted. Black, `#111111` and `#1a1a1a` text
-   on the design-system fills loses AA in 15 pairs.
-2. **Strength.** $F = 0.075$ is a half step that keeps more existing dark-mode
-   passes.
-3. **High-contrast drift.** Black on light tints moves at the top of the
-   scale (black on `#add8e6`: 12.0 to 10.8). No verdict changes, but the
-   curated probe values do.
-4. **Release.** Scores change for a large class of real dark-mode pairs, so
-   this would be a major version. Per `CLAUDE.md`, it touches all six
-   documentation files, the curated probes, the oracle and the FP=0
-   verifier.
+1. **Polarity: both.** The ceiling also tightens *dark text on mid-tone fills*
+   (black on `#767676`: 3.8 to 2.6), because the flare exposure is the same.
+   Black, `#111111` and `#1a1a1a` text on the design-system fills loses AA in
+   15 of 1,713 pairs.
+2. **Strength:** $F = 0.10$. The half step at $F = 0.075$, which would have
+   kept more dark-mode passes, was not taken.
+3. **Release: major version (3.0.0).** Scores change for a large class of real
+   dark-mode pairs.
+
+Accepted side effect: black on light tints moves at the top of the scale
+(black on `#add8e6`: 12.0 to 10.8). No verdict changes, but five curated
+probe values moved.
