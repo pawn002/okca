@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+**Breaking — release as 3.0.0.** `contrast()` returns lower scores for grey and near-grey colours paired with near-black ones, in either role. Anchors, the hot-pink and dark-orange catches, and every white-partnered score are unchanged.
+
+### Changed
+- **Step 6 — flare-robustness ceiling.** Each score is now capped at a re-anchored score computed with twice WCAG's flare allowance (`FLARE` = 0.10, `FLARE_K` = 1.5), on the uncompressed L³ proxies: `min(ratio, ceiling)`. On a near-black background a pair's ratio rests mostly on the near-zero denominator, which stray light erodes first. A grey that just passed AA on black kept 3.1 under doubled flare, against 4.5 on white. With the ceiling it keeps about 3.95 on every dark background from `#000000` to `#444444`. `FLARE_K` is the largest exponent that leaves every white/grey pair scoring 2 or above untouched.
+- Examples: `#888888` on `#000000` 5.2 → 3.7; `#9f9f9f` on `#1a1a1a` 5.8 → 4.7; USWDS gray-40 `#919191` on `#121212` 5.2 → 3.9; `#000000` on `#767676` 3.8 → 2.6. Across Tailwind, GOV.UK and USWDS palettes on nine dark surfaces, 45 of 4,938 light-on-dark pairs lose AA, 44 of them grey or near-grey.
+- Curated probes that moved: `#cccccc`/`#333333` 7.1 → 7.0, `#333333`/`#cccccc` 6.8 → 6.7, and black on light blue / pink / lavender 12.0 / 13.4 / 12.8 → 10.8 / 12.5 / 12.1. No verdict among them changes.
+- FP = 0 is unchanged and needs no new lemma: the ceiling is a minimum with the proven step-5 score (`docs/FP0_PROOF.md` §5). `npm run fp0` still certifies with 0 uncertified boxes. The 97 WCAG disagreements are unchanged.
+
+### Added
+- `docs/MIDTONE_SURVEY_FINDINGS.md` and `npm run midtone` — the survey behind the change. CIEDE2000, CIELAB lightness, colour-vision-deficiency simulation (Machado 2009) and a doubled-flare WCAG ratio, over a 44,942-pair sRGB grid and design-system palettes on dark surfaces. Colour difference and CVD found no near-black leniency; flare robustness did.
+- `src/__tests__/flare-ceiling.spec.ts` — pins mid-tones on near-black, a region the curated battery barely samples, and asserts the property `FLARE_K` was chosen by.
+
 ## [2.0.3] - 2026-08-13
 
 Documentation only — no algorithm or API change. `contrast()` returns identical values to 2.0.0.

@@ -5,11 +5,16 @@
 arithmetic** — no calibration-dependent headroom, no residual. Reproduce:
 `npm run fp0` (certifies with **0 uncertified boxes**).
 
-Constants: `POL_K` = 1.100, `CHROMA_K` = 0.65, `LOD_CAP` = 20.9, `DOL_CAP` = 20.
+Constants: `POL_K` = 1.100, `CHROMA_K` = 0.65, `LOD_CAP` = 20.9, `DOL_CAP` = 20,
+`FLARE` = 0.10, `FLARE_K` = 1.5.
+
+The proof below is about the step-5 score. Step 6, the flare-robustness ceiling,
+takes a minimum with it and can only lower it, so it inherits the bound
+(§5).
 
 ## 1. Algebraic reduction
 
-The final score is
+The step-5 score is
 
 $$\text{OKCA} = \text{CAP} \cdot \left(\frac{r_{\text{raw}}}{21}\right)^{k}, \qquad r_{\text{raw}} = \frac{Y_{\text{lighter}} + 0.05}{Y_{\text{darker}} + 0.05},$$
 
@@ -92,13 +97,26 @@ Result (`npm run fp0`):
 Every sRGB point is certified; the slack $s > 1$ from the lowered cap lets even
 the anchors certify, so no neighbourhood is excluded.
 
-## 5. Conclusion
+## 5. Step 6 inherits the bound
+
+The published score is
+
+$$\text{score} = \min\left(\text{OKCA}, \thinspace \text{ceiling}\right) \le \text{OKCA},$$
+
+where the ceiling is the flare-robustness term of step 6
+([`OKCA_DESIGN.md`](OKCA_DESIGN.md) §7). Whatever value the ceiling takes, a
+minimum never exceeds either argument. So every bound proved here for the
+step-5 score holds for the published score, with no new lemma. Rounding to
+one decimal place is monotone and preserves it as well.
+
+## 6. Conclusion
 
 For every ordered sRGB pair:
 
 $$\frac{c}{21^{k}} \cdot A(l) \cdot B(d) \le \frac{c}{21^{k}} \cdot A(\text{white}) \cdot B(\text{black}) = \frac{c}{21} < 1,$$
 
-hence $\text{OKCA} \le \text{WCAG}$, strictly.
+hence $\text{OKCA} \le \text{WCAG}$, strictly, and by §5 the published score
+is no higher.
 
 **FP = 0 is guaranteed by construction across the full sRGB gamut** — the
 chromatic case (issue #14's gap) is closed. The argument depends only on the

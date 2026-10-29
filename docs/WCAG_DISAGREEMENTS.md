@@ -9,6 +9,12 @@
 > cap scales light-on-dark scores by $20.9/21$ (dark-on-light is unaffected); the
 > disagreement membership is unchanged from the 3.9 recalibration. FP=0 holds
 > across the full sRGB gamut (interval-verified).
+>
+> **Step 6 (flare-robustness ceiling) changes none of these rows.** Every pair
+> here has a white partner, and the ceiling's exponent is the largest that never
+> binds on such pairs at these scores. Its effect is on dark backgrounds, which
+> this battery does not sample: see `docs/MIDTONE_SURVEY_FINDINGS.md` for the
+> dark-surface counts (45 AA losses across 4,938 light-on-dark palette pairs).
 
 ### Source versions
 

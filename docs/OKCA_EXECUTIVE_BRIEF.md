@@ -2,12 +2,13 @@
 
 ## Executive Summary
 
-WCAG 2.x has two known measurement gaps: it over-rates saturated chromatic text on
-dark backgrounds, and it scores contrast symmetrically when the perceptual reality is
-not symmetric. Both cause marginal colour combinations to pass automated checks and
+WCAG 2.x has three measurement gaps OKCA addresses: it over-rates saturated chromatic
+text on dark backgrounds, it scores contrast symmetrically when the perceptual reality
+is not symmetric, and its passes on near-black backgrounds rest on a margin that
+stray light removes first. All three cause marginal colour combinations to pass automated checks and
 reach production, where real users with contrast sensitivity loss cannot read them.
 
-OKCA is a **stricter drop-in for WCAG 2.x** that closes both gaps on the familiar 1–21
+OKCA is a **stricter drop-in for WCAG 2.x** that closes all three gaps on the familiar 1–21
 scale and the same AA/AAA thresholds — no new compliance vocabulary. Its one load-bearing
 property is safety: **it is never more permissive than WCAG.** Every score lands at or
 below the WCAG score for the same pair, so a pair that clears OKCA always clears WCAG.
@@ -40,6 +41,14 @@ sensitivity loss. The IEC 61966-2-1 weighting assigns 71.5% of luminance to the
 green channel, which does not translate cleanly to chromatic legibility. The result
 is a systematic over-rating of vivid lighter elements in negative polarity.
 
+**Fragile margin on near-black backgrounds.** WCAG's ratio adds a fixed 0.05 to both
+luminances to stand in for ambient light. On a near-black background the ratio gets
+most of its value from that small denominator. Add a little more stray light and a
+grey that just passes AA on black falls to 3.1; one that just passes on white holds
+4.5. Two pairs with the same WCAG score therefore carry very different margins
+against the room they are read in. Colour-difference metrics and colour-vision
+simulations do not flag these pairs. The weakness is in the luminance margin.
+
 These are not rare conditions. A structured audit of three production design systems
 — Tailwind CSS v3.4, GOV.UK Design System, and USWDS v3.x —
 found **97 pairs** that pass WCAG 2.x AA while sitting in the marginal zone
@@ -67,6 +76,16 @@ chroma. Achromatic pairs are unaffected. Vivid chromatic lighter elements — th
 failure zone — score lower than an achromatic element at equivalent OKLCH L. Hot
 pink on near-black: WCAG 6.6, OKCA 3.6.
 
+**Each score is capped at what survives doubled flare.** OKCA re-scores every pair
+with twice WCAG's flare allowance and keeps the lower result. The cap was tuned so
+it never moves a light-background grey pair, so the anchors above are unchanged.
+On dark backgrounds, grey and near-grey text has to be about one palette grade
+lighter to pass: mid-grey `#888888` on black goes from 5.2 to 3.7 (WCAG 5.9).
+Across Tailwind, GOV.UK and USWDS palettes on nine real dark surfaces, 45 of 4,938
+light-on-dark pairs lose AA. This is a margin argument, not a model of viewing
+conditions: OKCA still has no access to the room, so it keeps the same margin
+everywhere.
+
 ---
 
 ## The Safety Guarantee
@@ -89,6 +108,8 @@ headroom. The argument has three parts:
   $B(d) \le B(\text{black})$ are each
   confirmed by interval arithmetic over the sRGB cube with **0 uncertified boxes**
   — a machine-checked proof over continuous regions, not a sample.
+- **The flare cap only lowers scores.** It is a minimum with the proven score, so
+  it inherits the guarantee without a new lemma.
 
 **The one visible consequence:** OKCA's maximum (white on black) is **20.9**, a
 hair under WCAG's 21 — the deliberate headroom that makes zero-false-pass a
@@ -124,6 +145,7 @@ pairs.
 | AA / AAA thresholds | 4.5 / 7.0 | 4.5 / 7.0 |
 | Polarity | Symmetric | Asymmetric |
 | Chromatic lighter element | Over-rated | Chroma-penalised |
+| Margin on near-black backgrounds | Smaller than on light | Matched (flare cap) |
 | False passes vs. WCAG 2.x | Reference | **Zero** (verified across sRGB: exact identity + interval-checked lemmas) |
 | Marginal pairs flagged in audit | 0 of 97 | 97 of 97 |
 | Deployable today | Yes | Yes |

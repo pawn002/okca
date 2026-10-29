@@ -4,11 +4,13 @@
 
 > **Scope.** OKCA is a stricter WCAG 2.x checker for sRGB. It isn't a new perceptual model and doesn't try to reinvent how contrast is predicted — it makes the WCAG check you already run harder to turn into a false pass.
 
-It closes the two WCAG 2.x gaps practitioners hit most:
+It closes three WCAG 2.x gaps:
 
 1. **Saturated colours.** WCAG scores hot pink on near-black 6.6:1 — a comfortable pass. OKCA scores it **3.6**: it tells saturated colour from grey at the same luminance, and WCAG can't.
 
 2. **Polarity.** WCAG rates `contrast(A on B)` and `contrast(B on A)` identically. OKCA doesn't — light-on-dark and dark-on-light are different decisions and score differently.
+
+3. **Fragile dark-mode passes.** On a near-black background, WCAG's ratio comes mostly from the background being nearly black — the first thing stray light takes away. A grey that just passes AA on black keeps a ratio of 3.1 when the flare allowance doubles; one that just passes on white keeps 4.5. OKCA caps each score at what the pair keeps under that doubled flare, so `#888888` on black scores **3.7** where WCAG gives 5.9. Light-mode greys are unaffected.
 
 ## Install
 
@@ -32,6 +34,9 @@ contrast('#767676', '#ffffff');  // 3.7
 
 // WCAG over-rates this chromatic pair (6.6:1); OKCA scores it below AA
 contrast('#ff69b4', '#1a1a1a'); // 3.6
+
+// Mid-grey on black: WCAG 5.9, but most of it rides on the background staying black
+contrast('#888888', '#000000'); // 3.7
 ```
 
 Also accepts CSS `oklab()` and `oklch()` alongside hex:
@@ -59,6 +64,7 @@ okca.contrast('#fff', '#000');  // 20.9
 
 - **Never more permissive than WCAG:** every score is at or below the WCAG equivalent for the same pair; AA/AAA thresholds unchanged
 - **Polarity-aware:** `okca(foreground, background) ≠ okca(background, foreground)` — scores differ by direction
+- **Flare-robust:** two pairs with the same score carry comparable margin against stray light, on dark backgrounds and light ones alike (`docs/MIDTONE_SURVEY_FINDINGS.md`)
 - **Zero dependencies:** pure TypeScript, no runtime deps
 - **Clean-room implementation:** no third-party contrast algorithm source code
 

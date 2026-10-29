@@ -23,14 +23,25 @@
  *        D-o-L:    ratio = DOL_CAP  × (rawRatio / 21) ^ POL_K
  *        Same power curve; LOD_CAP < 21 < clamp keeps OKCA strictly below WCAG;
  *        DOL_CAP < LOD_CAP applies a proportional polarity penalty.
- *        clamped to [1, 21], rounded to 1 decimal place.
+ *   6. Flare-robustness ceiling — the same curve on the uncompressed proxies
+ *      with a larger flare term, re-anchored to the same cap:
+ *        flareRatio = (lighterL³ + FLARE) / (darkerL³ + FLARE)
+ *        ceiling    = CAP × (flareRatio / ((1 + FLARE) / FLARE)) ^ FLARE_K
+ *        score      = min(ratio, ceiling), clamped to [1, 21], rounded to 1 dp.
+ *      Binds only where the ratio leans on a near-black darker element, which
+ *      stray light erodes first (docs/MIDTONE_SURVEY_FINDINGS.md). Never binds
+ *      on a white/grey pair.
  *
  * Luminance proxy: L³ (OKLCH L cubed ≈ WCAG Y for neutral grays).
  *
  * Properties:
- *   - FP = 0 by construction (docs/FP0_PROOF.md): with LOD_CAP < 21 the score is
- *     strictly ≤ WCAG for every sRGB pair — reduced to an exact identity plus two
- *     interval-verified single-color lemmas, no calibration-dependent headroom.
+ *   - FP = 0 by construction (docs/FP0_PROOF.md): with LOD_CAP < 21 the step-5
+ *     ratio is strictly ≤ WCAG for every sRGB pair — reduced to an exact identity
+ *     plus two interval-verified single-color lemmas, no calibration-dependent
+ *     headroom. Step 6 takes a minimum, so it can only lower the score.
+ *   - Flare-robust: a pair scores no higher than the contrast it keeps when the
+ *     flare allowance doubles, so dark-mode greys carry the same margin as
+ *     light-mode ones at the same score.
  *   - Polarity-aware: light-on-dark scores higher than dark-on-light for the
  *     same color pair; direction is a design input, not a symmetric quantity
  *   - Pure OKLCH/Oklab — no WCAG luminance formula, no hue-specific patches
@@ -43,6 +54,8 @@ const CHROMA_K = 0.65;  // Power-compression exponent at full saturation
 const POL_K    = 1.100; // Shared polarity power exponent: CAP*(r/21)^k
 const LOD_CAP  = 20.9;  // L-o-D max contrast (< 21 keeps OKCA strictly below WCAG → FP=0 by construction)
 const DOL_CAP  = 20;    // D-o-L max contrast (< L-o-D); proportional polarity penalty
+const FLARE    = 0.10;  // Flare allowance for the step-6 ceiling (2× WCAG's 0.05)
+const FLARE_K  = 1.5;   // Ceiling exponent: the largest that leaves every white/grey pair untouched
 
 /** Parse any supported color string to Oklab [L, a, b], or null if unrecognised. */
 function parseToOklab(color: string): [number, number, number] | null {
@@ -84,7 +97,13 @@ export class OkcaService {
     const rawRatio = (lighterY + 0.05) / (darkerY + 0.05);
     const cap = isLightOnDark ? LOD_CAP : DOL_CAP;
     const ratio = cap * Math.pow(rawRatio / 21, POL_K);
-    return parseFloat(Math.max(1, Math.min(21, ratio)).toFixed(1));
+
+    // Step 6 — flare-robustness ceiling: the same curve on the uncompressed L³
+    // proxies with twice WCAG's flare allowance, re-anchored so white/black is
+    // unchanged. A minimum, so it can only lower the score (FP=0 is inherited).
+    const flareRatio = (Math.pow(lighterL, 3) + FLARE) / (darkerY + FLARE);
+    const ceiling    = cap * Math.pow(flareRatio / ((1 + FLARE) / FLARE), FLARE_K);
+    return parseFloat(Math.max(1, Math.min(21, ratio, ceiling)).toFixed(1));
   }
 
   /**
