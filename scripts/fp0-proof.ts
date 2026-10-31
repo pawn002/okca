@@ -31,7 +31,7 @@ import {
 } from './interval';
 
 const POL_K = 1.1;
-const CHROMA_K = 0.65;
+const CHROMA_K = 0.42;
 const C_THRESH = 0.15;
 
 const A_TARGET = Math.pow(1.05, POL_K - 1); // A(white)
@@ -39,7 +39,7 @@ const B_TARGET = Math.pow(0.05, 1 - POL_K); // B(black)
 
 function penalisedProxy(col: ColorIv): Iv {
   const satW = imin(mulK(square(col.C), 1 / (C_THRESH * C_THRESH)), 1);
-  const exp = addK(mulK(satW, CHROMA_K), 1); // [1, 1.65]
+  const exp = addK(mulK(satW, CHROMA_K), 1); // [1, 1.42]
   return powK(powIv(col.L, exp), 3);
 }
 function A(col: ColorIv): Iv {
@@ -128,6 +128,7 @@ function main() {
     console.log('BOTH lemmas verified. With the exact identity, for every sRGB pair:');
     console.log('  21^(1-k)*A(l)*B(d) <= 21^(1-k)*A(white)*B(black) = 1  =>  OKCA <= WCAG.');
     console.log('=> FP=0 proven over the full sRGB gamut (interval-verified lemmas + exact identity).');
+    console.log('   Step 4 induction raises the darker proxy (L^(3s) >= L^3), so B(d) only falls: the bound holds a fortiori.');
   } else {
     console.log('At least one lemma left interior boxes uncertified — increase depth or inspect above.');
   }

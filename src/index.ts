@@ -13,10 +13,14 @@
  *        [_, a, b] = Oklab(lighter)
  *        C         = sqrt(a² + b²)
  *        satW      = min(1, (C / C_THRESH)²)    // quadratic ramp
- *        exp       = 1 + CHROMA_K × satW         // 1.0 … 1.65
+ *        exp       = 1 + CHROMA_K × satW         // 1.0 … 1.42
  *        lighterY  = (lighterL ^ exp) ^ 3        // L → luminance proxy
- *   4. Darker element — pure luminance proxy:
- *        darkerY   = darkerL ^ 3
+ *   4. Darker element — background-induced luminance proxy:
+ *        s         = min(1, (IND_Z + bgL^1.5) / (IND_Z + IND_REF_L^1.5))
+ *        darkerY   = darkerL ^ (3 × s)
+ *      CAM16's background induction (docs/CAM16_FINDINGS.md): a background
+ *      darker than the AA boundary grey lifts the darker element's effective
+ *      lightness. s = 1 on lighter backgrounds, where the proxy stays L³.
  *   5. Polarity-aware contrast ratio:
  *        rawRatio  = (lighterY + 0.05) / (darkerY + 0.05)
  *        L-o-D:    ratio = LOD_CAP  × (rawRatio / 21) ^ POL_K
@@ -25,12 +29,15 @@
  *        DOL_CAP < LOD_CAP applies a proportional polarity penalty.
  *        clamped to [1, 21], rounded to 1 decimal place.
  *
- * Luminance proxy: L³ (OKLCH L cubed ≈ WCAG Y for neutral grays).
+ * Luminance proxy: L³ (OKLCH L cubed ≈ WCAG Y for neutral grays), raised to
+ * the power s for the darker element on backgrounds darker than #767676.
  *
  * Properties:
  *   - FP = 0 by construction (docs/FP0_PROOF.md): with LOD_CAP < 21 the score is
  *     strictly ≤ WCAG for every sRGB pair — reduced to an exact identity plus two
  *     interval-verified single-color lemmas, no calibration-dependent headroom.
+ *     Step 4's induction only raises the darker proxy (s ≤ 1, L ≤ 1), which can
+ *     only lower the score, so the bound holds a fortiori.
  *   - Polarity-aware: light-on-dark scores higher than dark-on-light for the
  *     same color pair; direction is a design input, not a symmetric quantity
  *   - Pure OKLCH/Oklab — no WCAG luminance formula, no hue-specific patches
@@ -39,10 +46,12 @@ import { hexToOklab, cssOklabToOklab, cssOklchToOklch, oklchToOklab } from './tr
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 const C_THRESH = 0.15;  // Oklab chroma for full lighter-element penalty
-const CHROMA_K = 0.65;  // Power-compression exponent at full saturation
+const CHROMA_K = 0.42;  // Power-compression exponent at full saturation
 const POL_K    = 1.100; // Shared polarity power exponent: CAP*(r/21)^k
 const LOD_CAP  = 20.9;  // L-o-D max contrast (< 21 keeps OKCA strictly below WCAG → FP=0 by construction)
 const DOL_CAP  = 20;    // D-o-L max contrast (< L-o-D); proportional polarity penalty
+const IND_Z     = 1.48;          // CAM16's lightness-exponent constant, z = 1.48 + sqrt(Yb)
+const IND_REF_L = 0.5658363271;  // OKLab L of #767676: backgrounds at or above it keep s = 1
 
 /** Parse any supported color string to Oklab [L, a, b], or null if unrecognised. */
 function parseToOklab(color: string): [number, number, number] | null {
@@ -73,8 +82,11 @@ export class OkcaService {
     const exp      = this.chromaExp(lighterOklab);
     const lighterY = Math.pow(Math.pow(lighterL, exp), 3);
 
-    // Step 4 — darker element: pure luminance proxy (L³)
-    const darkerY  = Math.pow(darkerL, 3);
+    // Step 4 — darker element: luminance proxy with CAM16 background induction.
+    // A darker background flattens the lightness scale, lifting the darker
+    // element's effective lightness; s ≤ 1, so the proxy only rises.
+    const s        = Math.min(1, (IND_Z + Math.pow(bL, 1.5)) / (IND_Z + Math.pow(IND_REF_L, 1.5)));
+    const darkerY  = Math.pow(darkerL, 3 * s);
 
     // Step 5 — polarity-aware scaling: light-on-dark has higher perceived contrast.
     // Both polarities use the same power curve CAP*(r/21)^POL_K; LOD_CAP < 21 keeps
@@ -89,7 +101,7 @@ export class OkcaService {
 
   /**
    * Chroma-weighted power exponent for the lighter element.
-   * Returns 1.0 for achromatic colors, up to 1.65 for fully saturated (C ≥ C_THRESH).
+   * Returns 1.0 for achromatic colors, up to 1.42 for fully saturated (C ≥ C_THRESH).
    */
   private chromaExp(oklab: [number, number, number]): number {
     const a = oklab[1];
