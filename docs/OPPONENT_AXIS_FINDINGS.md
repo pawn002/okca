@@ -129,10 +129,34 @@ Oliveira & Fernandes (2009), severity 1.0, worst of protan, deutan and tritan
 - **Purple.** It stays penalised (0.57 of WCAG on black, against CVD 0.98)
   because its $a$ is positive. One smooth lobe cannot separate purple from
   magenta.
-- **FP=0.** The grid found no false passes against WCAG, but lemma A changes
-  when the lighter penalty shrinks, so `npm run fp0` needs re-running with the
-  new ramp. The darker term only raises its proxy, so lemma B holds a fortiori.
+- ~~**FP=0.**~~ **Proven** (see §6).
 - **The yardstick sets the strength.** $K_D$ is fitted to Machado's severity
   1.0 model. Anomalous trichromacy loses less.
 - **Design principle.** §2.4 of the design doc ("rotationally symmetric, no hue
   branch") would become "no hue branch; weighted along Oklab's opponent axes".
+
+---
+
+## 6. FP=0 under the paired design
+
+`OKCA_WEIGHT=opponent npm run fp0` runs the interval verifier with Step 3's ramp
+driven by the opponent weight. Two changes make that possible:
+
+- `scripts/interval.ts` now also returns enclosures of Oklab $a$ and $b$.
+- The verifier encloses $w = (C + a \cos\theta_L + b \sin\theta_L)/2$ with
+  $\theta_L = 9.4°$. It clamps $w$ at 0, which is exact because
+  $|a \cos\theta + b \sin\theta| \le C$.
+
+| Lemma | Weight | Boxes | Uncertified |
+|---|---|---:|---:|
+| A: $A(l) \le A(\text{white}) \cdot s$ | chroma (current) | 96,355 | 0 |
+| A: $A(l) \le A(\text{white}) \cdot s$ | opponent | 138,773 | **0** |
+| B: $B(d) \le B(\text{black}) \cdot s$ | — | 271,661 | 0 |
+
+- **Lemma A** takes more boxes under the opponent weight, because the penalty
+  is weaker, but every box certifies.
+- **Lemma B** is unchanged. Step 4's induction and the darker lift both raise
+  the darker proxy, since its exponent $3s/e_D \le 3$. So $B(d)$ can only fall
+  and the lemma holds a fortiori.
+- **Together with the exact identity**, the paired design is FP=0 over the full
+  sRGB gamut.

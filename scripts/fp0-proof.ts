@@ -27,18 +27,32 @@
  * Run: npm run fp0
  */
 import {
-  Iv, K, addK, mulK, div, square, powK, powIv, imin, colorIv, ColorIv,
+  Iv, K, add, addK, mulK, div, square, powK, powIv, imin, imax, colorIv, ColorIv,
 } from './interval';
 
 const POL_K = 1.1;
 const CHROMA_K = 0.65;
 const C_THRESH = 0.15;
 
+// #28 prototype: OKCA_WEIGHT=opponent drives Step 3's ramp with the opponent-axis
+// weight w = (C + a cos θ_L + b sin θ_L) / 2 instead of chroma C. The darker-element
+// lift only raises the darker proxy, so lemma B holds a fortiori and is unchanged.
+const WEIGHT = process.env.OKCA_WEIGHT === 'opponent' ? 'opponent' : 'chroma';
+const THETA_L = 9.4 * Math.PI / 180;
+
 const A_TARGET = Math.pow(1.05, POL_K - 1); // A(white)
 const B_TARGET = Math.pow(0.05, 1 - POL_K); // B(black)
 
+/** Enclosure of the weight driving the chroma ramp. w >= 0 holds exactly,
+ *  since |a cos θ + b sin θ| <= C, so the lower end is clamped at 0. */
+function weight(col: ColorIv): Iv {
+  if (WEIGHT === 'chroma') return col.C;
+  const w = mulK(add(col.C, add(mulK(col.a, Math.cos(THETA_L)), mulK(col.b, Math.sin(THETA_L)))), 0.5);
+  return imax(w, 0);
+}
+
 function penalisedProxy(col: ColorIv): Iv {
-  const satW = imin(mulK(square(col.C), 1 / (C_THRESH * C_THRESH)), 1);
+  const satW = imin(mulK(square(weight(col)), 1 / (C_THRESH * C_THRESH)), 1);
   const exp = addK(mulK(satW, CHROMA_K), 1); // [1, 1.65]
   return powK(powIv(col.L, exp), 3);
 }
@@ -118,6 +132,7 @@ function main() {
   const nearWhite = (c: Cube) => c.r.lo >= 1 - RHO && c.g.lo >= 1 - RHO && c.b.lo >= 1 - RHO;
   const nearBlack = (c: Cube) => c.r.hi <= RHO && c.g.hi <= RHO && c.b.hi <= RHO;
 
+  console.log(`weight=${WEIGHT}${WEIGHT === 'opponent' ? ' (θ_L = 9.4°)' : ''}`);
   console.log(`L-o-D cap=${LOD_CAP}  slack factor s=${s.toFixed(5)}  anchor-ball RHO=${RHO}`);
   console.log(`combined bound at anchor: (cap/21^k)*A(white)*B(black) = cap/21 = ${(LOD_CAP / 21).toFixed(5)}  (<1 => strict, no residual)`);
   const okA = prove('A(l) <= A(white)*s', A, aT, nearWhite, maxDepth);
