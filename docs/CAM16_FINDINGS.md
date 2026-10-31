@@ -249,6 +249,13 @@ argument. Unlike Step 6, it would change scores on light grounds too, so the
 
 ## 7. Prototype: background induction as a darker-element term
 
+> **Applied as Step 4**, with one change from the prototype below: `CHROMA_K`
+> stays at 0.65. The retune to 0.42 held hot pink at 3.6 but loosened dark text
+> on saturated fills, which induction does not reach. On a 262,144-pair grid,
+> 1,338 pairs newly passed AA against 2.0.3. At 0.65 no pair scores higher than
+> in 2.0.3, and hot pink on `#1a1a1a` becomes 3.0. See
+> [`OKCA_DESIGN.md`](OKCA_DESIGN.md) §3.
+
 Reproduce with `npm run induction` (`scripts/induction-prototype.ts`). Nothing
 here is in `src/`.
 

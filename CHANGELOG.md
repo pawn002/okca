@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+**Breaking — release as 3.0.0.** `contrast()` returns lower scores for any pair whose background is darker than `#767676`. No score rises. The four anchors are unchanged.
+
+### Changed
+- **Step 4 — background induction (CAM16).** On a background darker than the AA boundary grey, the darker element's proxy becomes `L^(3s)` instead of `L³`, with `s = min(1, (1.48 + L_bg^1.5) / (1.48 + L_ref^1.5))`. `L_bg` is the background's OKLab L and `L_ref` = 0.5658 is OKLab L of `#767676`. CAM16 shows a darker background flattens the lightness scale; at the AA line, a just-passing grey on `#1a1a1a` carried 25% less background-aware CAM16 lightness gap than one on white. The term uses CAM16's own constant and no tuned value. It applies only to the darker element, because CAM16's full form, lifting both, produced false passes.
+- Examples: `#cccccc` on `#333333` 7.1 → 5.7; `#9f9f9f` on `#1a1a1a` 5.8 → 4.8; white on `#595959` 6.2 → 5.7; white on `#111111` 18.6 → 15.8; hot pink on `#1a1a1a` 3.6 → 3.0; dark orange on `#1a1a1a` 4.2 → 3.4. `#888888` on `#000000` is unchanged at 5.2: black's proxy is 0 for any `s`.
+- **Hot pink and dark orange were not re-docked.** Restoring them by lowering `CHROMA_K` to 0.42 was tried and reverted: it loosened dark text on saturated fills, newly passing 1,338 pairs at AA on a 262,144-pair grid, and neither survey supports a weaker chroma penalty.
+- Across that grid, no pair scores higher than in 2.0.3. 2,256 pairs lose AA and 915 lose AAA. Across Tailwind, GOV.UK and USWDS palettes as light text on 15 dark and mid-dark surfaces, 274 pairs lose AA and 490 lose AAA.
+- WCAG disagreements 97 → 99: white on Tailwind lime-700 `#4d7c0f` and on GOV.UK blue `#1d70b8` each drop from 4.5 to 4.4.
+- 42 curated probe values moved, all down. Eleven crossed 7.0 and one crossed 4.5 (white on `#3a7d44`, 4.6 → 4.4).
+- FP = 0 needs no new lemma: induction only raises the darker proxy, so lemma B holds a fortiori (`docs/FP0_PROOF.md` §5). `npm run fp0` certifies with 0 uncertified boxes.
+
+### Added
+- `docs/CAM16_FINDINGS.md`, with `npm run cam16`, `npm run induction` and `scripts/cam16.ts`. The survey measures which viewing-condition factors Oklab fixes, and prototypes the term above. `OKCA_CAM=ciecam16` re-runs everything under CIECAM16 (CIE 248:2022), with identical results.
+- `src/__tests__/background-induction.spec.ts` — pins mid-tones on dark backgrounds and asserts that the term is the identity on backgrounds at least as light as `#767676` and never raises a score.
+
 ## [2.0.3] - 2026-08-13
 
 Documentation only — no algorithm or API change. `contrast()` returns identical values to 2.0.0.
