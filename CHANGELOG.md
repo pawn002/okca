@@ -7,17 +7,32 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
-**Breaking — release as 3.0.0.** `contrast()` returns lower scores for grey and near-grey colours paired with near-black ones, in either role. Anchors, the hot-pink and dark-orange catches, and every white-partnered score are unchanged.
+**Breaking — release as 3.0.0.** Two independent corrections for dark backgrounds, from [#25](https://github.com/pawn002/okca/issues/25) and [#26](https://github.com/pawn002/okca/issues/26), combined by merge. `contrast()` returns lower scores for pairs on backgrounds darker than `#767676`, and for grey and near-grey colours paired with near-black ones in either role. No score rises against 2.0.3. The four anchors are unchanged.
 
-### Changed
+### Combined effect against 2.0.3
+- On a 262,144-pair sRGB grid, no pair scores higher. 2,338 pairs lose AA and 956 lose AAA.
+- Tailwind, GOV.UK and USWDS palettes as light text on 15 dark and mid-dark surfaces: 286 pairs lose AA and 505 lose AAA. Black, `#111111` and `#1a1a1a` text on the palette fills: 15 pairs lose AA.
+- Examples: `#888888` on `#000000` 5.2 → 3.7 (Step 6); `#cccccc` on `#333333` 7.1 → 5.7 (Step 4); `#9f9f9f` on `#1a1a1a` 5.8 → 4.7; white on `#111111` 18.6 → 15.8; hot pink on `#1a1a1a` 3.6 → 3.0; dark orange 4.2 → 3.4; `#000000` on `#767676` 3.8 → 2.6.
+- WCAG disagreements 97 → 99 (Tailwind 35, GOV.UK 14, USWDS 50).
+- 46 curated probe values moved, all down. Eleven crossed 7.0 and one crossed 4.5 (white on `#3a7d44`, 4.6 → 4.4).
+- FP = 0 needs no new lemma for either step (`docs/FP0_PROOF.md` §5–§6). `npm run fp0` certifies with 0 uncertified boxes.
+- The flare ceiling acts on plain L³, not on Step 4's induced proxy. Flare is physical light added to both patches; induction is a perceptual correction, and applying both to one denominator would count the background twice.
+
+### Changed — Step 4, background induction ([#26](https://github.com/pawn002/okca/issues/26))
+- **Step 4 — background induction (CAM16).** On a background darker than the AA boundary grey, the darker element's proxy becomes `L^(3s)` instead of `L³`, with `s = min(1, (1.48 + L_bg^1.5) / (1.48 + L_ref^1.5))`. `L_bg` is the background's OKLab L and `L_ref` = 0.5658 is OKLab L of `#767676`. CAM16 shows a darker background flattens the lightness scale; at the AA line, a just-passing grey on `#1a1a1a` carried 25% less background-aware CAM16 lightness gap than one on white. The term uses CAM16's own constant and no tuned value. It applies only to the darker element, because CAM16's full form, lifting both, produced false passes.
+- Examples: `#cccccc` on `#333333` 7.1 → 5.7; `#9f9f9f` on `#1a1a1a` 5.8 → 4.8; white on `#595959` 6.2 → 5.7; white on `#111111` 18.6 → 15.8; hot pink on `#1a1a1a` 3.6 → 3.0; dark orange on `#1a1a1a` 4.2 → 3.4. `#888888` on `#000000` is unchanged at 5.2: black's proxy is 0 for any `s`.
+- **Hot pink and dark orange were not re-docked.** Restoring them by lowering `CHROMA_K` to 0.42 was tried and reverted: it loosened dark text on saturated fills, newly passing 1,338 pairs at AA on a 262,144-pair grid, and neither survey supports a weaker chroma penalty.
+
+### Changed — Step 6, flare-robustness ceiling ([#25](https://github.com/pawn002/okca/issues/25))
 - **Step 6 — flare-robustness ceiling.** Each score is now capped at a re-anchored score computed with twice WCAG's flare allowance (`FLARE` = 0.10, `FLARE_K` = 1.5), on the uncompressed L³ proxies: `min(ratio, ceiling)`. On a near-black background a pair's ratio rests mostly on the near-zero denominator, which stray light erodes first. A grey that just passed AA on black kept 3.1 under doubled flare, against 4.5 on white. With the ceiling it keeps about 3.95 on every dark background from `#000000` to `#444444`. `FLARE_K` is the largest exponent that leaves every white/grey pair scoring 2 or above untouched.
 - Examples: `#888888` on `#000000` 5.2 → 3.7; `#9f9f9f` on `#1a1a1a` 5.8 → 4.7; USWDS gray-40 `#919191` on `#121212` 5.2 → 3.9; `#000000` on `#767676` 3.8 → 2.6. Across Tailwind, GOV.UK and USWDS palettes on nine dark surfaces, 45 of 4,938 light-on-dark pairs lose AA, 44 of them grey or near-grey.
-- Curated probes that moved: `#cccccc`/`#333333` 7.1 → 7.0, `#333333`/`#cccccc` 6.8 → 6.7, and black on light blue / pink / lavender 12.0 / 13.4 / 12.8 → 10.8 / 12.5 / 12.1. No verdict among them changes.
-- FP = 0 is unchanged and needs no new lemma: the ceiling is a minimum with the proven step-5 score (`docs/FP0_PROOF.md` §5). `npm run fp0` still certifies with 0 uncertified boxes. The 97 WCAG disagreements are unchanged.
 
 ### Added
 - `docs/MIDTONE_SURVEY_FINDINGS.md` and `npm run midtone` — the survey behind the change. CIEDE2000, CIELAB lightness, colour-vision-deficiency simulation (Machado 2009) and a doubled-flare WCAG ratio, over a 44,942-pair sRGB grid and design-system palettes on dark surfaces. Colour difference and CVD found no near-black leniency; flare robustness did.
 - `src/__tests__/flare-ceiling.spec.ts` — pins mid-tones on near-black, a region the curated battery barely samples, and asserts the property `FLARE_K` was chosen by.
+- `docs/CAM16_FINDINGS.md`, with `npm run cam16`, `npm run induction` and `scripts/cam16.ts`. The survey measures which viewing-condition factors Oklab fixes, and prototypes the term above. `OKCA_CAM=ciecam16` re-runs everything under CIECAM16 (CIE 248:2022), with identical results.
+- `src/__tests__/background-induction.spec.ts` — pins mid-tones on dark backgrounds and asserts that the term is the identity on backgrounds at least as light as `#767676` and never raises a score.
+- Both specs check their step against the full score: `background-induction.spec.ts` includes the flare ceiling in its reference, and `flare-ceiling.spec.ts` includes induction.
 
 ## [2.0.3] - 2026-08-13
 

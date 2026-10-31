@@ -20,7 +20,8 @@ import Color from 'colorjs.io';
 import { contrast, hexToOklab } from '../index';
 
 // Production constants, mirrored here for the full-precision / replication check.
-const POL_K = 1.1, CHROMA_K = 0.65, C_THRESH = 0.15, LOD_CAP = 20.9, DOL_CAP = 20, FLARE = 0.10, FLARE_K = 1.5;
+const POL_K = 1.1, CHROMA_K = 0.65, C_THRESH = 0.15, LOD_CAP = 20.9, DOL_CAP = 20;
+const IND_Z = 1.48, IND_REF_L = 0.5658363271, FLARE = 0.10, FLARE_K = 1.5;
 
 interface Score { raw: number; rounded: number }
 
@@ -34,11 +35,12 @@ function okca(fg: string, bg: string): Score | null {
   const lL = isBoW ? bL : tL, dL = isBoW ? tL : bL, lt = isBoW ? b : t;
   const C = Math.hypot(lt[1], lt[2]);
   const exp = 1 + CHROMA_K * Math.min(1, (C / C_THRESH) ** 2);
-  const lY = (lL ** exp) ** 3, dY = dL ** 3;
+  const s = Math.min(1, (IND_Z + bL ** 1.5) / (IND_Z + IND_REF_L ** 1.5));
+  const lY = (lL ** exp) ** 3, dY = dL ** (3 * s);
   const isLoD = tL > bL;
   const rawRatio = (lY + 0.05) / (dY + 0.05);
   const cap = isLoD ? LOD_CAP : DOL_CAP;
-  const ceiling = cap * (((lL ** 3 + FLARE) / (dY + FLARE)) / ((1 + FLARE) / FLARE)) ** FLARE_K;
+  const ceiling = cap * (((lL ** 3 + FLARE) / (dL ** 3 + FLARE)) / ((1 + FLARE) / FLARE)) ** FLARE_K; // plain L³
   const raw = Math.max(1, Math.min(21, cap * (rawRatio / 21) ** POL_K, ceiling));
   return { raw, rounded: parseFloat(raw.toFixed(1)) };
 }

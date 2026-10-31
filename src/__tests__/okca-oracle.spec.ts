@@ -14,6 +14,8 @@ const CHROMA_K  = 0.65;
 const POL_K     = 1.100;
 const LOD_CAP   = 20.9;
 const DOL_CAP   = 20;
+const IND_Z     = 1.48;
+const IND_REF_L = 0.5658363271;
 const FLARE     = 0.10;
 const FLARE_K   = 1.5;
 
@@ -41,8 +43,9 @@ function refContrast(textColor: string, bgColor: string): number | null {
   const exp = 1 + CHROMA_K * satW;
   const lighterY = Math.pow(Math.pow(lighterL, exp), 3);
 
-  // Step 4 — pure luminance proxy
-  const darkerY = Math.pow(darkerL, 3);
+  // Step 4 — luminance proxy with background induction
+  const s = Math.min(1, (IND_Z + Math.pow(bL, 1.5)) / (IND_Z + Math.pow(IND_REF_L, 1.5)));
+  const darkerY = Math.pow(darkerL, 3 * s);
 
   // Step 5 — polarity-aware scaling
   const isLightOnDark = tL > bL;
@@ -51,7 +54,7 @@ function refContrast(textColor: string, bgColor: string): number | null {
   const ratio = cap * Math.pow(rawRatio / 21, POL_K);
 
   // Step 6 — flare-robustness ceiling
-  const flareRatio = (Math.pow(lighterL, 3) + FLARE) / (darkerY + FLARE);
+  const flareRatio = (Math.pow(lighterL, 3) + FLARE) / (Math.pow(darkerL, 3) + FLARE); // plain L³: flare is physical
   const ceiling = cap * Math.pow(flareRatio / ((1 + FLARE) / FLARE), FLARE_K);
   return parseFloat(Math.max(1, Math.min(21, ratio, ceiling)).toFixed(1));
 }

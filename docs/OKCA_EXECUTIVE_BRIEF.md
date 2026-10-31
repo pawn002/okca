@@ -2,19 +2,20 @@
 
 ## Executive Summary
 
-WCAG 2.x has three measurement gaps OKCA addresses: it over-rates saturated chromatic
+WCAG 2.x has four measurement gaps OKCA addresses: it over-rates saturated chromatic
 text on dark backgrounds, it scores contrast symmetrically when the perceptual reality
-is not symmetric, and its passes on near-black backgrounds rest on a margin that
-stray light removes first. All three cause marginal colour combinations to pass automated checks and
+is not symmetric, it treats a colour's lightness as fixed whatever background it
+sits on, and its passes on near-black backgrounds rest on a margin that stray light
+removes first. All four cause marginal colour combinations to pass automated checks and
 reach production, where real users with contrast sensitivity loss cannot read them.
 
-OKCA is a **stricter drop-in for WCAG 2.x** that closes all three gaps on the familiar 1–21
+OKCA is a **stricter drop-in for WCAG 2.x** that closes all four gaps on the familiar 1–21
 scale and the same AA/AAA thresholds — no new compliance vocabulary. Its one load-bearing
 property is safety: **it is never more permissive than WCAG.** Every score lands at or
 below the WCAG score for the same pair, so a pair that clears OKCA always clears WCAG.
 That property is verified across the full sRGB gamut (an exact identity plus
 interval-checked lemmas, `docs/FP0_PROOF.md`). A 1,249-pair audit across Tailwind, GOV.UK
-Design System, and USWDS found zero false passes and flagged 97 pairs that WCAG passes but
+Design System, and USWDS found zero false passes and flagged 99 pairs that WCAG passes but
 practitioners consistently reject as inadequate.
 
 ---
@@ -41,6 +42,15 @@ sensitivity loss. The IEC 61966-2-1 weighting assigns 71.5% of luminance to the
 green channel, which does not translate cleanly to chromatic legibility. The result
 is a systematic over-rating of vivid lighter elements in negative polarity.
 
+Two further gaps are less often discussed.
+
+**Background-blind lightness.** WCAG's formula gives a colour the same lightness on
+any background. The CAM16 colour appearance model, the basis of the CIE's CIECAM16
+(CIE 248:2022), does not: a darker background flattens the lightness scale. At the
+AA line, a grey that just passes on a near-black background carries about 25% less
+CAM16 lightness difference than one that just passes on white. Dark-mode passes
+were systematically easier to earn.
+
 **Fragile margin on near-black backgrounds.** WCAG's ratio adds a fixed 0.05 to both
 luminances to stand in for ambient light. On a near-black background the ratio gets
 most of its value from that small denominator. Add a little more stray light and a
@@ -51,7 +61,7 @@ simulations do not flag these pairs. The weakness is in the luminance margin.
 
 These are not rare conditions. A structured audit of three production design systems
 — Tailwind CSS v3.4, GOV.UK Design System, and USWDS v3.x —
-found **97 pairs** that pass WCAG 2.x AA while sitting in the marginal zone
+found **99 pairs** that pass WCAG 2.x AA while sitting in the marginal zone
 practitioners and user research consistently flag as inadequate.
 
 ---
@@ -74,17 +84,28 @@ D-o-L) and the canonical AA boundary grey `#767676` (3.9 L-o-D, 3.7 D-o-L).
 element's luminance proxy is compressed by a power exponent that scales with Oklab
 chroma. Achromatic pairs are unaffected. Vivid chromatic lighter elements — the
 failure zone — score lower than an achromatic element at equivalent OKLCH L. Hot
-pink on near-black: WCAG 6.6, OKCA 3.6.
+pink on near-black: WCAG 6.6, OKCA 3.0.
+
+**The darker colour is corrected for its background.** On any background darker
+than the AA boundary grey `#767676`, OKCA applies CAM16's background effect to the
+darker colour's lightness, using CAM16's own constant and no tuned value. Lighter
+backgrounds, and so the anchors above, are untouched. The correction can only lower
+a score. Light grey `#cccccc` on `#333333` goes from 7.1 to 5.7 (WCAG 7.9). Grey and
+near-grey text on dark surfaces has to be lighter to pass, and AAA is affected most.
 
 **Each score is capped at what survives doubled flare.** OKCA re-scores every pair
 with twice WCAG's flare allowance and keeps the lower result. The cap was tuned so
 it never moves a light-background grey pair, so the anchors above are unchanged.
 On dark backgrounds, grey and near-grey text has to be about one palette grade
 lighter to pass: mid-grey `#888888` on black goes from 5.2 to 3.7 (WCAG 5.9).
-Across Tailwind, GOV.UK and USWDS palettes on nine real dark surfaces, 45 of 4,938
-light-on-dark pairs lose AA. This is a margin argument, not a model of viewing
-conditions: OKCA still has no access to the room, so it keeps the same margin
-everywhere.
+This is a margin argument, not a model of viewing conditions: OKCA still has no
+access to the room, so it keeps the same margin everywhere.
+
+The two corrections cover different ground. The background correction cannot act
+on pure black, whose lightness is zero on any background; the flare cap does. The
+flare cap acts mainly near black; the background correction reaches mid-dark
+surfaces as well. Together, across Tailwind, GOV.UK and USWDS palettes as light text
+on 15 dark and mid-dark surfaces, 286 of 7,851 pairs lose AA. No score rises.
 
 ---
 
@@ -108,6 +129,8 @@ headroom. The argument has three parts:
   $B(d) \le B(\text{black})$ are each
   confirmed by interval arithmetic over the sRGB cube with **0 uncertified boxes**
   — a machine-checked proof over continuous regions, not a sample.
+- **The background correction only lowers scores.** It raises the darker colour's
+  effective luminance, which shrinks the ratio, so it needs no new lemma.
 - **The flare cap only lowers scores.** It is a minimum with the proven score, so
   it inherits the guarantee without a new lemma.
 
@@ -129,7 +152,7 @@ existing compliance postures. It catches what WCAG 2.x misses without requiring
 organisations to re-baseline.
 
 For working group purposes, the algorithm and its calibration corpus are open and
-auditable. The 97-pair disagreement dataset (see `docs/WCAG_DISAGREEMENTS.md`)
+auditable. The 99-pair disagreement dataset (see `docs/WCAG_DISAGREEMENTS.md`)
 documents exactly where OKCA and WCAG 2.x diverge, by design system, colour family,
 and polarity — a resource for empirical comparison with APCA scoring on the same
 pairs.
@@ -145,7 +168,8 @@ pairs.
 | AA / AAA thresholds | 4.5 / 7.0 | 4.5 / 7.0 |
 | Polarity | Symmetric | Asymmetric |
 | Chromatic lighter element | Over-rated | Chroma-penalised |
+| Background | Ignored | Corrected on dark backgrounds (CAM16) |
 | Margin on near-black backgrounds | Smaller than on light | Matched (flare cap) |
 | False passes vs. WCAG 2.x | Reference | **Zero** (verified across sRGB: exact identity + interval-checked lemmas) |
-| Marginal pairs flagged in audit | 0 of 97 | 97 of 97 |
+| Marginal pairs flagged in audit | 0 of 99 | 99 of 99 |
 | Deployable today | Yes | Yes |

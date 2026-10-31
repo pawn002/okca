@@ -177,7 +177,7 @@ describe('design-system probe', () => {
     expect(falsePassPairs).toEqual([]);
   });
 
-  it('WCAG disagreement count matches baseline (97 total)', () => {
+  it('WCAG disagreement count matches baseline (99 total)', () => {
     let ffCount = 0;
 
     for (const { fg, bg } of ALL_PAIRS) {
@@ -186,7 +186,7 @@ describe('design-system probe', () => {
       if (okca < AA && wcag >= AA) ffCount++;
     }
 
-    expect(ffCount).toBe(97);
+    expect(ffCount).toBe(99);
   });
 
   it('WCAG disagreement counts match per system', () => {
@@ -200,8 +200,8 @@ describe('design-system probe', () => {
       }
     }
 
-    expect(ffBySystem['tw'] ?? 0).toBe(34);
-    expect(ffBySystem['govuk'] ?? 0).toBe(13);
+    expect(ffBySystem['tw'] ?? 0).toBe(35);
+    expect(ffBySystem['govuk'] ?? 0).toBe(14);
     expect(ffBySystem['uswds'] ?? 0).toBe(50);
   });
 

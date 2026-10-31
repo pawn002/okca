@@ -11,17 +11,19 @@ WCAG 2.x contrast uses the ratio formula:
 
 $$\text{ratio} = \frac{Y_1 + 0.05}{Y_2 + 0.05}$$
 
-This has three failure modes OKCA addresses:
+This has four failure modes OKCA addresses:
 
 1. **False passes for saturated chromatic text.** Hot pink on near-black scores 6.6:1 under WCAG --- a comfortable AA pass. Accessibility practitioners consistently identify it as inadequate, and it is one of the most commonly cited examples of WCAG producing a result that does not match production experience. WCAG's luminance formula treats it identically to an achromatic pair at the same luminance ratio.
 
 2. **Polarity blindness.** WCAG's ratio is symmetric: `ratio(A on B) = ratio(B on A)`. Designers and design systems treat the two directions as distinct --- dark mode and light mode are different design decisions, not interchangeable. WCAG does not model this asymmetry.
 
-3. **Fragile passes on near-black backgrounds.** On a near-black background the ratio gets most of its value from the near-zero denominator --- the term stray light erodes first. A just-passing grey on black keeps a ratio of 3.1 when the flare allowance doubles; a just-passing grey on white keeps 4.5. Two pairs at the same score carry very different margins against the room they are read in ([`MIDTONE_SURVEY_FINDINGS.md`](MIDTONE_SURVEY_FINDINGS.md)).
+3. **Background-blind lightness.** WCAG and Oklab both treat a colour's lightness as fixed, whatever it sits on. The CIE-lineage colour appearance model CAM16 does not: a darker background flattens the lightness scale, so the same pair carries less lightness difference on a dark background than on a light one. At the AA line, a just-passing grey on `#1a1a1a` carries 25% less CAM16 lightness gap than one on white ([`CAM16_FINDINGS.md`](CAM16_FINDINGS.md)).
 
-OKCA corrects all three while being **never more permissive than WCAG** --- every score lands at or below the WCAG score for the same pair, so OKCA never tells a designer a pair is safe when WCAG says it fails.
+4. **Fragile passes on near-black backgrounds.** On a near-black background the ratio gets most of its value from the near-zero denominator --- the term stray light erodes first. A just-passing grey on black keeps a ratio of 3.1 when the flare allowance doubles; a just-passing grey on white keeps 4.5. Two pairs at the same score carry very different margins against the room they are read in ([`MIDTONE_SURVEY_FINDINGS.md`](MIDTONE_SURVEY_FINDINGS.md)).
 
-OKCA is a stricter WCAG 2.x checker for sRGB, not a new perceptual model: it keeps WCAG's scale and thresholds and tightens the three failure modes above. Its one guarantee is the safety bound.
+OKCA corrects all four while being **never more permissive than WCAG** --- every score lands at or below the WCAG score for the same pair, so OKCA never tells a designer a pair is safe when WCAG says it fails.
+
+OKCA is a stricter WCAG 2.x checker for sRGB, not a new perceptual model: it keeps WCAG's scale and thresholds and tightens the four failure modes above. Its one guarantee is the safety bound.
 
 ### Algorithm overview
 
@@ -30,7 +32,7 @@ OKCA processes a foreground/background color pair in six steps:
 1. **Extract lightness.** Parse each color to OKLCH L — a perceptually uniform lightness measure used as the luminance input throughout.
 2. **Identify polarity.** The element with higher L is the lighter element. If the foreground is lighter the pair is light-on-dark (L-o-D); if the background is lighter it is dark-on-light (D-o-L).
 3. **Compress the lighter element.** Compute Oklab chroma $C = \sqrt{a^2+b^2}$. Apply a chroma-weighted power exponent to the lighter element's L, reducing its effective luminance proxy. Higher chroma → larger reduction.
-4. **Compute the darker element's proxy.** The darker element uses $L^3$ directly — no chroma correction applied.
+4. **Compute the darker element's proxy.** The darker element uses $L^3$, raised to a power $s \le 1$ that depends on the background's lightness (background induction, §3). On backgrounds at least as light as `#767676`, $s = 1$.
 5. **Apply polarity-aware scaling.** Form a raw ratio from the two luminance proxies, then scale with a power curve that differs by polarity: L-o-D uses a cap of 20.9 (`LOD_CAP`); D-o-L uses 20.
 6. **Apply the flare-robustness ceiling.** Re-run the same curve on the uncompressed $L^3$ proxies with twice WCAG's flare allowance, and keep the lower of the two scores. Binds only where the ratio leans on a near-black darker element. Output is in $[1, 21]$.
 
@@ -87,6 +89,47 @@ per IEC 61966-2-1 (linearised sRGB). This formula was designed for display calib
 2. **Chromatic text on dark backgrounds.** WCAG Y does not distinguish between saturated and desaturated light text. A chromatic lighter element at the same Y as an achromatic one produces the same ratio --- even though practitioners and production audits consistently treat them differently.
 
 OKLCH $L^3$ addresses both points directly. For neutral greys, $L^3 \approx Y_{\text{WCAG}}$ holds to within floating-point precision of the OKLCH transform. For chromatic pairs, the chroma compression in Step 3 reduces the effective lighter-element luminance below the $L^3$ value, producing the desired penalty.
+
+### Background induction (Step 4)
+
+**Problem.** $L^3$ is the same whatever a colour sits on. CAM16 (Li et al. 2017; the basis of the CIE's CIECAM16, CIE 248:2022) models lightness relative to the background. For greys, CAM16 lightness is very nearly a power of OKLab $L$, and the background sets the power:
+
+$$
+J/100 \approx L^{\gamma}, \qquad \gamma \approx 1.26 \thinspace c \thinspace \left(1.48 + L_{\text{bg}}^{1.5}\right)
+$$
+
+from about 1.36 on near-black to 2.13 on white, fit to within 0.15 $J$. A darker background flattens the scale, so the same pair carries less lightness difference. Before Step 4 existed, a grey just passing 4.5 on `#1a1a1a` carried a background-aware CAM16-UCS lightness gap of 47.6, and one on `#333333` 45.1, against 63.4 on white ([`CAM16_FINDINGS.md`](CAM16_FINDINGS.md) §2–§3).
+
+**Mechanism.** Take CAM16's exponent relative to a reference background. The factor $1.26 \thinspace c$ cancels:
+
+$$
+s = \min\left(1, \thinspace \frac{1.48 + L_{\text{bg}}^{1.5}}{1.48 + L_{\text{ref}}^{1.5}}\right), \qquad Y_{\text{darker}} = L_{\text{darker}}^{3s}
+$$
+
+where $L_{\text{bg}}$ is the background's OKLab $L$ and $L_{\text{ref}} = 0.5658$ is OKLab $L$ of `#767676`.
+
+- **No tuned constants.** $1.48$ is CAM16's own constant, and the reference is the background of the white/`#767676` anchor.
+- **Identity on lighter backgrounds.** On any background at least as light as `#767676`, $s = 1$. The anchors, and every score on such a background, are unchanged.
+- **Lifts the darker element on darker backgrounds.** Example values are $s = 0.777$ on black, $0.830$ on `#1a1a1a` and $0.903$ on `#444444`.
+
+**Why only the darker element.** CAM16 lifts both elements. Lifting the lighter one too raises the numerator: it makes pure-black pairs *more* lenient, and it produced 175 false passes in a 67,396-pair sample. Lifting only the darker proxy can only shrink the ratio, so no score rises above its value without Step 4 (§4).
+
+**Effect.** The spread of the CAM16 lightness gap at the AA line, across backgrounds, falls from 18.2 to 13.2. Mid-dark backgrounds benefit most:
+
+| Pair | Before Step 4 | With Step 4 |
+|---|---:|---:|
+| `#919191` on `#121212` | 5.2 | 4.4 |
+| `#9f9f9f` on `#1a1a1a` | 5.8 | 4.8 |
+| `#cccccc` on `#333333` | 7.1 | 5.7 |
+| white on `#595959` | 6.2 | 5.7 |
+| white on `#333333` | 12.0 | 9.6 |
+| `#888888` on `#000000` | 5.2 | 5.2 |
+
+- **Pure black is unchanged by Step 4.** Its proxy is 0 for any $s$. Step 6's flare ceiling is what tightens pairs on pure black.
+- **High-contrast scores fall too.** White on `#111111` goes from 18.6 to 15.8, because the correction scales the whole dark side.
+- **AAA feels it most.** Eleven curated pairs drop below 7.0; one drops below 4.5.
+
+**Not a viewing-conditions model.** $Y_b$ is the background colour, which OKCA receives as an input. Absolute luminance and surround, which OKCA cannot observe, were also tested in CAM16; they do not separate dark backgrounds from light ones (§10, and [`CAM16_FINDINGS.md`](CAM16_FINDINGS.md) §4).
 
 ---
 
@@ -159,7 +202,9 @@ $A(l) \le A(\text{white})$ and $B(d) \le B(\text{black})$, each **verified by
 interval arithmetic** over the sRGB cube with **0 uncertified boxes**
 (`npm run fp0`; full argument in [`docs/FP0_PROOF.md`](FP0_PROOF.md)).
 
-Step 6 takes a minimum with this score, so it can only lower it and the bound carries over unchanged ([`FP0_PROOF.md`](FP0_PROOF.md) §5).
+**Step 4 keeps the bound.** Background induction raises the darker proxy: $L^{3s} \ge L^3$ for $s \le 1$ and $L \le 1$. Lemma B's $B(d)$ only falls as the darker proxy rises, so the lemma holds a fortiori and no new lemma is needed ([`FP0_PROOF.md`](FP0_PROOF.md) §5).
+
+**Step 6 keeps the bound.** It takes a minimum with this score, so it can only lower it and the bound carries over unchanged ([`FP0_PROOF.md`](FP0_PROOF.md) §6).
 
 So FP = 0 is **verified for all sRGB inputs** — an exact identity plus two
 interval-checked lemmas, not a calibration-dependent headroom property. (The
@@ -183,10 +228,10 @@ Because WCAG contrast is a function of $Y$ alone, any two foreground colors shar
 
 | Foreground | $Y$ | WCAG on `#1a1a1a` | OKCA on `#1a1a1a` |
 |---|---:|---:|---:|
-| `#ff69b4` (hot pink) | 0.347 | 6.6 | 3.6 |
+| `#ff69b4` (hot pink) | 0.347 | 6.6 | 3.0 |
 | `#9f9f9f` (grey at the same $Y$) | 0.347 | 6.6 | 4.7 |
 
-WCAG scores them identically. OKCA scores hot pink 3.6 (fails AA) and the grey 4.7 (passes AA). The grey's score is set by the flare ceiling (Step 6), not the chroma penalty; hot pink sits below both.
+WCAG scores them identically. OKCA scores hot pink 3.0 (fails AA) and the grey 4.7 (passes AA). Both scores include Step 4's induction from the near-black background, which alone would give the grey 4.8; Step 6's flare ceiling sets it at 4.7. The gap between them is the chroma penalty.
 
 **Mechanism.** The lighter element's luminance proxy is penalised by a chroma-weighted power exponent. First, a saturation weight is computed from the Oklab chroma:
 
@@ -202,7 +247,7 @@ $$Y_{\text{lighter}} = \left(L_{\text{lighter}}^{\text{exp}}\right)^3$$
 
 For a neutral white lighter element: $C = 0$, $\text{satW} = 0$, $\text{exp} = 1$, so $Y_{\text{lighter}} = L^3 = 1.0$ --- unchanged.
 
-For hot pink ($C \approx 0.197 > 0.15$): $\text{satW} = 1$, $\text{exp} = 1.65$ --- the lighter element is penalised. After Step 5 polarity scaling, hot pink/near-black drops to 3.6, below the 4.5 AA threshold.
+For hot pink ($C \approx 0.197 > 0.15$): $\text{satW} = 1$, $\text{exp} = 1.65$ --- the lighter element is penalised. After Step 4's background induction and Step 5's polarity scaling, hot pink/near-black drops to 3.0, below the 4.5 AA threshold.
 
 The threshold of 0.15 is calibrated so the penalty is negligible for lightly tinted neutrals (e.g. off-white at $C \approx 0.01$) and fully active for vivid designer palette colours ($C \ge 0.15$).
 
@@ -213,9 +258,9 @@ The threshold of 0.15 is calibrated so the penalty is negligible for lightly tin
 For neutral grey pairs, chroma compression reduces to identity:
 
 - **Step 3:** Oklab chroma $C = 0$, so $\text{satW} = 0$, $\text{exp} = 1$, and $Y_{\text{lighter}} = L^3$.
-- **Step 4:** $Y_{\text{darker}} = L^3$ (no correction applied).
+- **Step 4:** $Y_{\text{darker}} = L^3$ on backgrounds at least as light as `#767676`. On darker backgrounds, background induction raises it to $L^{3s}$ (§3).
 
-Since $L^3 \approx Y_{\text{WCAG}}$ for greys (up to floating-point precision of the OKLCH transform), the raw contrast ratio before Step 5 equals the WCAG ratio for neutral pairs. The polarity power model (Step 5) then scales scores according to polarity. The achromatic anchors are:
+Since $L^3 \approx Y_{\text{WCAG}}$ for greys (up to floating-point precision of the OKLCH transform), the raw contrast ratio before Step 5 equals the WCAG ratio for neutral pairs on backgrounds at least as light as `#767676`, and falls below it on darker ones. The polarity power model (Step 5) then scales scores according to polarity. The achromatic anchors are:
 
 | Pair | Polarity | Score |
 |------|----------|------:|
@@ -280,8 +325,8 @@ with $F =$ `FLARE` $= 0.10$ and $k_F =$ `FLARE_K` $= 1.5$.
 **Calibration.**
 
 - $F = 0.10$ is twice WCAG's flare allowance. At this value the grey that first reaches 4.5 keeps about 3.95 under doubled flare on **every** dark background, from `#000000` to `#444444`.
-- $k_F = 1.5$ is the largest exponent at which the ceiling never binds on a white-on-grey or grey-on-white pair scoring 2 or above. The light side, the four achromatic anchors and the 97 WCAG disagreements are therefore unchanged.
-- The ceiling uses the **uncompressed** $L^3$, so it rarely binds where the chroma penalty already has: hot pink and dark orange on near-black stay at 3.6 and 4.2.
+- $k_F = 1.5$ is the largest exponent at which the ceiling never binds on a white-on-grey or grey-on-white pair scoring 2 or above. The light side, the four achromatic anchors and the WCAG disagreements are therefore unchanged by the ceiling.
+- The ceiling uses the **uncompressed** $L^3$, so it rarely binds where the chroma penalty already has: the ceiling does not move hot pink or dark orange on near-black (3.0 and 3.4 after Step 4).
 
 **Effect.** Grey and near-grey text on dark surfaces moves up about one palette grade. USWDS gray-40 (`#919191`) on `#121212` goes from 5.2 to 3.9, and `#888888` on black from 5.2 to 3.7. Across Tailwind, GOV.UK and USWDS palettes on nine real dark surfaces, 45 of 4,938 light-on-dark pairs lose AA, 44 of them grey or near-grey. The ceiling is polarity-independent because flare is: dark text on mid-tone fills tightens too (`#000000` on `#767676`: 3.8 to 2.6).
 
@@ -297,14 +342,14 @@ Three independent batteries:
 |---------|------:|:--:|:------------------:|-------|
 | Light-on-dark | 53 | **0** | — | See design-systems for FP=0 coverage |
 | Dark-on-light | 54 | **0** | — | See design-systems for FP=0 coverage |
-| Design systems | 1,142 | **0** | 97 | See note below |
-| **Total** | **1,249** | **0** | **97** | |
+| Design systems | 1,142 | **0** | 99 | See note below |
+| **Total** | **1,249** | **0** | **99** | |
 
 **False passes are zero** --- the non-negotiable invariant holds across all 1,249 pairs.
 
 **WCAG disagreements** (pairs where OKCA < 4.5 but WCAG ≥ 4.5) are intentional and should not be read as miscalibration. WCAG's 4.5:1 AA threshold is widely considered too permissive by practitioners. White on `#767676` --- the canonical WCAG AA boundary anchor --- sits exactly on the line, where the verdict turns on the display and the room rather than on the colours (see *Does not model viewing conditions* in §10 below). All 97 disagreements involve colours in that marginal zone: proximity to the boundary is not the same as being safely above it, and a pair on the line has no margin against the conditions it will be read in. (The count was 111 before the white/#767676 anchor was raised 3.5 → 3.9; that recalibration cleared 14 mid-range chromatics that sat just under 4.5.)
 
-By system: Tailwind CSS v3.4 (34), GOV.UK Design System (13), USWDS v3.x (50). See `docs/WCAG_DISAGREEMENTS.md` for full enumeration with hex values.
+By system: Tailwind CSS v3.4 (35), GOV.UK Design System (14), USWDS v3.x (50). Step 4 added two: white on lime-700 and white on GOV.UK blue, each 4.5 to 4.4. See `docs/WCAG_DISAGREEMENTS.md` for full enumeration with hex values.
 
 ---
 
@@ -317,6 +362,8 @@ By system: Tailwind CSS v3.4 (34), GOV.UK Design System (13), USWDS v3.x (50). S
 | `POL_K` | 1.100 | Shared polarity power exponent: $\text{CAP} \times (r/21)^{k}$ |
 | `LOD_CAP` | 20.9 | Light-on-dark contrast cap (< 21 → OKCA strictly below WCAG, FP=0 by construction) |
 | `DOL_CAP` | 20 | Dark-on-light contrast cap (< LOD_CAP); proportional polarity penalty |
+| `IND_Z` | 1.48 | CAM16's lightness-exponent constant, used by Step 4 |
+| `IND_REF_L` | 0.5658 | OKLab $L$ of `#767676`: backgrounds at or above it keep $s = 1$ |
 | `FLARE` | 0.10 | Flare term for the Step 6 ceiling (twice WCAG's 0.05) |
 | `FLARE_K` | 1.5 | Step 6 ceiling exponent |
 
@@ -324,13 +371,15 @@ By system: Tailwind CSS v3.4 (34), GOV.UK Design System (13), USWDS v3.x (50). S
 
 - **`C_THRESH` = 0.15** --- Typical Oklab chroma for designer palette saturated colours; lightly tinted neutrals ($C < 0.05$) receive less than 10% of the full penalty.
 
-- **`CHROMA_K` = 0.65** --- Yields $\text{exp} = 1.65$ at full saturation. Combined with the polarity factor, hot pink/near-black scores 3.6 and dark orange/near-black scores 4.2 --- both below the 4.5 AA threshold, where WCAG rates them 6.6 and 7.5 (two of WCAG's most-cited false passes). Raised from 0.50 alongside the 3.9 anchor move: the anchor lowered `POL_K` (which lifts all scores globally, including these saturated catches), and the stronger chroma penalty re-docks vivid saturated foregrounds to their intended sub-AA scores. Because the penalty acts only on the lighter element, this leaves the achromatic anchors and the (white-lighter) design-system disagreement counts untouched.
+- **`CHROMA_K` = 0.65** --- Yields $\text{exp} = 1.65$ at full saturation. Combined with Step 4 and the polarity factor, hot pink/near-black scores 3.0 and dark orange/near-black scores 3.4 --- both below the 4.5 AA threshold, where WCAG rates them 6.6 and 7.5 (two of WCAG's most-cited false passes). Before Step 4 they scored 3.6 and 4.2. `CHROMA_K` was not lowered to restore those figures: neither survey supports a weaker chroma penalty, and lowering it would loosen dark text on saturated fills, which induction does not reach. Raised from 0.50 alongside the 3.9 anchor move: the anchor lowered `POL_K` (which lifts all scores globally, including these saturated catches), and the stronger chroma penalty re-docks vivid saturated foregrounds to their intended sub-AA scores. Because the penalty acts only on the lighter element, this leaves the achromatic anchors and the (white-lighter) design-system disagreement counts untouched.
 
 - **`POL_K` = 1.100** --- Calibrated so white/`#767676` (WCAG AA boundary grey) scores 3.9 under L-o-D (raised from a 3.5 anchor / `POL_K` 1.175 to reduce over-conservatism on mid-range chromatics). Derived: $k = \ln(3.9/21) / \ln(4.54/21) \approx 1.0996$.
 
 - **`LOD_CAP` = 20.9** --- Light-on-dark cap, one notch below 21. This is the strict-margin lever for the FP=0 proof: with the cap below 21 the identity $21^{1-k} \cdot A(\text{white}) \cdot B(\text{black}) = 1$ becomes $20.9/21 = 0.99524 < 1$, removing the single white-on-black equality point so OKCA is strictly below WCAG everywhere (Section 4). White on black: 20.9.
 
 - **`DOL_CAP` = 20** --- Proportional polarity penalty for D-o-L: at any given raw ratio, D-o-L scores $20/20.9 \approx 0.96$ — about 96% — of the equivalent L-o-D score. Black on white: 20.0. `#767676` on white: $(20/20.9) \times 3.9 \approx 3.7$.
+
+- **`IND_Z` = 1.48, `IND_REF_L` = 0.5658** --- Not tuned. `IND_Z` is the constant in CAM16's $z = 1.48 + \sqrt{Y_b}$, and `IND_REF_L` is the OKLab $L$ of the background in the white/`#767676` anchor. That reference keeps the anchors exact. A lighter reference would also even out light backgrounds (`#c8c8c8` trails white by about 10 CAM16 lightness units at the AA line), but it would move the anchor.
 
 - **`FLARE` = 0.10** --- Twice WCAG's flare allowance. Chosen because it equalises flare robustness at the AA line: the grey that first reaches 4.5 keeps about 3.95 under doubled flare on every dark background (§7).
 
@@ -364,4 +413,6 @@ When modifying the algorithm, these properties must be preserved:
 
 4. **Update probe battery expectations.** If any probe result changes intentionally, document the rationale before committing.
 
-5. **Flare ceiling.** `FLARE_K` must stay the largest exponent that leaves white/grey pairs untouched for the chosen `FLARE`; retuning one means re-deriving the other (`npm run midtone` reports the bound). The ceiling must stay a minimum --- that is what keeps it outside the FP=0 proof.
+5. **Background induction.** Step 4 must keep $s \le 1$ and apply only to the darker element. Those two properties are what keep it inside the FP=0 proof, and they are asserted in `background-induction.spec.ts`.
+
+6. **Flare ceiling.** `FLARE_K` must stay the largest exponent that leaves white/grey pairs untouched for the chosen `FLARE`; retuning one means re-deriving the other (`npm run midtone` reports the bound). The ceiling must stay a minimum --- that is what keeps it outside the FP=0 proof.

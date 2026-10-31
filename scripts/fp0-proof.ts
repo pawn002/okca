@@ -128,6 +128,7 @@ function main() {
     console.log('BOTH lemmas verified. With the exact identity, for every sRGB pair:');
     console.log('  21^(1-k)*A(l)*B(d) <= 21^(1-k)*A(white)*B(black) = 1  =>  OKCA <= WCAG.');
     console.log('=> FP=0 proven over the full sRGB gamut (interval-verified lemmas + exact identity).');
+    console.log('   Step 4 induction raises the darker proxy (L^(3s) >= L^3), so B(d) only falls: the bound holds a fortiori.');
     console.log('   Step 6 (flare ceiling) is a min() with this score, so the published score inherits it.');
   } else {
     console.log('At least one lemma left interior boxes uncertified — increase depth or inspect above.');

@@ -6,11 +6,13 @@ arithmetic** — no calibration-dependent headroom, no residual. Reproduce:
 `npm run fp0` (certifies with **0 uncertified boxes**).
 
 Constants: `POL_K` = 1.100, `CHROMA_K` = 0.65, `LOD_CAP` = 20.9, `DOL_CAP` = 20,
-`FLARE` = 0.10, `FLARE_K` = 1.5.
+`IND_Z` = 1.48, `IND_REF_L` = 0.5658, `FLARE` = 0.10, `FLARE_K` = 1.5.
 
-The proof below is about the step-5 score. Step 6, the flare-robustness ceiling,
-takes a minimum with it and can only lower it, so it inherits the bound
-(§5).
+The proof below is stated for the step-5 score with the darker proxy
+$L_{\text{darker}}^{3}$. Two later changes can only lower the score, so the
+bound carries over to the published score. Step 4's background induction raises
+the darker proxy to $L_{\text{darker}}^{3s}$ with $s \le 1$ (§5). Step 6, the
+flare-robustness ceiling, takes a minimum with the step-5 score (§6).
 
 ## 1. Algebraic reduction
 
@@ -97,25 +99,39 @@ Result (`npm run fp0`):
 Every sRGB point is certified; the slack $s > 1$ from the lowered cap lets even
 the anchors certify, so no neighbourhood is excluded.
 
-## 5. Step 6 inherits the bound
+## 5. Step 4 keeps the bound
+
+Step 4 replaces the darker proxy with
+
+$$
+Y_{\text{darker}} = L_{\text{darker}}^{3s}, \qquad s = \min\left(1, \thinspace \frac{1.48 + L_{\text{bg}}^{1.5}}{1.48 + L_{\text{ref}}^{1.5}}\right) \le 1.
+$$
+
+For $L_{\text{darker}} \in [0, 1]$ and $s \le 1$, $L_{\text{darker}}^{3s} \ge L_{\text{darker}}^{3}$.
+In $B(d)$ the darker proxy appears only in the denominator, raised to $k > 0$,
+so $B(d)$ can only fall. Lemma (L-B) therefore holds a fortiori, and lemma (L-A)
+is untouched because the lighter proxy does not change. The identity, the
+strict margin and the conclusion below apply unchanged. No new lemma is needed.
+
+## 6. Step 6 inherits the bound
 
 The published score is
 
 $$\text{score} = \min\left(\text{OKCA}, \thinspace \text{ceiling}\right) \le \text{OKCA},$$
 
 where the ceiling is the flare-robustness term of step 6
-([`OKCA_DESIGN.md`](OKCA_DESIGN.md) §7). Whatever value the ceiling takes, a
+([`OKCA_DESIGN.md`](OKCA_DESIGN.md) §7). It is computed on the plain $L^3$ proxies, not on Step 4's induced one. Whatever value the ceiling takes, a
 minimum never exceeds either argument. So every bound proved here for the
-step-5 score holds for the published score, with no new lemma. Rounding to
+step-5 score, including Step 4's, holds for the published score, with no new lemma. Rounding to
 one decimal place is monotone and preserves it as well.
 
-## 6. Conclusion
+## 7. Conclusion
 
 For every ordered sRGB pair:
 
 $$\frac{c}{21^{k}} \cdot A(l) \cdot B(d) \le \frac{c}{21^{k}} \cdot A(\text{white}) \cdot B(\text{black}) = \frac{c}{21} < 1,$$
 
-hence $\text{OKCA} \le \text{WCAG}$, strictly, and by §5 the published score
+hence $\text{OKCA} \le \text{WCAG}$, strictly, and by §5–§6 the published score
 is no higher.
 
 **FP = 0 is guaranteed by construction across the full sRGB gamut** — the

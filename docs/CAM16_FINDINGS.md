@@ -1,0 +1,416 @@
+# CAM16 — What Oklab Abstracts
+
+Research notes. The question: which viewing-condition factors does Oklab fix,
+and which can OKCA pull back out using only OKLab/OKLCH coordinates? This is
+*analysis*. Running it changed no algorithm code.
+
+> **Step 6** in these notes is the flare-robustness ceiling from
+> [#25](https://github.com/pawn002/okca/issues/25), on branch `okca-25-near-black`.
+> This branch does not contain it; the scripts here reimplement it for comparison.
+
+Reproduce:
+
+```
+npm run cam16        # scripts/cam16-survey.ts
+```
+
+---
+
+## 1. Why CAM16
+
+Oklab is a **fixed-condition** space. It assumes one white, one adaptation
+state, one background, one surround and no absolute luminance. CAM16 (Li et
+al. 2017, *Color Research & Application* 42(6):703–718) takes each of those as
+an **input**. It is the basis of the CIE's CIECAM16 (CIE 248:2022), which
+changes only CAM16's response compression at very low and very high signals
+(§8):
+
+| CAM16 input | Meaning | Visible to OKCA? |
+|---|---|---|
+| $Y_b$ | Relative luminance of the background next to the stimulus | **Yes.** The background is one of OKCA's two inputs |
+| $L_A$ | Absolute luminance of the adapting field, in cd/m² | No. sRGB values carry no absolute level |
+| Surround | Light outside the display: average, dim or dark | No. The room is not an input |
+| White point and degree of adaptation | Chromatic adaptation | Fixed by sRGB (D65). Not relevant to OKCA |
+
+Varying one input at a time shows what Oklab averages away. Factors OKCA can
+observe are candidates to pull back out. The others can at most set margins,
+which is the role Step 6 plays for flare.
+
+CAM16 is reimplemented in `scripts/cam16-survey.ts` from the published
+equations. It matches colorjs.io's `cam16-jmh` at that library's default
+conditions to within 0.004 in both $J$ and $M$ over 2,000 colours. The model's
+background-induction terms diverge as $Y_b \to 0$, so $Y_b$ is clamped at 1
+(of 100). `#1a1a1a` has $Y_b = 1.0$, so near-black backgrounds sit at that
+clamp.
+
+---
+
+## 2. The background sets the lightness scale (observable)
+
+For greys, CAM16 lightness is very nearly a power of OKLab $L$, and the power
+depends on the background. Fitting $J/100 = L^{\gamma}$ separately on each
+background:
+
+| Background | $Y_b$ | $\gamma$ | Fit RMS ($J$ units) |
+|---|---:|---:|---:|
+| `#000000` | 0.0 (clamped to 1) | 1.359 | 0.12 |
+| `#1a1a1a` | 1.0 | 1.360 | 0.12 |
+| `#333333` | 3.3 | 1.429 | 0.13 |
+| `#555555` | 9.1 | 1.532 | 0.13 |
+| `#777777` | 18.4 | 1.642 | 0.14 |
+| `#999999` | 31.9 | 1.758 | 0.14 |
+| `#bbbbbb` | 49.7 | 1.879 | 0.14 |
+| `#dddddd` | 72.3 | 2.004 | 0.15 |
+| `#ffffff` | 100.0 | 2.133 | 0.15 |
+
+The fit is within about 0.15 $J$ on every background, so this is close to
+exact. The exponent follows from CAM16's structure. Its cone compression is
+roughly a $0.42$ power of luminance, lightness is $J = 100\thinspace(A/A_w)^{cz}$,
+and $z = 1.48 + \sqrt{Y_b}$. With $Y = L^3$ and $Y_b = L_{\text{bg}}^3$:
+
+$$
+\gamma \approx 3 \times 0.42 \times c \times \left(1.48 + L_{\text{bg}}^{1.5}\right)
+$$
+
+with $c = 0.69$ for an average surround. That gives 2.15 on white and 1.55 on
+`#555555`, against fitted values of 2.133 and 1.532. A linear fit over
+background lightness is also close: $\gamma \approx 1.22 + 0.83 \thinspace L_{\text{bg}}$,
+maximum residual 0.14.
+
+**What this means.** CAM16 treats the background as setting the lightness
+scale. Oklab's $L$ has no background input at all. Ottosson fitted Oklab to
+CAM16-generated data under unspecified "normal" viewing conditions, and its
+grey axis is a fixed cube root (fitted $\gamma = 0.323$, set to $1/3$). This is
+the classic background (crispening) effect, and it can be **written entirely
+in OKLab coordinates**: an effective lightness $L^{\gamma(L_{\text{bg}})}$
+where both $L$ and $L_{\text{bg}}$ are OKLab values.
+
+---
+
+## 3. What CAM16 says about OKCA's threshold
+
+For each grey background, take the grey that first scores 4.5, and measure the
+CAM16-UCS lightness gap $\Delta J'$. Do it twice: once with the
+conventional $Y_b = 20$ (colorjs.io's default, not a value the model defines),
+and once with the real background as $Y_b$.
+
+| Background | 2.0.3 pass | $\Delta J'$, $Y_b = 20$ | $\Delta J'$, real $Y_b$ | #25 pass | $\Delta J'$, $Y_b = 20$ | $\Delta J'$, real $Y_b$ |
+|---|---|---:|---:|---|---:|---:|
+| `#000000` | `#7e7e7e` | 55.4 | 62.3 | `#949494` | 64.1 | 70.0 |
+| `#121212` | `#878787` | 49.4 | 49.9 | `#999999` | 56.4 | 56.0 |
+| `#1a1a1a` | `#8c8c8c` | 48.2 | 47.6 | `#9d9d9d` | 54.7 | 53.3 |
+| `#222222` | `#939393` | 47.6 | 46.3 | `#a1a1a1` | 52.9 | 50.9 |
+| `#333333` | `#a6a6a6` | 47.5 | 45.1 | `#aeaeae` | 50.4 | 47.7 |
+| `#444444` | `#bdbdbd` | 48.3 | 45.6 | `#bfbfbf` | 49.0 | 46.3 |
+| `#c8c8c8` | `#494949` | 49.9 | 53.6 | `#494949` | 49.9 | 53.6 |
+| `#e6e6e6` | `#5c5c5c` | 51.3 | 58.5 | `#5c5c5c` | 51.3 | 58.5 |
+| `#ffffff` | `#6a6a6a` | 52.8 | 63.4 | `#6a6a6a` | 52.8 | 63.4 |
+
+Three readings:
+
+1. **Background-aware CAM16 widens the gap Step 6 was built for.** At the
+   fixed condition, a just-passing grey on `#1a1a1a` is 9% short of the white
+   pass (48.2 against 52.8). With the real background it is 25% short (47.6
+   against 63.4). The direction of Step 6 now has support from a CIE colour
+   appearance model as well as from flare.
+2. **Step 6 closes it only at the near-black end.** After Step 6, `#1a1a1a`
+   passes at 53.3, and pure black overshoots to 70.0. Mid-dark grounds
+   (`#222222`–`#444444`) still sit at 46–51 against 63.4 on white. CAM16 sees
+   the leniency as a **slope across background lightness**, steepest from
+   about `#222222` to `#444444`. The flare term, which acts through the
+   near-zero denominator, sees it only at the bottom.
+3. **Light grounds slope too, more gently.** Passes on `#c8c8c8` carry 53.6
+   against 63.4 on white. White is where OKCA is strictest in lightness-gap
+   terms.
+
+Pure black is a special case. Its $J$ is 0, and its $Y_b$ sits at the clamp,
+so its row is the least trustworthy in the table.
+
+---
+
+## 4. Absolute luminance and surround (not observable)
+
+Brightness $Q$ is scaled by the background's induction factor, so $Q$ gaps
+are compared only within one background. For each background, the brightness
+gap of its 2.0.3 just-passing pair, relative to a 250 cd/m² white in an
+average surround:
+
+| Pair | 80 cd/m² | 500 cd/m² | Dim surround | Dark surround |
+|---|---:|---:|---:|---:|
+| `#7e7e7e` on `#000000` | 0.79 | 1.16 | 1.23 | 1.43 |
+| `#8c8c8c` on `#1a1a1a` | 0.79 | 1.16 | 1.09 | 1.16 |
+| `#a6a6a6` on `#333333` | 0.79 | 1.16 | 1.07 | 1.12 |
+| `#6a6a6a` on `#ffffff` | 0.80 | 1.15 | 1.04 | 1.08 |
+| `#494949` on `#c8c8c8` | 0.80 | 1.15 | 1.07 | 1.12 |
+
+- **Absolute luminance scales every background identically** (0.79 at
+  80 cd/m², 1.16 at 500). In CAM16 it is not a dark-mode factor. This agrees
+  with [`OKCA_DESIGN.md`](OKCA_DESIGN.md) §10, where a level-dependent term
+  was measured for and not detected. It also means CAM16's luminance-level
+  terms give no basis for Step 6. Flare (§6 of
+  [#25](https://github.com/pawn002/okca/issues/25)) remains its
+  basis.
+- **Surround** matters little except against pure black, the clamped case.
+  It is also unobservable.
+
+---
+
+## 5. Chromatic factors
+
+**Lightness of saturated colours.** CAM16 $J$ for colours with Oklab chroma of
+at least 0.12, minus $J$ of the grey at the same OKLab $L$, at $Y_b = 20$:
+
+| Hue band | $n$ | Median $\Delta J$ |
+|---|---:|---:|
+| red | 379 | −0.2 |
+| orange/yellow | 257 | −0.1 |
+| green | 867 | +0.1 |
+| cyan | 136 | +0.1 |
+| blue | 484 | −0.7 |
+| purple/magenta | 689 | −0.5 |
+
+CAM16 and Oklab agree on the lightness of saturated colours to within one $J$.
+Neither models the Helmholtz–Kohlrausch effect, in which saturated colours look
+brighter than greys of equal luminance. So CAM16 offers **no basis, for or
+against, Step 3's chroma penalty** as a lightness correction. If that penalty
+needs a scientific basis, it has to come from legibility research, not from
+appearance models.
+
+**Colourfulness per unit Oklab chroma, by hue** ($M/C$, $Y_b = 20$, chroma at
+least 0.12):
+
+| Hue band | red | orange/yellow | green | cyan | blue | purple/magenta |
+|---|---:|---:|---:|---:|---:|---:|
+| Median $M/C$ | 292 | 255 | 268 | 281 | 234 | 253 |
+
+At equal Oklab chroma, CAM16 sees blues as about 20% less colourful than reds.
+This comes from CAM16's eccentricity factor. It is observable, but using it
+would make OKCA's chroma penalty depend on hue, which the design has ruled out
+(§2.4 and §10 of the design doc). Recorded, not recommended.
+
+**Colourfulness depends on the background.** Colourfulness $M$ of a fixed
+foreground, with the real background as $Y_b$:
+
+| Foreground | on `#000000` | on `#1a1a1a` | on `#777777` | on `#ffffff` | Black / white |
+|---|---:|---:|---:|---:|---:|
+| `#ff69b4` | 75.6 | 75.2 | 51.7 | 49.7 | 1.52 |
+| `#ff8c00` | 68.4 | 68.0 | 46.9 | 45.4 | 1.51 |
+| `#3b82f6` | 69.5 | 69.1 | 46.4 | 42.9 | 1.62 |
+| `#22c55e` | 75.1 | 74.7 | 51.3 | 49.3 | 1.53 |
+
+CAM16 sees the same foreground as about 1.5 times as colourful on black as on
+white. Step 3 already acts only on the lighter element, and on a dark
+background the lighter element is the coloured text, so in practice Step 3
+already applies mostly on dark grounds. CAM16 supports *where* it applies. It
+does not settle whether more colourfulness should lower a contrast score.
+
+---
+
+## 6. Summary: factors and how to pull them out
+
+| Factor Oklab fixes | Observable from the pair? | CAM16 finding | OKLab/OKLCH expression |
+|---|---|---|---|
+| Background luminance, as lightness | **Yes** | Exponent from about 1.36 (near-black) to 2.13 (white); at OKCA's threshold, darker grounds carry less lightness gap | $L^{\gamma(L_{\text{bg}})}$, with $\gamma \approx 1.26 \thinspace c \thinspace (1.48 + L_{\text{bg}}^{1.5})$ |
+| Background luminance, as colourfulness | **Yes** | About 1.5 times on black versus white | Chroma weight as a function of $L_{\text{bg}}$ |
+| Hue (eccentricity) | Yes | Blue about 20% below red per unit $C$ | Hue weight on $C$. Conflicts with OKCA's hue-blind design |
+| Absolute luminance | No | Scales all backgrounds equally | None needed |
+| Surround | No | Small, except at pure black | None |
+| Helmholtz–Kohlrausch | Yes | Not in CAM16 | Out of scope |
+
+**The candidate worth prototyping is the first row.** A background-dependent
+lightness exponent is:
+
+- **ok\*-native.** It uses only OKLab $L$ for both colours.
+- **From CAM16, the basis of CIECAM16 (CIE 248:2022).** It is derived from the
+  model, not fitted to OKCA's outputs, and the results are unchanged under
+  CIECAM16's compression (§8).
+- **A single term.** It addresses the cohesion concern raised about Step 6.
+
+It could replace the flare ceiling, or sit beside it, since flare and
+background induction are separate physical effects. It would also cover the
+mid-dark grounds Step 6 leaves alone.
+
+Before it could be adopted it needs the same work Step 6 had: a mapping from
+lightness gap into OKCA's ratio scale, the four anchors held, and an FP=0
+argument. Unlike Step 6, it would change scores on light grounds too, so the
+97 disagreements would move.
+
+**Caveats.**
+
+- CAM16 describes the appearance of uniform patches, not the legibility of
+  text. $\Delta J'$ is a lightness-gap measure, not a contrast threshold.
+- $Y_b$ is defined as the background around a stimulus. For text, the
+  background colour is the right reading, but the rest of a UI also
+  contributes in practice.
+- The model is fitted mostly to data near $Y_b = 20$. Its behaviour below
+  $Y_b \approx 1$ is extrapolation, hence the clamp.
+
+---
+
+## 7. Prototype: background induction as a darker-element term
+
+> **Applied as Step 4**, with one change from the prototype below: `CHROMA_K`
+> stays at 0.65. The retune to 0.42 held hot pink at 3.6 but loosened dark text
+> on saturated fills, which induction does not reach. On a 262,144-pair grid,
+> 1,338 pairs newly passed AA against 2.0.3. At 0.65 no pair scores higher than
+> in 2.0.3, and hot pink on `#1a1a1a` becomes 3.0. See
+> [`OKCA_DESIGN.md`](OKCA_DESIGN.md) §3.
+
+Reproduce with `npm run induction` (`scripts/induction-prototype.ts`). Nothing
+here is in `src/`.
+
+**The term.** Taking §2's exponent relative to a reference background, the
+$1.26 \thinspace c$ factor cancels:
+
+$$
+s(L_{\text{bg}}) = \min\left(1, \thinspace \frac{1.48 + L_{\text{bg}}^{1.5}}{1.48 + L_{\text{ref}}^{1.5}}\right)
+$$
+
+$1.48$ is CAM16's own constant, and $L_{\text{ref}} = 0.5658$ is OKLab $L$ of
+`#767676`, the background in OKCA's white/`#767676` anchor. **No constant is
+tuned.** The term changes only Step 4: the darker element's proxy becomes
+$L_{\text{darker}}^{3s}$ in place of $L_{\text{darker}}^{3}$.
+
+- On backgrounds at least as light as `#767676`, $s = 1$, so nothing changes.
+- On darker backgrounds the darker element's effective lightness is lifted.
+  This is CAM16's background induction, in the place OKCA's structure already
+  treats each element separately. Step 3 corrects the lighter element for
+  chroma; Step 4 would correct the darker one for its background.
+- Example values: $s = 0.777$ on black, $0.830$ on `#1a1a1a`, $0.903$ on
+  `#444444`.
+
+**Why only the darker element.** CAM16's full form lifts both elements (V4
+below). Lifting the lighter one raises the numerator, which makes pure-black
+pairs *more* lenient and produced **175 false passes** in a 67,396-pair sample.
+Lifting only the darker proxy can only shrink the raw ratio. That keeps the
+FP=0 proof structure intact: lemma B's bound holds a fortiori, because
+$B(d)$ falls as the darker proxy rises. No min() and no new lemma are needed.
+
+**Variants compared.** V0 is 2.0.3. V1 is #25's branch, with the flare
+ceiling. V2 is induction in place of the flare ceiling. V3 is induction plus
+the flare ceiling. V4 is induction on both elements.
+
+**Threshold parity.** Background-aware CAM16-UCS gap $\Delta J'$ of the grey
+that first scores 4.5. The spread excludes pure black, where $J = 0$ and $Y_b$
+is clamped.
+
+| Background | V0 | V1 | V2 | V3 | V4 |
+|---|---:|---:|---:|---:|---:|
+| `#000000` | 62.3 | 70.0 | 62.3 | 70.0 | 53.3 |
+| `#1a1a1a` | 47.6 | 53.3 | 52.3 | 53.3 | 47.3 |
+| `#222222` | 46.3 | 50.9 | 51.6 | 51.6 | 47.3 |
+| `#333333` | 45.1 | 47.7 | 50.6 | 50.6 | 47.7 |
+| `#444444` | 45.6 | 46.3 | 50.2 | 50.2 | 48.7 |
+| `#555555` | 47.2 | 47.2 | 50.4 | 50.4 | 49.9 |
+| `#ffffff` | 63.4 | 63.4 | 63.4 | 63.4 | 63.4 |
+| **Spread** | 18.2 | 17.1 | **13.2** | **13.2** | 16.1 |
+
+Induction gives the most even threshold of the five. It brings the mid-dark
+grounds up to about 50, the range V1 never reached. The remaining spread is
+light-side (`#c8c8c8` at 53.6, white at 63.4), which $s = 1$ leaves alone by
+construction.
+
+**Flare robustness of the same passes** (WCAG ratio at flare 0.10):
+
+| Background | V0 | V1 | V2 | V3 |
+|---|---:|---:|---:|---:|
+| `#000000` | 3.09 | 3.96 | 3.09 | 3.96 |
+| `#1a1a1a` | 3.28 | 3.96 | 3.84 | 3.96 |
+| `#333333` | 3.62 | 3.93 | 4.31 | 4.31 |
+| `#444444` | 3.86 | 3.94 | 4.46 | 4.46 |
+
+Induction alone covers flare well except at pure black, where it changes
+nothing (black's proxy is 0 for any $s$). CAM16 rates pure-black passes at
+parity with white (62.3 against 63.4). The flare argument rates them fragile.
+Here the two physical effects disagree, and it is the one place V2 and V3
+differ.
+
+**Chromatic pairs and `CHROMA_K`.** Lifting a near-black darker proxy also
+tightens chromatic text, which Step 3 already penalises. At `CHROMA_K` = 0.65,
+hot pink on `#1a1a1a` falls from 3.6 to 3.0, and 167 of the 274 AA passes
+lost on dark and mid-dark surfaces are chromatic. Part of Step 3's job is now
+done by Step 4, so the chroma penalty can relax. Sweeping `CHROMA_K` under
+V2:
+
+| `CHROMA_K` | Hot pink | Orange | AA lost: grey / low chroma / chromatic | Disagreements | FP (sample) |
+|---|---:|---:|---|---:|---:|
+| 0.65 | 3.0 | 3.4 | 30 / 77 / 167 | 99 | 0 |
+| 0.50 | 3.4 | 3.8 | 30 / 64 / 112 | 99 | 0 |
+| 0.45 | 3.5 | 4.0 | 30 / 59 / 79 | 99 | 0 |
+| **0.42** | **3.6** | 4.1 | 30 / 57 / 62 | 99 | 0 |
+| 0.40 | 3.7 | 4.1 | 30 / 57 / 57 | 99 | 0 |
+
+At **`CHROMA_K` = 0.42**, hot pink holds its documented 3.6 and dark orange
+moves from 4.2 to 4.1. `npm run fp0`, re-run with `CHROMA_K` = 0.42,
+certifies both lemmas with 0 uncertified boxes. With the monotonicity
+argument above, V2 at 0.42 has FP=0 by proof, not by sampling.
+
+**Other effects of V2 at 0.42**, against 2.0.3:
+
+- **Anchors:** all four unchanged, by construction.
+- **Disagreements:** 97 rises to 99. The two new ones sit exactly on the line,
+  4.5 dropping to 4.4: white on Tailwind lime-700 `#4d7c0f` (WCAG 5.0) and
+  white on GOV.UK blue `#1d70b8` (WCAG 5.2). The flare ceiling left this
+  count at 97.
+- **Design-system palettes on dark and mid-dark surfaces:** 149 AA passes
+  lost (30 grey, 57 low chroma, 62 chromatic). V1 lost 50, almost all on
+  near-black, and none of the mid-dark leniency.
+- **Example scores:** `#cccccc` on `#333333` 7.1 to 5.7; white on `#595959`
+  6.2 to 5.7; `#919191` on `#121212` 5.2 to 4.4; `#888888` on `#000000`
+  unchanged at 5.2.
+
+**Polarity.** $s$ follows the background, as CAM16's $Y_b$ does. In
+dark-on-light pairs the background is the lighter element, so the term
+applies only when dark text sits on a background darker than `#767676`.
+
+**Decisions this prototype hands back:**
+
+1. **Replace Step 6 with induction (V2), or keep both (V3)?** V2 is one term
+   in Step 4, with no min() and no tuned constant. It is the cohesive option,
+   but it returns pure-black passes to 2.0.3's flare fragility. V3 keeps the
+   flare ceiling as a second, physically distinct effect, at the cost of the
+   min() seam.
+2. **Retune `CHROMA_K` to 0.42.** This holds the hot-pink calibration.
+3. **The reference background.** `#767676` keeps the anchors exact and leaves
+   all lighter backgrounds alone. A lighter reference would also address the
+   light-side slope, but it moves the white/`#767676` anchor.
+
+---
+
+## 8. CIECAM16 check and source verification
+
+**CIECAM16.** CIE 248:2022 defines CIECAM16, not CAM16 as Li et al. published
+it. Per the colour-science reference implementation, the only change relevant
+here is in the stimulus response compression. It becomes linear below a cone
+signal of 0.26 and gains a linear tail above 150. The white point keeps the
+original curve. A signal of 0.26 corresponds to roughly `#090909` and darker,
+which is the near-black region these notes depend on, so everything was
+re-run under CIECAM16. Reproduce with `OKCA_CAM=ciecam16 npm run cam16` and
+`OKCA_CAM=ciecam16 npm run induction`.
+
+- §2's exponents move by at most 0.003 (white 2.133 to 2.136, `#1a1a1a` 1.360
+  to 1.363), and the fit stays within 0.19 $J$.
+- §3–§7 print **identical** figures under both models, at the precision shown.
+- The induction prototype is unaffected.
+
+The validation against colorjs.io no longer matches under CIECAM16 (0.011 in
+$J$, 1.6 in $M$, at very dark colours). That is expected, because colorjs.io
+implements CAM16.
+
+**Source verification (2026-10-31).** An independent pass, with no access to
+this investigation's reasoning, re-checked every external citation in these
+notes:
+
+- **Verified:** every CAM16 constant in `scripts/cam16.ts`, checked against
+  colour-science and colorjs.io because the Li et al. full text is paywalled.
+  Also verified: all 27 Machado et al. (2009) coefficients against the
+  authors' project page, and Sharma, Wu & Dalal (2005) as the CIEDE2000
+  reference.
+- **Two statements corrected above:** the CIE-adoption wording in §1 and §6,
+  and the claim that Oklab's $L$ corresponds to a mid-grey background in §2
+  and §3.
+- **Machado matrices:** the authors' page does not state whether they apply
+  to linear or gamma-encoded RGB. Applying them to linear RGB, as here, is
+  the usual practice and is consistent with how they were derived from
+  spectral responses.
+- **Not read directly:** Li et al. 2017 and the CIE 248 full text.

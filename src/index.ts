@@ -15,8 +15,12 @@
  *        satW      = min(1, (C / C_THRESH)²)    // quadratic ramp
  *        exp       = 1 + CHROMA_K × satW         // 1.0 … 1.65
  *        lighterY  = (lighterL ^ exp) ^ 3        // L → luminance proxy
- *   4. Darker element — pure luminance proxy:
- *        darkerY   = darkerL ^ 3
+ *   4. Darker element — background-induced luminance proxy:
+ *        s         = min(1, (IND_Z + bgL^1.5) / (IND_Z + IND_REF_L^1.5))
+ *        darkerY   = darkerL ^ (3 × s)
+ *      CAM16's background induction (docs/CAM16_FINDINGS.md): a background
+ *      darker than the AA boundary grey lifts the darker element's effective
+ *      lightness. s = 1 on lighter backgrounds, where the proxy stays L³.
  *   5. Polarity-aware contrast ratio:
  *        rawRatio  = (lighterY + 0.05) / (darkerY + 0.05)
  *        L-o-D:    ratio = LOD_CAP  × (rawRatio / 21) ^ POL_K
@@ -32,13 +36,17 @@
  *      stray light erodes first (docs/MIDTONE_SURVEY_FINDINGS.md). Never binds
  *      on a white/grey pair.
  *
- * Luminance proxy: L³ (OKLCH L cubed ≈ WCAG Y for neutral grays).
+ * Luminance proxy: L³ (OKLCH L cubed ≈ WCAG Y for neutral grays), raised to
+ * the power s for the darker element on backgrounds darker than #767676.
  *
  * Properties:
  *   - FP = 0 by construction (docs/FP0_PROOF.md): with LOD_CAP < 21 the step-5
  *     ratio is strictly ≤ WCAG for every sRGB pair — reduced to an exact identity
  *     plus two interval-verified single-color lemmas, no calibration-dependent
- *     headroom. Step 6 takes a minimum, so it can only lower the score.
+ *     headroom. Step 4's induction only raises the darker proxy (s ≤ 1, L ≤ 1)
+ *     and Step 6 takes a minimum; both can only lower the score.
+ *   - Background-aware: on backgrounds darker than #767676 the darker element's
+ *     lightness is corrected for the background, following CAM16.
  *   - Flare-robust: a pair scores no higher than the contrast it keeps when the
  *     flare allowance doubles, so dark-mode greys carry the same margin as
  *     light-mode ones at the same score.
@@ -54,8 +62,10 @@ const CHROMA_K = 0.65;  // Power-compression exponent at full saturation
 const POL_K    = 1.100; // Shared polarity power exponent: CAP*(r/21)^k
 const LOD_CAP  = 20.9;  // L-o-D max contrast (< 21 keeps OKCA strictly below WCAG → FP=0 by construction)
 const DOL_CAP  = 20;    // D-o-L max contrast (< L-o-D); proportional polarity penalty
-const FLARE    = 0.10;  // Flare allowance for the step-6 ceiling (2× WCAG's 0.05)
-const FLARE_K  = 1.5;   // Ceiling exponent: the largest that leaves every white/grey pair untouched
+const IND_Z     = 1.48;          // CAM16's lightness-exponent constant, z = 1.48 + sqrt(Yb)
+const IND_REF_L = 0.5658363271;  // OKLab L of #767676: backgrounds at or above it keep s = 1
+const FLARE     = 0.10;  // Flare allowance for the step-6 ceiling (2× WCAG's 0.05)
+const FLARE_K   = 1.5;   // Ceiling exponent: the largest that leaves every white/grey pair untouched
 
 /** Parse any supported color string to Oklab [L, a, b], or null if unrecognised. */
 function parseToOklab(color: string): [number, number, number] | null {
@@ -86,8 +96,11 @@ export class OkcaService {
     const exp      = this.chromaExp(lighterOklab);
     const lighterY = Math.pow(Math.pow(lighterL, exp), 3);
 
-    // Step 4 — darker element: pure luminance proxy (L³)
-    const darkerY  = Math.pow(darkerL, 3);
+    // Step 4 — darker element: luminance proxy with CAM16 background induction.
+    // A darker background flattens the lightness scale, lifting the darker
+    // element's effective lightness; s ≤ 1, so the proxy only rises.
+    const s        = Math.min(1, (IND_Z + Math.pow(bL, 1.5)) / (IND_Z + Math.pow(IND_REF_L, 1.5)));
+    const darkerY  = Math.pow(darkerL, 3 * s);
 
     // Step 5 — polarity-aware scaling: light-on-dark has higher perceived contrast.
     // Both polarities use the same power curve CAP*(r/21)^POL_K; LOD_CAP < 21 keeps
@@ -101,7 +114,9 @@ export class OkcaService {
     // Step 6 — flare-robustness ceiling: the same curve on the uncompressed L³
     // proxies with twice WCAG's flare allowance, re-anchored so white/black is
     // unchanged. A minimum, so it can only lower the score (FP=0 is inherited).
-    const flareRatio = (Math.pow(lighterL, 3) + FLARE) / (darkerY + FLARE);
+    // Flare is physical light added to both patches, so it acts on plain L³ —
+    // not on Step 4's induced proxy, which is a perceptual correction.
+    const flareRatio = (Math.pow(lighterL, 3) + FLARE) / (Math.pow(darkerL, 3) + FLARE);
     const ceiling    = cap * Math.pow(flareRatio / ((1 + FLARE) / FLARE), FLARE_K);
     return parseFloat(Math.max(1, Math.min(21, ratio, ceiling)).toFixed(1));
   }
