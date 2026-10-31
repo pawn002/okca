@@ -13,15 +13,17 @@ const IND_Z = 1.48, IND_REF_L = 0.5658363271;
 const hx = (n: number) => n.toString(16).padStart(2, '0');
 const grey = (v: number) => '#' + hx(v).repeat(3);
 
-/** The full score, with or without Step 4's induction (Step 6's flare ceiling always on). */
+/** The full score, with or without Step 4's induction factor s (opponent-axis terms and Step 6's flare ceiling always on). */
+const w = (o: number[], th: number) => (Math.hypot(o[1], o[2]) + o[1] * Math.cos(th * Math.PI / 180) + o[2] * Math.sin(th * Math.PI / 180)) / 2;
 function scoreWith(fg: string, bg: string, useInduction: boolean): number {
   const t = hexToOklab(fg)!, b = hexToOklab(bg)!;
   const tL = Math.max(0, t[0]), bL = Math.max(0, b[0]);
   if (Math.abs(tL - bL) < 1e-6) return 1;
-  const lod = tL > bL, lL = Math.max(tL, bL), dL = Math.min(tL, bL), lt = lod ? t : b;
-  const exp = 1 + 0.65 * Math.min(1, (Math.hypot(lt[1], lt[2]) / 0.15) ** 2);
+  const lod = tL > bL, lL = Math.max(tL, bL), dL = Math.min(tL, bL), lt = lod ? t : b, dt = lod ? b : t;
+  const exp = 1 + 0.65 * Math.min(1, (w(lt, 9.4) / 0.15) ** 2);
+  const eD = 1 + 0.09 * Math.min(1, (w(dt, 313.7) / 0.15) ** 2);
   const s = useInduction ? Math.min(1, (IND_Z + bL ** 1.5) / (IND_Z + IND_REF_L ** 1.5)) : 1;
-  const r = ((lL ** exp) ** 3 + 0.05) / (dL ** (3 * s) + 0.05);
+  const r = ((lL ** exp) ** 3 + 0.05) / (dL ** ((3 * s) / eD) + 0.05);
   const cap = lod ? 20.9 : 20;
   const ceiling = cap * (((lL ** 3 + 0.1) / (dL ** 3 + 0.1)) / 11) ** 1.5;
   return parseFloat(Math.max(1, Math.min(21, cap * (r / 21) ** 1.1, ceiling)).toFixed(1));

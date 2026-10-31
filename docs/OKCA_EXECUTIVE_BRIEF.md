@@ -15,7 +15,7 @@ property is safety: **it is never more permissive than WCAG.** Every score lands
 below the WCAG score for the same pair, so a pair that clears OKCA always clears WCAG.
 That property is verified across the full sRGB gamut (an exact identity plus
 interval-checked lemmas, `docs/FP0_PROOF.md`). A 1,249-pair audit across Tailwind, GOV.UK
-Design System, and USWDS found zero false passes and flagged 99 pairs that WCAG passes but
+Design System, and USWDS found zero false passes and flagged 109 pairs that WCAG passes but
 practitioners consistently reject as inadequate.
 
 ---
@@ -61,7 +61,7 @@ simulations do not flag these pairs. The weakness is in the luminance margin.
 
 These are not rare conditions. A structured audit of three production design systems
 — Tailwind CSS v3.4, GOV.UK Design System, and USWDS v3.x —
-found **99 pairs** that pass WCAG 2.x AA while sitting in the marginal zone
+found **109 pairs** that pass WCAG 2.x AA while sitting in the marginal zone
 practitioners and user research consistently flag as inadequate.
 
 ---
@@ -85,6 +85,16 @@ element's luminance proxy is compressed by a power exponent that scales with Okl
 chroma. Achromatic pairs are unaffected. Vivid chromatic lighter elements — the
 failure zone — score lower than an achromatic element at equivalent OKLCH L. Hot
 pink on near-black: WCAG 6.6, OKCA 3.0.
+
+**The penalty follows colour-vision deficiency, hue by hue.** About 8% of men of
+Northern European descent have red–green colour-vision deficiency. Dichromats
+lose much of the contrast of reds, oranges and magentas, and little of greens,
+blues and purples. OKCA weights its chroma penalty along the direction in Oklab
+where that loss is greatest, essentially the red–green opponent axis, and adds a
+small matching lift to dark text in the hues where dichromats see it as lighter.
+The directions are measured, not tuned, and there is no hue branch. On a
+262,144-pair test grid no OKCA score exceeds what a dichromat sees. Reds stay
+exactly as strict as before; saturated blue on black moves from 2.4 to 3.6.
 
 **The darker colour is corrected for its background.** On any background darker
 than the AA boundary grey `#767676`, OKCA applies CAM16's background effect to the
@@ -152,7 +162,7 @@ existing compliance postures. It catches what WCAG 2.x misses without requiring
 organisations to re-baseline.
 
 For working group purposes, the algorithm and its calibration corpus are open and
-auditable. The 99-pair disagreement dataset (see `docs/WCAG_DISAGREEMENTS.md`)
+auditable. The 109-pair disagreement dataset (see `docs/WCAG_DISAGREEMENTS.md`)
 documents exactly where OKCA and WCAG 2.x diverge, by design system, colour family,
 and polarity — a resource for empirical comparison with APCA scoring on the same
 pairs.
@@ -167,9 +177,9 @@ pairs.
 | Scale | 1–21 | 1–21 |
 | AA / AAA thresholds | 4.5 / 7.0 | 4.5 / 7.0 |
 | Polarity | Symmetric | Asymmetric |
-| Chromatic lighter element | Over-rated | Chroma-penalised |
+| Chromatic lighter element | Over-rated | Penalised where colour-vision deficiency loses contrast |
 | Background | Ignored | Corrected on dark backgrounds (CAM16) |
 | Margin on near-black backgrounds | Smaller than on light | Matched (flare cap) |
 | False passes vs. WCAG 2.x | Reference | **Zero** (verified across sRGB: exact identity + interval-checked lemmas) |
-| Marginal pairs flagged in audit | 0 of 99 | 99 of 99 |
+| Marginal pairs flagged in audit | 0 of 109 | 109 of 109 |
 | Deployable today | Yes | Yes |

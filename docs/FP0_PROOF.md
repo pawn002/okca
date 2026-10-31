@@ -6,12 +6,18 @@ arithmetic** — no calibration-dependent headroom, no residual. Reproduce:
 `npm run fp0` (certifies with **0 uncertified boxes**).
 
 Constants: `POL_K` = 1.100, `CHROMA_K` = 0.65, `LOD_CAP` = 20.9, `DOL_CAP` = 20,
-`IND_Z` = 1.48, `IND_REF_L` = 0.5658, `FLARE` = 0.10, `FLARE_K` = 1.5.
+`IND_Z` = 1.48, `IND_REF_L` = 0.5658, `OPP_THETA_L` = 9.4°, `OPP_THETA_D` = 313.7°,
+`OPP_K_D` = 0.09, `FLARE` = 0.10, `FLARE_K` = 1.5.
+
+The lighter proxy $Y_{\text{lighter}}$ below is Step 3's, whose exponent is driven
+by the opponent-axis weight $w_L = (C + a \cos\theta_L + b \sin\theta_L)/2$, not by
+chroma $C$ alone (§4 verifies lemma A under it).
 
 The proof below is stated for the step-5 score with the darker proxy
 $L_{\text{darker}}^{3}$. Two later changes can only lower the score, so the
-bound carries over to the published score. Step 4's background induction raises
-the darker proxy to $L_{\text{darker}}^{3s}$ with $s \le 1$ (§5). Step 6, the
+bound carries over to the published score. Step 4's background induction and
+opponent-axis lift raise the darker proxy to $L_{\text{darker}}^{3s/e_D}$ with
+$3s/e_D \le 3$ (§5). Step 6, the
 flare-robustness ceiling, takes a minimum with the step-5 score (§6).
 
 ## 1. Algebraic reduction
@@ -93,8 +99,13 @@ Result (`npm run fp0`):
 
 | lemma | boxes | certified | equality corners | **uncertified** |
 |-------|------:|----------:|-----------------:|----------------:|
-| $A(l) \le A(\text{white}) \cdot s$ | ~96k | all | 0 | **0** |
+| $A(l) \le A(\text{white}) \cdot s$ | ~139k | all | 0 | **0** |
 | $B(d) \le B(\text{black}) \cdot s$ | ~272k | all | 0 | **0** |
+
+Lemma A is run under the opponent-axis weight. The verifier encloses $w_L$ from
+the enclosures of $a$ and $b$, clamped at $0$; the clamp is exact, since
+$|a \cos\theta + b \sin\theta| \le C$. The weaker penalty takes more boxes than the
+2.x chroma ramp (about 96k, `OKCA_WEIGHT=chroma`), but every box certifies.
 
 Every sRGB point is certified; the slack $s > 1$ from the lowered cap lets even
 the anchors certify, so no neighbourhood is excluded.
@@ -104,13 +115,15 @@ the anchors certify, so no neighbourhood is excluded.
 Step 4 replaces the darker proxy with
 
 $$
-Y_{\text{darker}} = L_{\text{darker}}^{3s}, \qquad s = \min\left(1, \thinspace \frac{1.48 + L_{\text{bg}}^{1.5}}{1.48 + L_{\text{ref}}^{1.5}}\right) \le 1.
+Y_{\text{darker}} = L_{\text{darker}}^{3s/e_D}, \qquad s = \min\left(1, \thinspace \frac{1.48 + L_{\text{bg}}^{1.5}}{1.48 + L_{\text{ref}}^{1.5}}\right) \le 1, \qquad e_D \ge 1,
 $$
 
-For $L_{\text{darker}} \in [0, 1]$ and $s \le 1$, $L_{\text{darker}}^{3s} \ge L_{\text{darker}}^{3}$.
+where $s$ is background induction and $e_D = 1 + K_D \cdot \text{ramp}(w_D)$ is the
+opponent-axis lift. For $L_{\text{darker}} \in [0, 1]$, $3s/e_D \le 3$ gives
+$L_{\text{darker}}^{3s/e_D} \ge L_{\text{darker}}^{3}$.
 In $B(d)$ the darker proxy appears only in the denominator, raised to $k > 0$,
-so $B(d)$ can only fall. Lemma (L-B) therefore holds a fortiori, and lemma (L-A)
-is untouched because the lighter proxy does not change. The identity, the
+so $B(d)$ can only fall. Lemma (L-B) therefore holds a fortiori. Lemma (L-A)
+does not involve the darker element. The identity, the
 strict margin and the conclusion below apply unchanged. No new lemma is needed.
 
 ## 6. Step 6 inherits the bound
@@ -120,7 +133,7 @@ The published score is
 $$\text{score} = \min\left(\text{OKCA}, \thinspace \text{ceiling}\right) \le \text{OKCA},$$
 
 where the ceiling is the flare-robustness term of step 6
-([`OKCA_DESIGN.md`](OKCA_DESIGN.md) §7). It is computed on the plain $L^3$ proxies, not on Step 4's induced one. Whatever value the ceiling takes, a
+([`OKCA_DESIGN.md`](OKCA_DESIGN.md) §7). It is computed on the plain $L^3$ proxies, not on Step 4's induced and lifted one. Whatever value the ceiling takes, a
 minimum never exceeds either argument. So every bound proved here for the
 step-5 score, including Step 4's, holds for the published score, with no new lemma. Rounding to
 one decimal place is monotone and preserves it as well.

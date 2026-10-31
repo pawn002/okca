@@ -18,6 +18,8 @@ const IND_Z     = 1.48;
 const IND_REF_L = 0.5658363271;
 const FLARE     = 0.10;
 const FLARE_K   = 1.5;
+const OPP_THETA_L = 9.4, OPP_THETA_D = 313.7, OPP_K_D = 0.09;
+const w = (o: number[], th: number) => (Math.hypot(o[1], o[2]) + o[1] * Math.cos(th * Math.PI / 180) + o[2] * Math.sin(th * Math.PI / 180)) / 2;
 
 function refContrast(textColor: string, bgColor: string): number | null {
   let tp: Color, bp: Color;
@@ -35,17 +37,16 @@ function refContrast(textColor: string, bgColor: string): number | null {
   const darker   = isBoW ? tp : bp;
   const darkerL  = isBoW ? tL : bL;
 
-  // Step 3
-  const oklab1 = lighter.to('oklab');
-  const a1 = oklab1.coords[1], b1 = oklab1.coords[2];
-  const C = Math.sqrt(a1 * a1 + b1 * b1);
-  const satW = Math.min(1, (C / C_THRESH) ** 2);
+  // Step 3 — opponent-axis weight
+  const oklab1 = lighter.to('oklab').coords as number[];
+  const satW = Math.min(1, (w(oklab1, OPP_THETA_L) / C_THRESH) ** 2);
   const exp = 1 + CHROMA_K * satW;
   const lighterY = Math.pow(Math.pow(lighterL, exp), 3);
 
   // Step 4 — luminance proxy with background induction
   const s = Math.min(1, (IND_Z + Math.pow(bL, 1.5)) / (IND_Z + Math.pow(IND_REF_L, 1.5)));
-  const darkerY = Math.pow(darkerL, 3 * s);
+  const eD = 1 + OPP_K_D * Math.min(1, (w(darker.to('oklab').coords as number[], OPP_THETA_D) / C_THRESH) ** 2);
+  const darkerY = Math.pow(darkerL, (3 * s) / eD);
 
   // Step 5 — polarity-aware scaling
   const isLightOnDark = tL > bL;

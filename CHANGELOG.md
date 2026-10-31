@@ -7,16 +7,28 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
-**Breaking — release as 3.0.0.** Two independent corrections for dark backgrounds, from [#25](https://github.com/pawn002/okca/issues/25) and [#26](https://github.com/pawn002/okca/issues/26), combined by merge. `contrast()` returns lower scores for pairs on backgrounds darker than `#767676`, and for grey and near-grey colours paired with near-black ones in either role. No score rises against 2.0.3. The four anchors are unchanged.
+**Breaking — release as 3.0.0.** Three changes, each researched on its own branch and combined by merge: a flare-robustness ceiling ([#25](https://github.com/pawn002/okca/issues/25)), CAM16 background induction ([#26](https://github.com/pawn002/okca/issues/26)) and opponent-axis chroma terms ([#28](https://github.com/pawn002/okca/issues/28)). Dark-background pairs and saturated warm colours score lower; saturated cool colours score higher. The four anchors are unchanged.
 
 ### Combined effect against 2.0.3
-- On a 262,144-pair sRGB grid, no pair scores higher. 2,338 pairs lose AA and 956 lose AAA.
-- Tailwind, GOV.UK and USWDS palettes as light text on 15 dark and mid-dark surfaces: 286 pairs lose AA and 505 lose AAA. Black, `#111111` and `#1a1a1a` text on the palette fills: 15 pairs lose AA.
-- Examples: `#888888` on `#000000` 5.2 → 3.7 (Step 6); `#cccccc` on `#333333` 7.1 → 5.7 (Step 4); `#9f9f9f` on `#1a1a1a` 5.8 → 4.7; white on `#111111` 18.6 → 15.8; hot pink on `#1a1a1a` 3.6 → 3.0; dark orange 4.2 → 3.4; `#000000` on `#767676` 3.8 → 2.6.
-- WCAG disagreements 97 → 99 (Tailwind 35, GOV.UK 14, USWDS 50).
-- 46 curated probe values moved, all down. Eleven crossed 7.0 and one crossed 4.5 (white on `#3a7d44`, 4.6 → 4.4).
-- FP = 0 needs no new lemma for either step (`docs/FP0_PROOF.md` §5–§6). `npm run fp0` certifies with 0 uncertified boxes.
-- The flare ceiling acts on plain L³, not on Step 4's induced proxy. Flare is physical light added to both patches; induction is a perceptual correction, and applying both to one denominator would count the background twice.
+- On a 262,144-pair sRGB grid, 93,639 pairs rise and 35,771 fall; 2,840 newly pass AA and 1,525 lose it. No pair scores above WCAG, and none scores above what a dichromat sees (Machado et al. 2009, severity 1.0).
+- Examples: `#888888` on `#000000` 5.2 → 3.7 (Step 6); `#cccccc` on `#333333` 7.1 → 5.7 (Step 4); `#9f9f9f` on `#1a1a1a` 5.8 → 4.7; hot pink on `#1a1a1a` 3.6 → 3.0; blue `#3b82f6` on black 2.4 → 3.6 (Steps 3 and 6); green `#22c55e` on black 4.3 → 6.0; `#1d4ed8` on white 5.3 → 4.6.
+- WCAG disagreements 97 → 109 (Tailwind 45, GOV.UK 14, USWDS 50).
+- 67 curated probe values moved, 63 down and 4 up. Fourteen crossed 7.0 and one crossed 4.5 (white on `#3a7d44`, 4.6 → 4.4).
+- FP = 0 needs no new lemma for Steps 4 and 6 (`docs/FP0_PROOF.md` §5–§6), and lemma A is re-verified under Step 3's opponent weight. `npm run fp0` certifies with 0 uncertified boxes.
+- The flare ceiling acts on plain L³, not on Step 4's induced and lifted proxy. Flare is physical light added to both patches; induction and the opponent-axis lift are perceptual corrections, and applying both to one denominator would count them twice.
+- Where both bind, the lower wins. On pure black the flare ceiling caps the eased cool colours: blue `#3b82f6` is 4.4 from the opponent terms alone and 3.6 with Step 6.
+
+### Changed — opponent-axis chroma terms ([#28](https://github.com/pawn002/okca/issues/28))
+- **Step 3's chroma ramp is weighted along Oklab's opponent axes.** It is driven by `w = (C + a·cos θ_L + b·sin θ_L) / 2` instead of chroma `C`. That is chroma in direction `θ_L`, half at 90° and zero opposite: linear in `a` and `b`, with no hue branch. `OPP_THETA_L` = 9.4°, essentially Oklab's +a axis, is the direction in which colour-vision deficiency loses the most contrast for light colours on dark backgrounds. Reds, oranges and magentas keep the full penalty; blues and greens, which dichromats see with little loss, carry much less of it.
+- **Step 4 lifts the darker element along its own direction.** `OPP_THETA_D` = 313.7°, the direction of loss for dark colours on light backgrounds. Its strength `OPP_K_D` = 0.09 is the smallest at which no pair on a 262,144-pair grid scores above what a dichromat sees (Machado et al. 2009, severity 1.0). It only raises the darker proxy. Without it, easing the lighter penalty exposed dark saturated text on light fills, which the hue-uniform penalty had been covering by accident.
+- **No constant is tuned.** Both directions are measured from CVD data, and `npm run opponent` re-derives them.
+- **Effect against the line before this change:**
+  - Pairs scoring above what a dichromat sees fall from 243 to 0, including 11 AA passes a dichromat fails.
+  - Hot pink, pure red, dark orange and every anchor are unchanged.
+  - Blue `#3b82f6` on black 2.4 → 4.4; green `#22c55e` on black 4.3 → 7.7; `#1d4ed8` on white 5.3 → 4.6.
+- **WCAG disagreements 99 → 109** (Tailwind 45). The ten new ones are Tailwind saturated 600–700 shades in the purple–magenta–red range. 49 curated probe values moved: 37 down and 12 up. Nine crossed 7.0; none crossed 4.5.
+- **Design principle changed.** The chroma terms are no longer rotationally symmetric in Oklab; they are weighted along its opponent axes (`docs/OKCA_DESIGN.md` §2.4).
+- **FP = 0 re-verified.** Lemma A certifies under the opponent weight with 0 uncertified boxes; lemma B holds a fortiori. `npm run fp0` now runs the opponent weight by default; `OKCA_WEIGHT=chroma` re-runs the 2.x ramp.
 
 ### Changed — Step 4, background induction ([#26](https://github.com/pawn002/okca/issues/26))
 - **Step 4 — background induction (CAM16).** On a background darker than the AA boundary grey, the darker element's proxy becomes `L^(3s)` instead of `L³`, with `s = min(1, (1.48 + L_bg^1.5) / (1.48 + L_ref^1.5))`. `L_bg` is the background's OKLab L and `L_ref` = 0.5658 is OKLab L of `#767676`. CAM16 shows a darker background flattens the lightness scale; at the AA line, a just-passing grey on `#1a1a1a` carried 25% less background-aware CAM16 lightness gap than one on white. The term uses CAM16's own constant and no tuned value. It applies only to the darker element, because CAM16's full form, lifting both, produced false passes.
@@ -33,6 +45,8 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - `docs/CAM16_FINDINGS.md`, with `npm run cam16`, `npm run induction` and `scripts/cam16.ts`. The survey measures which viewing-condition factors Oklab fixes, and prototypes the term above. `OKCA_CAM=ciecam16` re-runs everything under CIECAM16 (CIE 248:2022), with identical results.
 - `src/__tests__/background-induction.spec.ts` — pins mid-tones on dark backgrounds and asserts that the term is the identity on backgrounds at least as light as `#767676` and never raises a score.
 - Both specs check their step against the full score: `background-induction.spec.ts` includes the flare ceiling in its reference, and `flare-ceiling.spec.ts` includes induction.
+- `docs/CVD_FINDINGS.md` (`npm run cvd`) and `docs/OPPONENT_AXIS_FINDINGS.md` (`npm run opponent`): the CVD survey and the derivation of the opponent-axis terms. `scripts/cvd.ts` is the shared CVD yardstick. It lives outside the algorithm.
+- `src/__tests__/opponent-axis.spec.ts` — pins warm and cool behaviour, and asserts that the weight stays within [0, C] and that greys are untouched.
 
 ## [2.0.3] - 2026-08-13
 
