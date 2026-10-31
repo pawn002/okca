@@ -29,7 +29,8 @@
     "fp0": "tsc -p tsconfig.scripts.json && node dist-scripts/scripts/fp0-proof.js",
     "capcost": "tsc -p tsconfig.scripts.json && node dist-scripts/scripts/cap-cost.js",
     "midtone": "tsc -p tsconfig.scripts.json && node dist-scripts/scripts/midtone-survey.js",
-    "cam16": "tsc -p tsconfig.scripts.json && node dist-scripts/scripts/cam16-survey.js"
+    "cam16": "tsc -p tsconfig.scripts.json && node dist-scripts/scripts/cam16-survey.js",
+    "induction": "tsc -p tsconfig.scripts.json && node dist-scripts/scripts/induction-prototype.js"
   },
   "devDependencies": {
     "colorjs.io": "^0.5.2",
