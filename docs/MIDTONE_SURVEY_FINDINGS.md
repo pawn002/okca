@@ -208,3 +208,65 @@ gray-40 on `#121212` goes from 5.2 to 3.9.
 Accepted side effect: black on light tints moves at the top of the scale
 (black on `#add8e6`: 12.0 to 10.8). No verdict changes, but five curated
 probe values moved.
+
+---
+
+## 6. Scientific basis for the flare term (notes, 2026-10-30)
+
+Research notes, not yet worked into the design doc.
+
+**The term is WCAG's own.** The `0.05` in the WCAG ratio is a flare term. The
+working group stated its source in a 2007 response to public comments: "The .05
+value used is based on Typical Viewing Flare from IEC/4WD 61966-2-1 and the sRGB
+paper by M. Stokes et al." The same response cites ANSI/HFS 100-1988 as calling
+for "the contribution from ambient light to be included in the calculation" of
+the two luminances
+([W3C, LC-1235](https://lists.w3.org/Archives/Public/public-comments-wcag20/2007May/0070.html)).
+Step 6 therefore re-uses a mechanism already in the formula at a second level.
+It does not add a new concept.
+
+**Display metrology uses the same structure.** An *ambient contrast ratio* adds
+reflected room light to both the white and the black before dividing. The
+measurement method is in the ICDM Information Display Measurements Standard
+(IDMS). Vendor summaries:
+[Daktronics](https://www.daktronics.com/en-us/learning-and-resources/ambient-contrast-ratio),
+[Barco](https://www.barco.com/en/support/knowledge-base/KB7981).
+
+**A physical reading of the value.** Secondary sources give sRGB's "typical"
+viewing environment as about 200 lx with 5% flare
+([Wikipedia: sRGB](https://en.wikipedia.org/wiki/SRGB)). The 1996 proposal
+([Stokes et al.](https://www.w3.org/Graphics/Color/sRGB.html)) encodes at
+64 lx and mentions about 200 lx as typical. Reflected luminance scales
+linearly with illuminance, so for a fixed display:
+
+- $F = 0.10$ corresponds to about 400 lx;
+- EN 12464-1 calls for a maintained 500 lx for reading and screen work
+  ([vendor summary](https://www.performanceinlighting.com/ww/en/en-12464-1)),
+  which corresponds to about $F = 0.125$.
+
+On that reading, Step 6 evaluates WCAG's own flare model at office lighting
+rather than in a dim room, and $0.10$ is the cautious end. The survey shows
+$F = 0.125$ is also feasible, with an exponent limit of 1.695, but stricter.
+
+**Limits of the basis.**
+
+- The **min() composition** and the **`FLARE_K` constraint** are OKCA
+  engineering. No reference prescribes them. They are what it takes to apply a
+  harsher flare level without disturbing the FP=0 proof or the anchors.
+- Linear scaling with illuminance assumes fixed display luminance and
+  reflectance.
+- IEC 61966-2-1, IDMS and ISO 9241-307 are paywalled and were **not read
+  directly**. The 5% / 200 lx pairing comes from secondary sources. Verify it
+  against IEC 61966-2-1 before citing it to a standards audience.
+
+**Open question raised along the way: polarity.** The reading literature finds
+the opposite of OKCA's polarity ordering. Buchner & Baumgartner (2007),
+"Text-background polarity affects performance irrespective of ambient
+illumination and colour contrast," *Ergonomics* 50, 1036–1063, and Piepenbrock,
+Mayr & Buchner (2013, 2014) are cited for dark text on a light background
+outperforming the reverse. Mathôt & Ivanov
+([2019, PeerJ](https://peerj.com/articles/8220)) summarise this literature and
+dispute the pupil-size explanation for it. These papers were seen through
+citations only. Those findings support tightening light-on-dark, but they
+question `LOD_CAP` (20.9) sitting above `DOL_CAP` (20). Not addressed by this
+change.
