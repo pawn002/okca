@@ -213,7 +213,10 @@ probe values moved.
 
 ## 6. Scientific basis for the flare term (notes, 2026-10-30)
 
-Research notes, not yet worked into the design doc.
+Research notes, not yet worked into the design doc. Every citation below was
+re-checked on 2026-10-31 by an independent pass with no access to this
+investigation's reasoning. Corrections from that pass are worked in, and what
+could not be read directly is listed at the end.
 
 **The term is WCAG's own.** The `0.05` in the WCAG ratio is a flare term. The
 working group stated its source in a 2007 response to public comments: "The .05
@@ -226,27 +229,47 @@ Step 6 therefore re-uses a mechanism already in the formula at a second level.
 It does not add a new concept.
 
 **Display metrology uses the same structure.** An *ambient contrast ratio* adds
-reflected room light to both the white and the black before dividing. The
-measurement method is in the ICDM Information Display Measurements Standard
-(IDMS). Vendor summaries:
-[Daktronics](https://www.daktronics.com/en-us/learning-and-resources/ambient-contrast-ratio),
-[Barco](https://www.barco.com/en/support/knowledge-base/KB7981).
+reflected room light to both the white and the black before dividing.
+[Daktronics](https://www.daktronics.com/en-us/learning-and-resources/ambient-contrast-ratio)
+points to the ICDM Information Display Measurements Standard (IDMS v1.2) and
+IEC 62977-2-2:2020 for the measurement method. Barco's
+["luminance ratio"](https://www.barco.com/en/support/knowledge-base/KB7981)
+has the same add-to-both structure. The structure is confirmed only by these
+vendor pages; neither standard was read.
 
-**A physical reading of the value.** Secondary sources give sRGB's "typical"
-viewing environment as about 200 lx with 5% flare
-([Wikipedia: sRGB](https://en.wikipedia.org/wiki/SRGB)). The 1996 proposal
-([Stokes et al.](https://www.w3.org/Graphics/Color/sRGB.html)) encodes at
-64 lx and mentions about 200 lx as typical. Reflected luminance scales
-linearly with illuminance, so for a fixed display:
+**A physical reading of the value.** Stokes et al. (1996), the sRGB paper WCAG
+cites, specify two environments in their own table
+([W3C copy](https://www.w3.org/Graphics/Color/sRGB.html)): an encoding
+environment of 64 lx with 1.0% viewing flare, and a typical office environment
+of 200 lx with 5.0% "Typical Viewing Flare" ("specified to be 5.0% of the
+maximum white-luminance level"). WCAG's $0.05$ is the latter. The final IEC
+61966-2-1:1999 reference condition, as the
+[ICC registry](https://registry.color.org/rgb-registry/srgb) summarises it,
+keeps only the 64 lx condition and does not appear to carry the 200 lx / 5%
+pair.
 
-- $F = 0.10$ corresponds to about 400 lx;
-- EN 12464-1 calls for a maintained 500 lx for reading and screen work
-  ([vendor summary](https://www.performanceinlighting.com/ww/en/en-12464-1)),
-  which corresponds to about $F = 0.125$.
+If reflected luminance scaled linearly with illuminance on a fixed display:
 
-On that reading, Step 6 evaluates WCAG's own flare model at office lighting
-rather than in a dim room, and $0.10$ is the cautious end. The survey shows
-$F = 0.125$ is also feasible, with an exponent limit of 1.695, but stricter.
+- $F = 0.10$ would correspond to about 400 lx;
+- EN 12464-1 specifies a maintained **task-area** illuminance of 500 lx for
+  writing, typing, reading and data processing
+  ([vendor summary](https://www.performanceinlighting.com/ww/en/en-12464-1);
+  the 2021 edition also lists a "modified" 1000 lx), which would correspond
+  to about $F = 0.125$.
+
+Two things weaken that mapping, so treat it as an order of magnitude, not a
+derivation:
+
+- **Stokes's own two conditions are not proportional.** From 64 lx to 200 lx
+  the light rises 3.1 times but the flare 5 times. Linear scaling from
+  200 lx / 5% predicts about 1.6% at 64 lx, not 1%.
+- **EN 12464-1's figure is task-area illuminance**, normally on the horizontal
+  work plane. Screen reflections depend on the vertical illuminance at the
+  display, which is usually lower.
+
+On that reading, Step 6 evaluates WCAG's own flare model at roughly office
+lighting rather than a dim room. The survey shows $F = 0.125$ is also
+feasible, with an exponent limit of 1.695, but stricter.
 
 **Limits of the basis.**
 
@@ -255,18 +278,38 @@ $F = 0.125$ is also feasible, with an exponent limit of 1.695, but stricter.
   harsher flare level without disturbing the FP=0 proof or the anchors.
 - Linear scaling with illuminance assumes fixed display luminance and
   reflectance.
-- IEC 61966-2-1, IDMS and ISO 9241-307 are paywalled and were **not read
-  directly**. The 5% / 200 lx pairing comes from secondary sources. Verify it
-  against IEC 61966-2-1 before citing it to a standards audience.
+- **Not read directly:** IEC 61966-2-1 and its 4WD draft, EN 12464-1, IDMS,
+  IEC 62977-2-2 and ISO 9241-307. They are paywalled or were unreachable. The
+  200 lx / 5% figures are primary-sourced to Stokes et al. Do not expect to
+  find them in the final IEC standard.
 
 **Open question raised along the way: polarity.** The reading literature finds
-the opposite of OKCA's polarity ordering. Buchner & Baumgartner (2007),
-"Text-background polarity affects performance irrespective of ambient
-illumination and colour contrast," *Ergonomics* 50, 1036–1063, and Piepenbrock,
-Mayr & Buchner (2013, 2014) are cited for dark text on a light background
-outperforming the reverse. Mathôt & Ivanov
-([2019, PeerJ](https://peerj.com/articles/8220)) summarise this literature and
-dispute the pupil-size explanation for it. These papers were seen through
-citations only. Those findings support tightening light-on-dark, but they
-question `LOD_CAP` (20.9) sitting above `DOL_CAP` (20). Not addressed by this
-change.
+the opposite of OKCA's polarity ordering. All of these report better
+performance with positive polarity, meaning dark text on a light background:
+
+- Buchner & Baumgartner (2007), "Text–background polarity affects performance
+  irrespective of ambient illumination and colour contrast," *Ergonomics*
+  50, 1036–1063 (doi:10.1080/00140130701306413). Proofreading was
+  "consistently better with positive polarity… independent of ambient
+  lighting… and of chromaticity."
+- Piepenbrock, Mayr, Mund & Buchner (2013), "Positive display polarity is
+  advantageous for both younger and older adults," *Ergonomics* 56(7),
+  1116–1124.
+- Piepenbrock, Mayr & Buchner (2014a), "Positive display polarity is
+  particularly advantageous for small character sizes: implications for
+  display design," *Human Factors* 56(5), 942–951.
+- Piepenbrock, Mayr & Buchner (2014b), "Smaller pupil size and better
+  proofreading performance with positive than with negative polarity
+  displays," *Ergonomics* 57(11), 1670–1677. It finds smaller pupils with
+  positive polarity, and results "compatible with the hypothesis that the
+  positive polarity advantage is an effect of display luminance."
+
+Mathôt & Ivanov ([2019, PeerJ](https://doi.org/10.7717/peerj.8220)), "The effect
+of pupil size and peripheral brightness on detection and discrimination
+performance," *qualify* the pupil-size account rather than dispute it. Small
+pupils help discrimination "only for very small stimuli that are at the
+threshold of visual acuity," large pupils help detection, and "whether a
+positive or a negative polarity is best depends on many factors."
+
+These findings support tightening light-on-dark, but they question `LOD_CAP`
+(20.9) sitting above `DOL_CAP` (20). Not addressed by this change.

@@ -5,7 +5,7 @@
  * Oklab is a fixed-condition space: one white, one adaptation state, one
  * background, one surround, no absolute luminance. CAM16 (Li et al. 2017,
  * "Comprehensive color solutions: CAM16, CAT16, and CAM16-UCS", Color Res Appl
- * 42:703–718; CIE 248:2022) takes those as inputs. Varying them one at a time
+ * 42:703–718; basis of CIECAM16, CIE 248:2022) takes those as inputs. Varying them one at a time
  * shows what Oklab abstracts:
  *
  *   0. Validation against colorjs.io's cam16-jmh at its default conditions.
@@ -25,7 +25,9 @@ import Color from 'colorjs.io';
 import { hexToOklab, hexToOklch } from '../src/transforms';
 import { contrast } from '../src/index';
 
-import { V3, lin, hx, grey, xyz, Ywcag, Surround, Env, DEFAULT, cam16, bgEnv } from './cam16';
+import { V3, lin, hx, grey, xyz, Ywcag, Surround, Env, DEFAULT, cam16, bgEnv , MODEL } from './cam16';
+
+console.log(`colour appearance model: ${MODEL}`);
 
 const pad = (s: string | number, n: number) => String(s).padStart(n);
 
