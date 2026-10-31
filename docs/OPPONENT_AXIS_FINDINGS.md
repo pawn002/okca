@@ -1,8 +1,13 @@
 # Opponent-Axis Terms — Prototype Findings
 
 Research notes for [#28](https://github.com/pawn002/okca/issues/28). Builds on
-the CVD survey in [`CVD_FINDINGS.md`](CVD_FINDINGS.md). This is *analysis*:
-nothing here is in `src/`.
+the CVD survey in [`CVD_FINDINGS.md`](CVD_FINDINGS.md).
+
+> **Applied** as the paired design (§3, $K_D$ = 0.09) in `src/index.ts`: Step 3's
+> ramp and Step 4's darker lift. See [`OKCA_DESIGN.md`](OKCA_DESIGN.md) §2.4 and §5.
+> The prototype figures below were measured against the line before this change.
+> `npm run opponent` now runs on top of the applied change, so its "current"
+> column is the paired design itself.
 
 Reproduce:
 

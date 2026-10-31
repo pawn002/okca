@@ -57,9 +57,13 @@ The cube-root perceptual transform inverts to linear luminance. Using L as the p
 
 ### 2.4 Pure OKLCH/Oklab — No WCAG Hybrid Patches
 
-OKCA is derived entirely from OKLCH and Oklab geometry. The chroma compression (Step 3) operates on Oklab chroma $C = \sqrt{a^2 + b^2}$ — the Euclidean distance from the achromatic axis in ab-space. This is rotationally symmetric: two colours at the same chroma magnitude receive the same penalty regardless of hue angle. The formula contains no hue branch and treats the $a$ and $b$ channels symmetrically.
+OKCA is derived entirely from OKLCH and Oklab geometry. The chroma terms (Steps 3 and 4) are weighted along **Oklab's opponent axes**: a colour's weight is a projection of its $(a, b)$ coordinates onto a fixed direction,
 
-In practice, outcomes do vary across hues because different hues reach different C values at any given lightness — warm reds and magentas typically achieve higher chroma than blues or greens at similar L, so the penalty lands harder on those hues. That variation is a consequence of Oklab geometry, not an explicit algorithmic choice.
+$$
+w = \frac{C + a \cos\theta + b \sin\theta}{2}
+$$
+
+which is $C$ in direction $\theta$, $C/2$ at 90° from it and $0$ opposite. It is linear in $a$ and $b$, and there is **no hue branch**: no hue ranges and no conditions on hue angle. It is deliberately *not* rotationally symmetric. Before 3.0 the penalty used chroma $C$ alone and treated every hue the same. Colour-vision deficiency does not: dichromats lose much of the contrast of reds, oranges and magentas, and little of greens, blues and purples ([`CVD_FINDINGS.md`](CVD_FINDINGS.md)). The two directions are the loss-weighted directions of that loss ([`OPPONENT_AXIS_FINDINGS.md`](OPPONENT_AXIS_FINDINGS.md)). The lighter element's direction, $9.4°$, is essentially Oklab's $+a$ axis: the red end of the red–green opponent channel that protans and deutans lose.
 
 FP = 0 is maintained by the polarity model (see [Section 4](#4-the-fp--0-guarantee)) rather than by green-channel patches.
 
@@ -199,7 +203,7 @@ $A(l) \le A(\text{white})$ and $B(d) \le B(\text{black})$, each **verified by
 interval arithmetic** over the sRGB cube with **0 uncertified boxes**
 (`npm run fp0`; full argument in [`docs/FP0_PROOF.md`](FP0_PROOF.md)).
 
-**Step 4 keeps the bound.** Background induction raises the darker proxy: $L^{3s} \ge L^3$ for $s \le 1$ and $L \le 1$. Lemma B's $B(d)$ only falls as the darker proxy rises, so the lemma holds a fortiori and no new lemma is needed ([`FP0_PROOF.md`](FP0_PROOF.md) §5).
+**Step 4 keeps the bound.** Background induction and the opponent-axis lift both raise the darker proxy: $L^{3s/e_D} \ge L^3$ for $s \le 1$, $e_D \ge 1$ and $L \le 1$. Lemma B's $B(d)$ only falls as the darker proxy rises, so the lemma holds a fortiori and no new lemma is needed ([`FP0_PROOF.md`](FP0_PROOF.md) §5). Lemma A is verified under Step 3's opponent-axis weight, which encloses $w_L$ from the enclosures of $a$ and $b$.
 
 So FP = 0 is **verified for all sRGB inputs** — an exact identity plus two
 interval-checked lemmas, not a calibration-dependent headroom property. (The
@@ -215,7 +219,7 @@ wider domain (see [Section 11](#11-extension-guidelines)).
 
 ---
 
-## 5. The Chroma Compression Mechanism (Step 3)
+## 5. The Opponent-Axis Compression Mechanism (Step 3)
 
 **Problem.** Saturated chromatic light text on a dark background --- e.g. hot pink (`#ff69b4`) on near-black (`#1a1a1a`) --- scores 6.6:1 under WCAG, the same as an achromatic pair at equivalent luminance. It is one of the most commonly cited WCAG false passes: experienced practitioners flag it as inadequate, and it fails at moderate contrast sensitivity loss. WCAG's formula has no mechanism to distinguish it from an achromatic pair.
 
@@ -228,11 +232,11 @@ Because WCAG contrast is a function of $Y$ alone, any two foreground colors shar
 
 WCAG scores them identically. OKCA scores hot pink 3.0 (fails AA) and the grey 4.8 (passes AA). Both include Step 4's induction from the near-black background; the gap between them is the chroma penalty.
 
-**Mechanism.** The lighter element's luminance proxy is penalised by a chroma-weighted power exponent. First, a saturation weight is computed from the Oklab chroma:
+**Mechanism.** The lighter element's luminance proxy is penalised by a power exponent driven by its opponent-axis weight (§2.4), with $\theta_L =$ `OPP_THETA_L` $= 9.4°$:
 
-$$\text{satW} = \min\left(1, \left(\frac{C}{0.15}\right)^{2}\right)$$
+$$w_L = \frac{C + a \cos\theta_L + b \sin\theta_L}{2}, \qquad \text{satW} = \min\left(1, \left(\frac{w_L}{0.15}\right)^{2}\right)$$
 
-This is a quadratic ramp: zero for achromatic colours, reaching 1.0 when chroma hits the threshold. The exponent is then:
+This is a quadratic ramp: zero for achromatic colours, reaching 1.0 when the weight hits the threshold. Reds and magentas near $\theta_L$ keep almost the full weight; blues and greens, on the far side, carry little. The exponent is then:
 
 $$\text{exp} = 1 + 0.65 \times \text{satW}$$
 
@@ -240,11 +244,29 @@ ranging from 1.0 (achromatic) to 1.65 (fully saturated). The adjusted luminance 
 
 $$Y_{\text{lighter}} = \left(L_{\text{lighter}}^{\text{exp}}\right)^3$$
 
-For a neutral white lighter element: $C = 0$, $\text{satW} = 0$, $\text{exp} = 1$, so $Y_{\text{lighter}} = L^3 = 1.0$ --- unchanged.
+For a neutral white lighter element: $w_L = 0$, $\text{satW} = 0$, $\text{exp} = 1$, so $Y_{\text{lighter}} = L^3 = 1.0$ --- unchanged.
 
-For hot pink ($C \approx 0.197 > 0.15$): $\text{satW} = 1$, $\text{exp} = 1.65$ --- the lighter element is penalised. After Step 4's background induction and Step 5's polarity scaling, hot pink/near-black drops to 3.0, below the 4.5 AA threshold.
+For hot pink ($C \approx 0.197$, near the warm direction, $w_L > 0.15$): $\text{satW} = 1$, $\text{exp} = 1.65$ --- the lighter element is penalised in full. After Step 4's background induction and Step 5's polarity scaling, hot pink/near-black drops to 3.0, below the 4.5 AA threshold.
 
-The threshold of 0.15 is calibrated so the penalty is negligible for lightly tinted neutrals (e.g. off-white at $C \approx 0.01$) and fully active for vivid designer palette colours ($C \ge 0.15$).
+The threshold of 0.15 is calibrated so the penalty is negligible for lightly tinted neutrals (e.g. off-white at $C \approx 0.01$) and fully active for vivid warm colours.
+
+**Effect of the opponent weighting.** Against the 2.x hue-uniform ramp, warm hues are unchanged and cool hues are penalised less, because dichromats see them with little loss. Median score / WCAG for saturated light text on black:
+
+| | red | orange | yellow | green | cyan | blue | purple | magenta |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| Dichromat (CVD / WCAG) | 0.80 | 0.87 | 0.96 | 0.97 | 0.93 | 0.94 | 0.98 | 0.87 |
+| Hue-uniform ramp | 0.47 | 0.56 | 0.66 | 0.57 | 0.66 | 0.44 | 0.44 | 0.49 |
+| Opponent-axis ramp | 0.48 | 0.66 | 0.85 | 0.86 | 0.89 | 0.79 | 0.57 | 0.50 |
+
+Blue `#3b82f6` on black goes from 2.4 to 4.4, and green `#22c55e` from 4.3 to 7.7; hot pink, pure red and dark orange do not move. Purple stays partly penalised: its $a$ is positive, and one smooth lobe cannot separate it from magenta.
+
+### The darker element's opponent-axis lift (Step 4)
+
+Easing the lighter penalty alone left a gap: saturated dark text on light fills, where the colour-vision loss is in the darker *text*, which dichromats see as lighter. Step 4 therefore also lifts the darker element along its own direction, $\theta_D =$ `OPP_THETA_D` $= 313.7°$ (between blue and magenta):
+
+$$e_D = 1 + K_D \cdot \min\left(1, \left(\frac{w_D}{0.15}\right)^{2}\right), \qquad Y_{\text{darker}} = L_{\text{darker}}^{3s/e_D}$$
+
+$K_D =$ `OPP_K_D` $= 0.09$ is the smallest strength at which no pair on a 262,144-pair grid scores above what a dichromat sees (Machado et al. 2009, severity 1.0). With both terms, OKCA never scores above the dichromat's ratio on that grid; before, 243 pairs did, and 11 of them passed AA. The lift only raises the darker proxy, so it can only lower a score (§4). `#1d4ed8` on white goes from 5.3 to 4.6, against a dichromat's 5.4.
 
 ---
 
@@ -252,7 +274,7 @@ The threshold of 0.15 is calibrated so the penalty is negligible for lightly tin
 
 For neutral grey pairs, chroma compression reduces to identity:
 
-- **Step 3:** Oklab chroma $C = 0$, so $\text{satW} = 0$, $\text{exp} = 1$, and $Y_{\text{lighter}} = L^3$.
+- **Step 3:** $a = b = 0$, so $w_L = 0$, $\text{satW} = 0$, $\text{exp} = 1$, and $Y_{\text{lighter}} = L^3$. Step 4's lift is likewise $e_D = 1$.
 - **Step 4:** $Y_{\text{darker}} = L^3$ on backgrounds at least as light as `#767676`. On darker backgrounds, background induction raises it to $L^{3s}$ (§3).
 
 Since $L^3 \approx Y_{\text{WCAG}}$ for greys (up to floating-point precision of the OKLCH transform), the raw contrast ratio before Step 5 equals the WCAG ratio for neutral pairs on backgrounds at least as light as `#767676`, and falls below it on darker ones. The polarity power model (Step 5) then scales scores according to polarity. The achromatic anchors are:
@@ -303,14 +325,14 @@ Three independent batteries:
 |---------|------:|:--:|:------------------:|-------|
 | Light-on-dark | 53 | **0** | — | See design-systems for FP=0 coverage |
 | Dark-on-light | 54 | **0** | — | See design-systems for FP=0 coverage |
-| Design systems | 1,142 | **0** | 99 | See note below |
-| **Total** | **1,249** | **0** | **99** | |
+| Design systems | 1,142 | **0** | 109 | See note below |
+| **Total** | **1,249** | **0** | **109** | |
 
 **False passes are zero** --- the non-negotiable invariant holds across all 1,249 pairs.
 
 **WCAG disagreements** (pairs where OKCA < 4.5 but WCAG ≥ 4.5) are intentional and should not be read as miscalibration. WCAG's 4.5:1 AA threshold is widely considered too permissive by practitioners. White on `#767676` --- the canonical WCAG AA boundary anchor --- sits exactly on the line, where the verdict turns on the display and the room rather than on the colours (see *Does not model viewing conditions* in §10 below). All 97 disagreements involve colours in that marginal zone: proximity to the boundary is not the same as being safely above it, and a pair on the line has no margin against the conditions it will be read in. (The count was 111 before the white/#767676 anchor was raised 3.5 → 3.9; that recalibration cleared 14 mid-range chromatics that sat just under 4.5.)
 
-By system: Tailwind CSS v3.4 (35), GOV.UK Design System (14), USWDS v3.x (50). Step 4 added two: white on lime-700 and white on GOV.UK blue, each 4.5 to 4.4. See `docs/WCAG_DISAGREEMENTS.md` for full enumeration with hex values.
+By system: Tailwind CSS v3.4 (45), GOV.UK Design System (14), USWDS v3.x (50). Step 4's induction added two: white on lime-700 and white on GOV.UK blue, each 4.5 to 4.4. The opponent-axis lift added ten, all Tailwind saturated 600–700 shades in the purple–magenta–red range (indigo-600, purple-700, fuchsia-700, pink-700, rose-700, red-700): the hues where dichromats do lose contrast. See `docs/WCAG_DISAGREEMENTS.md` for full enumeration with hex values.
 
 ---
 
@@ -320,6 +342,9 @@ By system: Tailwind CSS v3.4 (35), GOV.UK Design System (14), USWDS v3.x (50). S
 |----------|------:|------|
 | `C_THRESH` | 0.15 | Oklab chroma at which lighter-element penalty is fully active |
 | `CHROMA_K` | 0.65 | Maximum additional power exponent at full saturation (exp range: 1.0–1.65) |
+| `OPP_THETA_L` | 9.4° | Direction of the lighter element's opponent-axis weight (CVD loss, light on dark) |
+| `OPP_THETA_D` | 313.7° | Direction of the darker element's opponent-axis weight (CVD loss, dark on light) |
+| `OPP_K_D` | 0.09 | Darker-element lift strength |
 | `POL_K` | 1.100 | Shared polarity power exponent: $\text{CAP} \times (r/21)^{k}$ |
 | `LOD_CAP` | 20.9 | Light-on-dark contrast cap (< 21 → OKCA strictly below WCAG, FP=0 by construction) |
 | `DOL_CAP` | 20 | Dark-on-light contrast cap (< LOD_CAP); proportional polarity penalty |
@@ -352,7 +377,7 @@ Understanding the scope prevents incorrect use and misguided extension attempts.
 
 **Does not model viewing conditions.** The contrast at which text becomes acceptable moves substantially with display luminance and ambient light — far enough that a pair near the AA boundary can be judged shippable under one setup and not another by the same person in the same room ([#22](https://github.com/pawn002/okca/issues/22#issuecomment-5282357292)). OKCA is a relative metric over sRGB with no access to absolute luminance, so it does not model this and no constant of its own could: a level-dependent term was measured for and not detected, while the effect that does exist tracks a quantity the algorithm cannot observe. The safety bound is unaffected, being a relation between two relative metrics. The practical consequence is that OKCA's floors are viewing-condition independent by construction, which is a reason to keep them conservative rather than to tune them.
 
-**Does not patch WCAG's channel weighting.** OKCA does not compensate for the IEC 61966-2-1 green-channel weighting in WCAG's luminance formula. The chroma compression is rotationally symmetric in ab-space — no hue branch, no asymmetric treatment of $a$ vs $b$. Hue-varying outcomes arise from Oklab geometry (different hues reach different C values at similar lightness), not from explicit hue targeting.
+**Does not patch WCAG's channel weighting.** OKCA does not compensate for the IEC 61966-2-1 green-channel weighting in WCAG's luminance formula. Its chroma terms are weighted along Oklab's opponent axes (§2.4), in directions derived from colour-vision-deficiency loss, not from WCAG's channel weights. There is no hue branch, and no per-hue table or condition.
 
 ---
 
@@ -369,3 +394,5 @@ When modifying the algorithm, these properties must be preserved:
 4. **Update probe battery expectations.** If any probe result changes intentionally, document the rationale before committing.
 
 5. **Background induction.** Step 4 must keep $s \le 1$ and apply only to the darker element. Those two properties are what keep it inside the FP=0 proof, and they are asserted in `background-induction.spec.ts`.
+
+6. **Opponent-axis terms.** The directions `OPP_THETA_L` and `OPP_THETA_D` are measured, not tuned (`npm run opponent` re-derives them), and `OPP_K_D` is the smallest CVD-safe strength. The darker lift must keep $e_D \ge 1$, so it only raises the darker proxy. Lemma A is verified under the opponent weight (`npm run fp0`; `OKCA_WEIGHT=chroma` re-runs the 2.x ramp).
