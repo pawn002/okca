@@ -22,6 +22,8 @@ import { contrast, hexToOklab } from '../index';
 // Production constants, mirrored here for the full-precision / replication check.
 const POL_K = 1.1, CHROMA_K = 0.65, C_THRESH = 0.15, LOD_CAP = 20.9, DOL_CAP = 20;
 const IND_Z = 1.48, IND_REF_L = 0.5658363271;
+const OPP_THETA_L = 9.4, OPP_THETA_D = 313.7, OPP_K_D = 0.09;
+const w = (o: number[], th: number) => (Math.hypot(o[1], o[2]) + o[1] * Math.cos(th * Math.PI / 180) + o[2] * Math.sin(th * Math.PI / 180)) / 2;
 
 interface Score { raw: number; rounded: number }
 
@@ -32,11 +34,11 @@ function okca(fg: string, bg: string): Score | null {
   const tL = Math.max(0, t[0]), bL = Math.max(0, b[0]);
   if (Math.abs(tL - bL) < 1e-6) return { raw: 1, rounded: 1 };
   const isBoW = bL >= tL;
-  const lL = isBoW ? bL : tL, dL = isBoW ? tL : bL, lt = isBoW ? b : t;
-  const C = Math.hypot(lt[1], lt[2]);
-  const exp = 1 + CHROMA_K * Math.min(1, (C / C_THRESH) ** 2);
+  const lL = isBoW ? bL : tL, dL = isBoW ? tL : bL, lt = isBoW ? b : t, dt = isBoW ? t : b;
+  const exp = 1 + CHROMA_K * Math.min(1, (w(lt, OPP_THETA_L) / C_THRESH) ** 2);
+  const eD = 1 + OPP_K_D * Math.min(1, (w(dt, OPP_THETA_D) / C_THRESH) ** 2);
   const s = Math.min(1, (IND_Z + bL ** 1.5) / (IND_Z + IND_REF_L ** 1.5));
-  const lY = (lL ** exp) ** 3, dY = dL ** (3 * s);
+  const lY = (lL ** exp) ** 3, dY = dL ** ((3 * s) / eD);
   const isLoD = tL > bL;
   const rawRatio = (lY + 0.05) / (dY + 0.05);
   const cap = isLoD ? LOD_CAP : DOL_CAP;

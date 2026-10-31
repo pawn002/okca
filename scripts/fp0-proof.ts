@@ -34,10 +34,11 @@ const POL_K = 1.1;
 const CHROMA_K = 0.65;
 const C_THRESH = 0.15;
 
-// #28 prototype: OKCA_WEIGHT=opponent drives Step 3's ramp with the opponent-axis
-// weight w = (C + a cos θ_L + b sin θ_L) / 2 instead of chroma C. The darker-element
-// lift only raises the darker proxy, so lemma B holds a fortiori and is unchanged.
-const WEIGHT = process.env.OKCA_WEIGHT === 'opponent' ? 'opponent' : 'chroma';
+// Step 3's ramp is driven by the opponent-axis weight w = (C + a cos θ_L + b sin θ_L) / 2
+// (#28). OKCA_WEIGHT=chroma re-runs the 2.x chroma ramp for comparison. Step 4's darker
+// terms (induction, opponent-axis lift) only raise the darker proxy, so lemma B holds a
+// fortiori and is verified on plain L^3.
+const WEIGHT = process.env.OKCA_WEIGHT === 'chroma' ? 'chroma' : 'opponent';
 const THETA_L = 9.4 * Math.PI / 180;
 
 const A_TARGET = Math.pow(1.05, POL_K - 1); // A(white)
@@ -143,7 +144,7 @@ function main() {
     console.log('BOTH lemmas verified. With the exact identity, for every sRGB pair:');
     console.log('  21^(1-k)*A(l)*B(d) <= 21^(1-k)*A(white)*B(black) = 1  =>  OKCA <= WCAG.');
     console.log('=> FP=0 proven over the full sRGB gamut (interval-verified lemmas + exact identity).');
-    console.log('   Step 4 induction raises the darker proxy (L^(3s) >= L^3), so B(d) only falls: the bound holds a fortiori.');
+    console.log('   Step 4 (induction, opponent-axis lift) raises the darker proxy (L^(3s/eD) >= L^3), so B(d) only falls: the bound holds a fortiori.');
   } else {
     console.log('At least one lemma left interior boxes uncertified — increase depth or inspect above.');
   }
