@@ -83,8 +83,7 @@ lose much of the contrast of reds, oranges and magentas, and little of greens,
 blues and purples. OKCA weights its chroma penalty along the direction in Oklab
 where that loss is greatest, essentially the red–green opponent axis, and adds a
 small matching lift to dark text in the hues where dichromats see it as lighter.
-The directions are measured, not tuned, and there is no hue branch. On a
-262,144-pair test grid no OKCA score exceeds what a dichromat sees. Reds stay
+The directions are measured, not tuned, and there is no hue branch. Reds stay
 exactly as strict as before; saturated blue on black moves from 2.4 to 4.4.
 
 **The darker colour is corrected for its background.** On any background darker

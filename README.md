@@ -6,7 +6,7 @@
 
 It closes three WCAG 2.x gaps:
 
-1. **Saturated colours.** WCAG scores hot pink on near-black 6.6:1 — a comfortable pass. OKCA scores it **3.0**: it tells saturated colour from grey at the same luminance, and WCAG can't. The penalty follows how colour-vision deficiency actually loses contrast: full strength for reds, oranges and magentas, much lighter for blues and greens. Saturated blue `#3b82f6` on black scores 4.4, still below what a red-green colourblind viewer sees.
+1. **Saturated colours.** WCAG scores hot pink on near-black 6.6:1 — a comfortable pass. OKCA scores it **3.0**: it tells saturated colour from grey at the same luminance, and WCAG can't. The penalty follows how colour-vision deficiency actually loses contrast: full strength for reds, oranges and magentas, much lighter for blues and greens. Saturated blue `#3b82f6` on black scores 4.4 (2.4 before).
 
 2. **Polarity.** WCAG rates `contrast(A on B)` and `contrast(B on A)` identically. OKCA doesn't — light-on-dark and dark-on-light are different decisions and score differently.
 
@@ -61,7 +61,7 @@ okca.contrast('#fff', '#000');  // 20.9
 
 - **Never more permissive than WCAG:** every score is at or below the WCAG equivalent for the same pair; AA/AAA thresholds unchanged
 - **Polarity-aware:** `okca(foreground, background) ≠ okca(background, foreground)` — scores differ by direction
-- **CVD-aware:** chroma is weighted along Oklab's red–green and blue–yellow opponent axes, in directions measured from colour-vision-deficiency loss — no hue branch. On a 262,144-pair test grid, no score exceeds what a dichromat sees (`docs/OPPONENT_AXIS_FINDINGS.md`)
+- **CVD-informed:** chroma is weighted along Oklab's opponent axes, in the directions colour-vision deficiency loses contrast, so hues colourblind viewers see well are penalised less — no hue branch (`docs/OPPONENT_AXIS_FINDINGS.md`)
 - **Background-aware:** on backgrounds darker than `#767676`, the darker colour's lightness is corrected for the background, following CAM16 (`docs/CAM16_FINDINGS.md`)
 - **Zero dependencies:** pure TypeScript, no runtime deps
 - **Clean-room implementation:** no third-party contrast algorithm source code
