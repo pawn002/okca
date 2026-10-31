@@ -239,3 +239,126 @@ argument. Unlike Step 6, it would change scores on light grounds too, so the
   contributes in practice.
 - The model is fitted mostly to data near $Y_b = 20$. Its behaviour below
   $Y_b \approx 1$ is extrapolation, hence the clamp.
+
+---
+
+## 7. Prototype: background induction as a darker-element term
+
+Reproduce with `npm run induction` (`scripts/induction-prototype.ts`). Nothing
+here is in `src/`.
+
+**The term.** Taking §2's exponent relative to a reference background, the
+$1.26 \thinspace c$ factor cancels:
+
+$$
+s(L_{\text{bg}}) = \min\left(1, \thinspace \frac{1.48 + L_{\text{bg}}^{1.5}}{1.48 + L_{\text{ref}}^{1.5}}\right)
+$$
+
+$1.48$ is CAM16's own constant, and $L_{\text{ref}} = 0.5658$ is OKLab $L$ of
+`#767676`, the background in OKCA's white/`#767676` anchor. **No constant is
+tuned.** The term changes only Step 4: the darker element's proxy becomes
+$L_{\text{darker}}^{3s}$ in place of $L_{\text{darker}}^{3}$.
+
+- On backgrounds at least as light as `#767676`, $s = 1$, so nothing changes.
+- On darker backgrounds the darker element's effective lightness is lifted.
+  This is CAM16's background induction, in the place OKCA's structure already
+  treats each element separately. Step 3 corrects the lighter element for
+  chroma; Step 4 would correct the darker one for its background.
+- Example values: $s = 0.777$ on black, $0.830$ on `#1a1a1a`, $0.903$ on
+  `#444444`.
+
+**Why only the darker element.** CAM16's full form lifts both elements (V4
+below). Lifting the lighter one raises the numerator, which makes pure-black
+pairs *more* lenient and produced **175 false passes** in a 67,396-pair sample.
+Lifting only the darker proxy can only shrink the raw ratio. That keeps the
+FP=0 proof structure intact: lemma B's bound holds a fortiori, because
+$B(d)$ falls as the darker proxy rises. No min() and no new lemma are needed.
+
+**Variants compared.** V0 is 2.0.3. V1 is #25's branch, with the flare
+ceiling. V2 is induction in place of the flare ceiling. V3 is induction plus
+the flare ceiling. V4 is induction on both elements.
+
+**Threshold parity.** Background-aware CAM16-UCS gap $\Delta J'$ of the grey
+that first scores 4.5. The spread excludes pure black, where $J = 0$ and $Y_b$
+is clamped.
+
+| Background | V0 | V1 | V2 | V3 | V4 |
+|---|---:|---:|---:|---:|---:|
+| `#000000` | 62.3 | 70.0 | 62.3 | 70.0 | 53.3 |
+| `#1a1a1a` | 47.6 | 53.3 | 52.3 | 53.3 | 47.3 |
+| `#222222` | 46.3 | 50.9 | 51.6 | 51.6 | 47.3 |
+| `#333333` | 45.1 | 47.7 | 50.6 | 50.6 | 47.7 |
+| `#444444` | 45.6 | 46.3 | 50.2 | 50.2 | 48.7 |
+| `#555555` | 47.2 | 47.2 | 50.4 | 50.4 | 49.9 |
+| `#ffffff` | 63.4 | 63.4 | 63.4 | 63.4 | 63.4 |
+| **Spread** | 18.2 | 17.1 | **13.2** | **13.2** | 16.1 |
+
+Induction gives the most even threshold of the five. It brings the mid-dark
+grounds up to about 50, the range V1 never reached. The remaining spread is
+light-side (`#c8c8c8` at 53.6, white at 63.4), which $s = 1$ leaves alone by
+construction.
+
+**Flare robustness of the same passes** (WCAG ratio at flare 0.10):
+
+| Background | V0 | V1 | V2 | V3 |
+|---|---:|---:|---:|---:|
+| `#000000` | 3.09 | 3.96 | 3.09 | 3.96 |
+| `#1a1a1a` | 3.28 | 3.96 | 3.84 | 3.96 |
+| `#333333` | 3.62 | 3.93 | 4.31 | 4.31 |
+| `#444444` | 3.86 | 3.94 | 4.46 | 4.46 |
+
+Induction alone covers flare well except at pure black, where it changes
+nothing (black's proxy is 0 for any $s$). CAM16 rates pure-black passes at
+parity with white (62.3 against 63.4). The flare argument rates them fragile.
+Here the two physical effects disagree, and it is the one place V2 and V3
+differ.
+
+**Chromatic pairs and `CHROMA_K`.** Lifting a near-black darker proxy also
+tightens chromatic text, which Step 3 already penalises. At `CHROMA_K` = 0.65,
+hot pink on `#1a1a1a` falls from 3.6 to 3.0, and 167 of the 274 AA passes
+lost on dark and mid-dark surfaces are chromatic. Part of Step 3's job is now
+done by Step 4, so the chroma penalty can relax. Sweeping `CHROMA_K` under
+V2:
+
+| `CHROMA_K` | Hot pink | Orange | AA lost: grey / low chroma / chromatic | Disagreements | FP (sample) |
+|---|---:|---:|---|---:|---:|
+| 0.65 | 3.0 | 3.4 | 30 / 77 / 167 | 99 | 0 |
+| 0.50 | 3.4 | 3.8 | 30 / 64 / 112 | 99 | 0 |
+| 0.45 | 3.5 | 4.0 | 30 / 59 / 79 | 99 | 0 |
+| **0.42** | **3.6** | 4.1 | 30 / 57 / 62 | 99 | 0 |
+| 0.40 | 3.7 | 4.1 | 30 / 57 / 57 | 99 | 0 |
+
+At **`CHROMA_K` = 0.42**, hot pink holds its documented 3.6 and dark orange
+moves from 4.2 to 4.1. `npm run fp0`, re-run with `CHROMA_K` = 0.42,
+certifies both lemmas with 0 uncertified boxes. With the monotonicity
+argument above, V2 at 0.42 has FP=0 by proof, not by sampling.
+
+**Other effects of V2 at 0.42**, against 2.0.3:
+
+- **Anchors:** all four unchanged, by construction.
+- **Disagreements:** 97 rises to 99. The two new ones sit exactly on the line,
+  4.5 dropping to 4.4: white on Tailwind lime-700 `#4d7c0f` (WCAG 5.0) and
+  white on GOV.UK blue `#1d70b8` (WCAG 5.2). The flare ceiling left this
+  count at 97.
+- **Design-system palettes on dark and mid-dark surfaces:** 149 AA passes
+  lost (30 grey, 57 low chroma, 62 chromatic). V1 lost 50, almost all on
+  near-black, and none of the mid-dark leniency.
+- **Example scores:** `#cccccc` on `#333333` 7.1 to 5.7; white on `#595959`
+  6.2 to 5.7; `#919191` on `#121212` 5.2 to 4.4; `#888888` on `#000000`
+  unchanged at 5.2.
+
+**Polarity.** $s$ follows the background, as CAM16's $Y_b$ does. In
+dark-on-light pairs the background is the lighter element, so the term
+applies only when dark text sits on a background darker than `#767676`.
+
+**Decisions this prototype hands back:**
+
+1. **Replace Step 6 with induction (V2), or keep both (V3)?** V2 is one term
+   in Step 4, with no min() and no tuned constant. It is the cohesive option,
+   but it returns pure-black passes to 2.0.3's flare fragility. V3 keeps the
+   flare ceiling as a second, physically distinct effect, at the cost of the
+   min() seam.
+2. **Retune `CHROMA_K` to 0.42.** This holds the hot-pink calibration.
+3. **The reference background.** `#767676` keeps the anchors exact and leaves
+   all lighter backgrounds alone. A lighter reference would also address the
+   light-side slope, but it moves the white/`#767676` anchor.
