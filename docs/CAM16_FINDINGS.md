@@ -20,8 +20,10 @@ npm run cam16        # scripts/cam16-survey.ts
 
 Oklab is a **fixed-condition** space. It assumes one white, one adaptation
 state, one background, one surround and no absolute luminance. CAM16 (Li et
-al. 2017, *Color Research & Application* 42:703–718; adopted by the CIE in
-CIE 248:2022) takes each of those as an **input**:
+al. 2017, *Color Research & Application* 42(6):703–718) takes each of those as
+an **input**. It is the basis of the CIE's CIECAM16 (CIE 248:2022), which
+changes only CAM16's response compression at very low and very high signals
+(§8):
 
 | CAM16 input | Meaning | Visible to OKCA? |
 |---|---|---|
@@ -76,7 +78,9 @@ background lightness is also close: $\gamma \approx 1.22 + 0.83 \thinspace L_{\t
 maximum residual 0.14.
 
 **What this means.** CAM16 treats the background as setting the lightness
-scale. Oklab's own $L$ corresponds to a single mid-grey background. This is
+scale. Oklab's $L$ has no background input at all. Ottosson fitted Oklab to
+CAM16-generated data under unspecified "normal" viewing conditions, and its
+grey axis is a fixed cube root (fitted $\gamma = 0.323$, set to $1/3$). This is
 the classic background (crispening) effect, and it can be **written entirely
 in OKLab coordinates**: an effective lightness $L^{\gamma(L_{\text{bg}})}$
 where both $L$ and $L_{\text{bg}}$ are OKLab values.
@@ -86,9 +90,9 @@ where both $L$ and $L_{\text{bg}}$ are OKLab values.
 ## 3. What CAM16 says about OKCA's threshold
 
 For each grey background, take the grey that first scores 4.5, and measure the
-CAM16-UCS lightness gap $\Delta J'$. Do it twice: once with CAM16's default
-$Y_b = 20$, which is in effect Oklab's fixed condition, and once with the real
-background as $Y_b$.
+CAM16-UCS lightness gap $\Delta J'$. Do it twice: once with the
+conventional $Y_b = 20$ (colorjs.io's default, not a value the model defines),
+and once with the real background as $Y_b$.
 
 | Background | 2.0.3 pass | $\Delta J'$, $Y_b = 20$ | $\Delta J'$, real $Y_b$ | #25 pass | $\Delta J'$, $Y_b = 20$ | $\Delta J'$, real $Y_b$ |
 |---|---|---:|---:|---|---:|---:|
@@ -217,8 +221,9 @@ does not settle whether more colourfulness should lower a contrast score.
 lightness exponent is:
 
 - **ok\*-native.** It uses only OKLab $L$ for both colours.
-- **From a CIE-adopted model.** It is derived from CAM16, not fitted to OKCA's
-  outputs.
+- **From CAM16, the basis of CIECAM16 (CIE 248:2022).** It is derived from the
+  model, not fitted to OKCA's outputs, and the results are unchanged under
+  CIECAM16's compression (§8).
 - **A single term.** It addresses the cohesion concern raised about Step 6.
 
 It could replace the flare ceiling, or sit beside it, since flare and
@@ -362,3 +367,43 @@ applies only when dark text sits on a background darker than `#767676`.
 3. **The reference background.** `#767676` keeps the anchors exact and leaves
    all lighter backgrounds alone. A lighter reference would also address the
    light-side slope, but it moves the white/`#767676` anchor.
+
+---
+
+## 8. CIECAM16 check and source verification
+
+**CIECAM16.** CIE 248:2022 defines CIECAM16, not CAM16 as Li et al. published
+it. Per the colour-science reference implementation, the only change relevant
+here is in the stimulus response compression. It becomes linear below a cone
+signal of 0.26 and gains a linear tail above 150. The white point keeps the
+original curve. A signal of 0.26 corresponds to roughly `#090909` and darker,
+which is the near-black region these notes depend on, so everything was
+re-run under CIECAM16. Reproduce with `OKCA_CAM=ciecam16 npm run cam16` and
+`OKCA_CAM=ciecam16 npm run induction`.
+
+- §2's exponents move by at most 0.003 (white 2.133 to 2.136, `#1a1a1a` 1.360
+  to 1.363), and the fit stays within 0.19 $J$.
+- §3–§7 print **identical** figures under both models, at the precision shown.
+- The induction prototype is unaffected.
+
+The validation against colorjs.io no longer matches under CIECAM16 (0.011 in
+$J$, 1.6 in $M$, at very dark colours). That is expected, because colorjs.io
+implements CAM16.
+
+**Source verification (2026-10-31).** An independent pass, with no access to
+this investigation's reasoning, re-checked every external citation in these
+notes:
+
+- **Verified:** every CAM16 constant in `scripts/cam16.ts`, checked against
+  colour-science and colorjs.io because the Li et al. full text is paywalled.
+  Also verified: all 27 Machado et al. (2009) coefficients against the
+  authors' project page, and Sharma, Wu & Dalal (2005) as the CIEDE2000
+  reference.
+- **Two statements corrected above:** the CIE-adoption wording in §1 and §6,
+  and the claim that Oklab's $L$ corresponds to a mid-grey background in §2
+  and §3.
+- **Machado matrices:** the authors' page does not state whether they apply
+  to linear or gamma-encoded RGB. Applying them to linear RGB, as here, is
+  the usual practice and is consistent with how they were derived from
+  spectral responses.
+- **Not read directly:** Li et al. 2017 and the CIE 248 full text.

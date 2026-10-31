@@ -3,6 +3,8 @@
  * CAT16, and CAM16-UCS", Color Res Appl 42:703–718), reimplemented from the
  * published equations, plus sRGB helpers. Shared by the CAM16 scripts.
  * Validated against colorjs.io's cam16-jmh in scripts/cam16-survey.ts.
+ * OKCA_CAM=ciecam16 switches to CIECAM16 (CIE 248:2022), which differs only
+ * in the stimulus response compression at very low and very high signals.
  * Yb is clamped at 1 (n = 0.01): the induction factors diverge as Yb -> 0.
  */
 export type V3 = [number, number, number];
@@ -26,6 +28,8 @@ const mul = (m: number[][], v: V3) => m.map((r) => r[0] * v[0] + r[1] * v[1] + r
 const SURROUND = { average: [1.0, 0.69, 1.0], dim: [0.9, 0.59, 0.9], dark: [0.8, 0.525, 0.8] } as const;
 export type Surround = keyof typeof SURROUND;
 export interface Env { LA: number; Yb: number; surround: Surround }
+/** 'cam16' = Li et al. 2017; 'ciecam16' = CIE 248:2022. Select with OKCA_CAM=ciecam16. */
+export const MODEL: 'cam16' | 'ciecam16' = process.env.OKCA_CAM === 'ciecam16' ? 'ciecam16' : 'cam16';
 export const DEFAULT: Env = { LA: (64 / Math.PI) * 0.2, Yb: 20, surround: 'average' }; // colorjs.io's default
 
 function prep(env: Env) {
@@ -36,8 +40,15 @@ function prep(env: Env) {
   const n = Math.max(env.Yb, 1) / 100, z = 1.48 + Math.sqrt(n), Nbb = 0.725 * n ** -0.2;
   const D = Math.min(1, Math.max(0, F * (1 - (1 / 3.6) * Math.exp((-env.LA - 42) / 92))));
   const rgbW = mul(M16, W), Drgb = rgbW.map((v) => D * (100 / v) + 1 - D);
-  const post = (v: number) => { const x = (FL * Math.abs(v) / 100) ** 0.42; return Math.sign(v) * 400 * x / (x + 27.13); };
-  const aW = rgbW.map((v, i) => post(v * Drgb[i]));
+  const mm = (v: number) => { const x = (FL * Math.abs(v) / 100) ** 0.42; return Math.sign(v) * 400 * x / (x + 27.13); };
+  // CIECAM16 (CIE 248:2022) replaces the stimulus compression with linear
+  // extensions below q_L = 0.26 and above q_U = 150; the white keeps the
+  // original curve. Per the colour-science reference implementation.
+  const qL = 0.26, qU = 150, fqL = mm(qL), fqU = mm(qU);
+  const dfqU = (1.68 * 27.13 * FL * (FL * qU / 100) ** -0.58) / (27.13 + (FL * qU / 100) ** 0.42) ** 2;
+  const post = MODEL === 'cam16' ? mm
+    : (v: number) => (v < qL ? (fqL * v) / qL : v > qU ? fqU + dfqU * (v - qU) : mm(v));
+  const aW = rgbW.map((v, i) => mm(v * Drgb[i]));
   const Aw = (2 * aW[0] + aW[1] + 0.05 * aW[2]) * Nbb;
   return { c, Nc, FL, n, z, Nbb, Drgb, post, Aw };
 }

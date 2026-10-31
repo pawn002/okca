@@ -30,7 +30,9 @@
  */
 import { hexToOklab } from '../src/transforms';
 import { TAILWIND, GOVUK, USWDS } from './palettes';
-import { hx, grey, xyz, Ywcag, cam16, bgEnv } from './cam16';
+import { hx, grey, xyz, Ywcag, cam16, bgEnv , MODEL } from './cam16';
+
+console.log(`colour appearance model: ${MODEL}`);
 
 const L_REF = hexToOklab('#767676')![0];
 const FLARE = 0.10, FLARE_K = 1.5;
