@@ -31,7 +31,7 @@ import {
 } from './interval';
 
 const POL_K = 1.1;
-const CHROMA_K = 0.42;
+const CHROMA_K = 0.65;
 const C_THRESH = 0.15;
 
 const A_TARGET = Math.pow(1.05, POL_K - 1); // A(white)
@@ -39,7 +39,7 @@ const B_TARGET = Math.pow(0.05, 1 - POL_K); // B(black)
 
 function penalisedProxy(col: ColorIv): Iv {
   const satW = imin(mulK(square(col.C), 1 / (C_THRESH * C_THRESH)), 1);
-  const exp = addK(mulK(satW, CHROMA_K), 1); // [1, 1.42]
+  const exp = addK(mulK(satW, CHROMA_K), 1); // [1, 1.65]
   return powK(powIv(col.L, exp), 3);
 }
 function A(col: ColorIv): Iv {

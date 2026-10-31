@@ -10,7 +10,7 @@ import { contrast } from '../index';
 // ── Reference implementation (colorjs-backed, copied from original) ──────────
 
 const C_THRESH  = 0.15;
-const CHROMA_K  = 0.42;
+const CHROMA_K  = 0.65;
 const POL_K     = 1.100;
 const LOD_CAP   = 20.9;
 const DOL_CAP   = 20;

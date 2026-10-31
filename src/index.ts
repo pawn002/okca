@@ -13,7 +13,7 @@
  *        [_, a, b] = Oklab(lighter)
  *        C         = sqrt(a² + b²)
  *        satW      = min(1, (C / C_THRESH)²)    // quadratic ramp
- *        exp       = 1 + CHROMA_K × satW         // 1.0 … 1.42
+ *        exp       = 1 + CHROMA_K × satW         // 1.0 … 1.65
  *        lighterY  = (lighterL ^ exp) ^ 3        // L → luminance proxy
  *   4. Darker element — background-induced luminance proxy:
  *        s         = min(1, (IND_Z + bgL^1.5) / (IND_Z + IND_REF_L^1.5))
@@ -46,7 +46,7 @@ import { hexToOklab, cssOklabToOklab, cssOklchToOklch, oklchToOklab } from './tr
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 const C_THRESH = 0.15;  // Oklab chroma for full lighter-element penalty
-const CHROMA_K = 0.42;  // Power-compression exponent at full saturation
+const CHROMA_K = 0.65;  // Power-compression exponent at full saturation
 const POL_K    = 1.100; // Shared polarity power exponent: CAP*(r/21)^k
 const LOD_CAP  = 20.9;  // L-o-D max contrast (< 21 keeps OKCA strictly below WCAG → FP=0 by construction)
 const DOL_CAP  = 20;    // D-o-L max contrast (< L-o-D); proportional polarity penalty
@@ -101,7 +101,7 @@ export class OkcaService {
 
   /**
    * Chroma-weighted power exponent for the lighter element.
-   * Returns 1.0 for achromatic colors, up to 1.42 for fully saturated (C ≥ C_THRESH).
+   * Returns 1.0 for achromatic colors, up to 1.65 for fully saturated (C ≥ C_THRESH).
    */
   private chromaExp(oklab: [number, number, number]): number {
     const a = oklab[1];

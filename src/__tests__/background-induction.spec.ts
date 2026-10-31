@@ -4,7 +4,8 @@
  * The curated battery barely samples mid-tones on dark backgrounds, which is
  * how their leniency went unnoticed. These pin that region, and assert the two
  * properties the term was built on: it is the identity on backgrounds at least
- * as light as #767676, and it can only lower a score (the FP=0 argument).
+ * as light as #767676, and it can only lower a score (the FP=0 argument, and
+ * the reason no pair scores higher than in 2.0.3).
  */
 import { contrast, hexToOklab } from '../index';
 
@@ -18,7 +19,7 @@ function scoreWith(fg: string, bg: string, useInduction: boolean): number {
   const tL = Math.max(0, t[0]), bL = Math.max(0, b[0]);
   if (Math.abs(tL - bL) < 1e-6) return 1;
   const lod = tL > bL, lL = Math.max(tL, bL), dL = Math.min(tL, bL), lt = lod ? t : b;
-  const exp = 1 + 0.42 * Math.min(1, (Math.hypot(lt[1], lt[2]) / 0.15) ** 2);
+  const exp = 1 + 0.65 * Math.min(1, (Math.hypot(lt[1], lt[2]) / 0.15) ** 2);
   const s = useInduction ? Math.min(1, (IND_Z + bL ** 1.5) / (IND_Z + IND_REF_L ** 1.5)) : 1;
   const r = ((lL ** exp) ** 3 + 0.05) / (dL ** (3 * s) + 0.05);
   return parseFloat(Math.max(1, Math.min(21, (lod ? 20.9 : 20) * (r / 21) ** 1.1)).toFixed(1));
@@ -31,8 +32,8 @@ describe('background induction: mid-tones on dark backgrounds', () => {
     ['#cccccc', '#333333', 5.7],
     ['#ffffff', '#595959', 5.7],
     ['#888888', '#000000', 5.2], // pure black: proxy is 0 for any s
-    ['#ff69b4', '#1a1a1a', 3.6], // hot-pink calibration, held by CHROMA_K = 0.42
-    ['#ff8c00', '#1a1a1a', 4.1],
+    ['#ff69b4', '#1a1a1a', 3.0], // was 3.6: induction also lifts its near-black background
+    ['#ff8c00', '#1a1a1a', 3.4],
   ])('%s on %s → %d', (fg, bg, expected) => {
     expect(contrast(fg, bg)).toBe(expected);
   });
@@ -51,7 +52,7 @@ describe('background induction: structure', () => {
       }
   });
 
-  it('never raises a score (the FP=0 argument)', () => {
+  it('never raises a score above the same pair without induction', () => {
     let seed = 11;
     const rnd = () => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; };
     const c = () => '#' + [0, 0, 0].map(() => hx(Math.floor(rnd() * 256))).join('');

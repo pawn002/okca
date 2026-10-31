@@ -20,7 +20,7 @@ import Color from 'colorjs.io';
 import { contrast, hexToOklab } from '../index';
 
 // Production constants, mirrored here for the full-precision / replication check.
-const POL_K = 1.1, CHROMA_K = 0.42, C_THRESH = 0.15, LOD_CAP = 20.9, DOL_CAP = 20;
+const POL_K = 1.1, CHROMA_K = 0.65, C_THRESH = 0.15, LOD_CAP = 20.9, DOL_CAP = 20;
 const IND_Z = 1.48, IND_REF_L = 0.5658363271;
 
 interface Score { raw: number; rounded: number }
