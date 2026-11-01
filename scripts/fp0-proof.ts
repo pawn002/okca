@@ -9,7 +9,7 @@
  *   B(d) = (Y_d + 0.05)     / (dY_d + 0.05)^k (darker element only)
  *
  * where lY = ((L^exp)^3) is the chroma-penalised proxy, dY = L^3, Y = WCAG
- * relative luminance, k = POL_K. (Dark-on-light, cap = 20, is strictly looser.)
+ * relative luminance, k = POL_K. One cap, CAP = 20.9, applies in both polarities.
  *
  * DEDUCTIVE CORE (exact, any k):
  *     21^(1-k) * A(white) * B(black)
@@ -124,7 +124,7 @@ function main() {
   console.log(`identity  21^(1-k)*A(white)*B(black) = ${(Math.pow(21, 1 - POL_K) * A_TARGET * B_TARGET).toFixed(12)}`);
 
   const RHO = Number(process.argv[3] || 0); // anchor-neighbourhood radius (0 => full cube, complete proof)
-  const LOD_CAP = Number(process.argv[4] || 20.9); // production light-on-dark cap
+  const LOD_CAP = Number(process.argv[4] || 20.9); // production cap (both polarities)
   // With cap < 21 the bound gets slack s^2 = 21/cap; split evenly across the two
   // lemmas so even the anchor certifies (no equality point) -> complete proof.
   const s = Math.sqrt(21 / LOD_CAP);
@@ -134,7 +134,7 @@ function main() {
   const nearBlack = (c: Cube) => c.r.hi <= RHO && c.g.hi <= RHO && c.b.hi <= RHO;
 
   console.log(`weight=${WEIGHT}${WEIGHT === 'opponent' ? ' (θ_L = 9.4°)' : ''}`);
-  console.log(`L-o-D cap=${LOD_CAP}  slack factor s=${s.toFixed(5)}  anchor-ball RHO=${RHO}`);
+  console.log(`cap=${LOD_CAP}  slack factor s=${s.toFixed(5)}  anchor-ball RHO=${RHO}`);
   console.log(`combined bound at anchor: (cap/21^k)*A(white)*B(black) = cap/21 = ${(LOD_CAP / 21).toFixed(5)}  (<1 => strict, no residual)`);
   const okA = prove('A(l) <= A(white)*s', A, aT, nearWhite, maxDepth);
   const okB = prove('B(d) <= B(black)*s', B, bT, nearBlack, maxDepth);

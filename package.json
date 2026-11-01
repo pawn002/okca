@@ -32,7 +32,8 @@
     "cam16": "tsc -p tsconfig.scripts.json && node dist-scripts/scripts/cam16-survey.js",
     "induction": "tsc -p tsconfig.scripts.json && node dist-scripts/scripts/induction-prototype.js",
     "cvd": "tsc -p tsconfig.scripts.json && node dist-scripts/scripts/cvd-survey.js",
-    "opponent": "tsc -p tsconfig.scripts.json && node dist-scripts/scripts/opponent-axis-prototype.js"
+    "opponent": "tsc -p tsconfig.scripts.json && node dist-scripts/scripts/opponent-axis-prototype.js",
+    "polarity": "tsc -p tsconfig.scripts.json && node dist-scripts/scripts/polarity-caps.js"
   },
   "devDependencies": {
     "colorjs.io": "^0.5.2",

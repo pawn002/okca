@@ -20,7 +20,7 @@ import Color from 'colorjs.io';
 import { contrast, hexToOklab } from '../index';
 
 // Production constants, mirrored here for the full-precision / replication check.
-const POL_K = 1.1, CHROMA_K = 0.65, C_THRESH = 0.15, LOD_CAP = 20.9, DOL_CAP = 20;
+const POL_K = 1.1, CHROMA_K = 0.65, C_THRESH = 0.15, CAP = 20.9;
 const IND_Z = 1.48, IND_REF_L = 0.5658363271, FLARE = 0.10, FLARE_K = 1.5;
 const OPP_THETA_L = 9.4, OPP_THETA_D = 313.7, OPP_K_D = 0.09;
 const w = (o: number[], th: number) => (Math.hypot(o[1], o[2]) + o[1] * Math.cos(th * Math.PI / 180) + o[2] * Math.sin(th * Math.PI / 180)) / 2;
@@ -41,7 +41,7 @@ function okca(fg: string, bg: string): Score | null {
   const lY = (lL ** exp) ** 3, dY = dL ** ((3 * s) / eD);
   const isLoD = tL > bL;
   const rawRatio = (lY + 0.05) / (dY + 0.05);
-  const cap = isLoD ? LOD_CAP : DOL_CAP;
+  const cap = CAP;
   const ceiling = cap * (((lL ** 3 + FLARE) / (dL ** 3 + FLARE)) / ((1 + FLARE) / FLARE)) ** FLARE_K; // plain L³
   const raw = Math.max(1, Math.min(21, cap * (rawRatio / 21) ** POL_K, ceiling));
   return { raw, rounded: parseFloat(raw.toFixed(1)) };

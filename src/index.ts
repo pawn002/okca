@@ -27,12 +27,12 @@
  *      darker than the AA boundary grey lifts the darker element's effective
  *      lightness. eD lifts dark colours that dichromats see as lighter.
  *      Both only raise the proxy; it stays L³ for greys on lighter backgrounds.
- *   5. Polarity-aware contrast ratio:
+ *   5. Contrast ratio:
  *        rawRatio  = (lighterY + 0.05) / (darkerY + 0.05)
- *        L-o-D:    ratio = LOD_CAP  × (rawRatio / 21) ^ POL_K
- *        D-o-L:    ratio = DOL_CAP  × (rawRatio / 21) ^ POL_K
- *        Same power curve; LOD_CAP < 21 < clamp keeps OKCA strictly below WCAG;
- *        DOL_CAP < LOD_CAP applies a proportional polarity penalty.
+ *        ratio     = CAP × (rawRatio / 21) ^ POL_K
+ *        CAP < 21 keeps OKCA strictly below WCAG. The same cap applies in both
+ *        polarities: polarity differences come only from Steps 4 and 6, which
+ *        tighten dark backgrounds (docs/POLARITY_FINDINGS.md).
  *   6. Flare-robustness ceiling — the same curve on the uncompressed proxies
  *      with a larger flare term, re-anchored to the same cap:
  *        flareRatio = (lighterL³ + FLARE) / (darkerL³ + FLARE)
@@ -46,7 +46,7 @@
  * raises the darker element's exponent to 3s/eD ≤ 3.
  *
  * Properties:
- *   - FP = 0 by construction (docs/FP0_PROOF.md): with LOD_CAP < 21 the step-5
+ *   - FP = 0 by construction (docs/FP0_PROOF.md): with CAP < 21 the step-5
  *     ratio is strictly ≤ WCAG for every sRGB pair — reduced to an exact identity
  *     plus two interval-verified single-color lemmas, no calibration-dependent
  *     headroom. Step 4 only raises the darker proxy (3s/eD ≤ 3, L ≤ 1) and Step 6
@@ -56,8 +56,9 @@
  *   - Flare-robust: a pair scores no higher than the contrast it keeps when the
  *     flare allowance doubles, so dark-mode greys carry the same margin as
  *     light-mode ones at the same score.
- *   - Polarity-aware: light-on-dark scores higher than dark-on-light for the
- *     same color pair; direction is a design input, not a symmetric quantity
+ *   - Polarity-aware: foreground and background roles matter, because dark
+ *     backgrounds measurably cost contrast (Steps 4 and 6). Dark-on-light never
+ *     scores lower than the same pair reversed; there is no editorial bias.
  *   - Pure OKLCH/Oklab — no WCAG luminance formula, no hue branch. The chroma
  *     terms are weighted along Oklab's opponent axes, linearly in a and b.
  */
@@ -67,8 +68,7 @@ import { hexToOklab, cssOklabToOklab, cssOklchToOklch, oklchToOklab } from './tr
 const C_THRESH = 0.15;  // Oklab chroma for full lighter-element penalty
 const CHROMA_K = 0.65;  // Power-compression exponent at full saturation
 const POL_K    = 1.100; // Shared polarity power exponent: CAP*(r/21)^k
-const LOD_CAP  = 20.9;  // L-o-D max contrast (< 21 keeps OKCA strictly below WCAG → FP=0 by construction)
-const DOL_CAP  = 20;    // D-o-L max contrast (< L-o-D); proportional polarity penalty
+const CAP      = 20.9;  // Max contrast, both polarities (< 21 keeps OKCA strictly below WCAG → FP=0 by construction)
 const IND_Z     = 1.48;          // CAM16's lightness-exponent constant, z = 1.48 + sqrt(Yb)
 const IND_REF_L = 0.5658363271;  // OKLab L of #767676: backgrounds at or above it keep s = 1
 const OPP_THETA_L = 9.4;   // Direction of CVD contrast loss for lighter colours, degrees in (a, b)
@@ -115,14 +115,10 @@ export class OkcaService {
     const eD       = 1 + OPP_K_D * this.ramp(this.opponentWeight(darkerOklab, OPP_THETA_D));
     const darkerY  = Math.pow(darkerL, (3 * s) / eD);
 
-    // Step 5 — polarity-aware scaling: light-on-dark has higher perceived contrast.
-    // Both polarities use the same power curve CAP*(r/21)^POL_K; LOD_CAP < 21 keeps
-    // every score strictly below WCAG (FP=0 by construction), DOL_CAP < LOD_CAP
-    // applies the proportional polarity penalty.
-    const isLightOnDark = tL > bL;
+    // Step 5 — power-curve scaling: CAP*(r/21)^POL_K, the same in both polarities.
+    // CAP < 21 keeps every score strictly below WCAG (FP=0 by construction).
     const rawRatio = (lighterY + 0.05) / (darkerY + 0.05);
-    const cap = isLightOnDark ? LOD_CAP : DOL_CAP;
-    const ratio = cap * Math.pow(rawRatio / 21, POL_K);
+    const ratio = CAP * Math.pow(rawRatio / 21, POL_K);
 
     // Step 6 — flare-robustness ceiling: the same curve on the uncompressed L³
     // proxies with twice WCAG's flare allowance, re-anchored so white/black is
@@ -130,7 +126,7 @@ export class OkcaService {
     // Flare is physical light added to both patches, so it acts on plain L³ —
     // not on Step 4's induced proxy, which is a perceptual correction.
     const flareRatio = (Math.pow(lighterL, 3) + FLARE) / (Math.pow(darkerL, 3) + FLARE);
-    const ceiling    = cap * Math.pow(flareRatio / ((1 + FLARE) / FLARE), FLARE_K);
+    const ceiling    = CAP * Math.pow(flareRatio / ((1 + FLARE) / FLARE), FLARE_K);
     return parseFloat(Math.max(1, Math.min(21, ratio, ceiling)).toFixed(1));
   }
 

@@ -15,7 +15,7 @@ This has four failure modes OKCA addresses:
 
 1. **False passes for saturated chromatic text.** Hot pink on near-black scores 6.6:1 under WCAG --- a comfortable AA pass. Accessibility practitioners consistently identify it as inadequate, and it is one of the most commonly cited examples of WCAG producing a result that does not match production experience. WCAG's luminance formula treats it identically to an achromatic pair at the same luminance ratio.
 
-2. **Polarity blindness.** WCAG's ratio is symmetric: `ratio(A on B) = ratio(B on A)`. Designers and design systems treat the two directions as distinct --- dark mode and light mode are different design decisions, not interchangeable. WCAG does not model this asymmetry.
+2. **Polarity blindness.** WCAG's ratio is symmetric: `ratio(A on B) = ratio(B on A)`. The two directions are not equivalent: reading research finds dark text on a light background outperforms the reverse (§7), and dark backgrounds measurably cost contrast (failure modes 3 and 4). WCAG does not model this asymmetry.
 
 3. **Background-blind lightness.** WCAG and Oklab both treat a colour's lightness as fixed, whatever it sits on. The CIE-lineage colour appearance model CAM16 does not: a darker background flattens the lightness scale, so the same pair carries less lightness difference on a dark background than on a light one. At the AA line, a just-passing grey on `#1a1a1a` carries 25% less CAM16 lightness gap than one on white ([`CAM16_FINDINGS.md`](CAM16_FINDINGS.md)).
 
@@ -33,7 +33,7 @@ OKCA processes a foreground/background color pair in six steps:
 2. **Identify polarity.** The element with higher L is the lighter element. If the foreground is lighter the pair is light-on-dark (L-o-D); if the background is lighter it is dark-on-light (D-o-L).
 3. **Compress the lighter element.** Compute Oklab chroma $C = \sqrt{a^2+b^2}$. Apply a chroma-weighted power exponent to the lighter element's L, reducing its effective luminance proxy. Higher chroma → larger reduction.
 4. **Compute the darker element's proxy.** The darker element uses $L^3$, raised to a power $s \le 1$ that depends on the background's lightness (background induction, §3). On backgrounds at least as light as `#767676`, $s = 1$.
-5. **Apply polarity-aware scaling.** Form a raw ratio from the two luminance proxies, then scale with a power curve that differs by polarity: L-o-D uses a cap of 20.9 (`LOD_CAP`); D-o-L uses 20.
+5. **Apply the power-curve scaling.** Form a raw ratio from the two luminance proxies, then scale it with one power curve and one cap, `CAP` = 20.9, in both polarities. Polarity differences come from Steps 4 and 6, not from this step.
 6. **Apply the flare-robustness ceiling.** Re-run the same curve on the uncompressed $L^3$ proxies with twice WCAG's flare allowance, and keep the lower of the two scores. Binds only where the ratio leans on a near-black darker element. Output is in $[1, 21]$.
 
 Sections 3–7 cover each step in depth. Section 4 establishes FP = 0 — by construction on the achromatic axis, and by gamut-wide verification for chromatic inputs.
@@ -175,7 +175,7 @@ The final ratio is
 
 $$\text{ratio} = \text{CAP} \times \left(\frac{r_{\text{raw}}}{21}\right)^{k}, \qquad k = 1.100 \ge 1, \quad \text{CAP} \le 20.9 < 21.$$
 
-where $k$ is `POL_K` and the cap ceiling is `LOD_CAP` = 20.9.
+where $k$ is `POL_K` and $\text{CAP}$ is `CAP` = 20.9, the same in both polarities.
 
 Rewriting, $\text{ratio} = r_{\text{raw}} \times (r_{\text{raw}}/21)^{k-1} \times (\text{CAP}/21)$. Since $k \ge 1$ and $r_{\text{raw}} \le 21$, the factor $(r_{\text{raw}}/21)^{k-1} \le 1$; and $\text{CAP}/21 < 1$ (strictly, since $\text{CAP} \le 20.9$). Therefore, **unconditionally**:
 
@@ -198,8 +198,8 @@ element. At the achromatic anchors, for any $k$,
 
 $$21^{1-k} \cdot A(\text{white}) \cdot B(\text{black}) = (21\cdot 0.05)^{1-k}\cdot 1.05^{k-1} = 1$$
 
-exactly (since $21\cdot 0.05 = 1.05$). Because the L-o-D cap is set **below 21**
-(`LOD_CAP` = 20.9), the bound at the anchor becomes
+exactly (since $21\cdot 0.05 = 1.05$). Because the cap is set **below 21**
+(`CAP` = 20.9), the bound at the anchor becomes
 $20.9/21 = 0.99524 < 1$ — a strict margin, so there is **no equality
 point** and OKCA is strictly below WCAG everywhere. FP = 0 then reduces to two single-colour lemmas,
 $A(l) \le A(\text{white})$ and $B(d) \le B(\text{black})$, each **verified by
@@ -271,7 +271,7 @@ Easing the lighter penalty alone left a gap: saturated dark text on light fills,
 
 $$e_D = 1 + K_D \cdot \min\left(1, \left(\frac{w_D}{0.15}\right)^{2}\right), \qquad Y_{\text{darker}} = L_{\text{darker}}^{3s/e_D}$$
 
-$K_D =$ `OPP_K_D` $= 0.09$ is the smallest strength at which no pair on a 262,144-pair grid scores above what a dichromat sees (Machado et al. 2009, severity 1.0). With both terms, OKCA never scores above the dichromat's ratio on that grid; before, 243 pairs did, and 11 of them passed AA. The lift only raises the darker proxy, so it can only lower a score (§4). `#1d4ed8` on white goes from 5.3 to 4.6, against a dichromat's 5.4.
+$K_D =$ `OPP_K_D` $= 0.09$ was derived as the smallest strength at which no pair on a 262,144-pair grid scores above what a dichromat sees (Machado et al. 2009, severity 1.0), under the two-cap scaling OKCA then used. That took the count from 243 pairs (11 passing AA) to none. With one cap for both polarities (§7), dark-on-light scores rose about 4.5%. Now 43 grid pairs exceed the dichromat's ratio by at most 0.25, all saturated pure-blue text (`#0000cc`, `#0000ee`) on light near-neutral backgrounds. Raising $K_D$ does not clear them. This is rationale for the calibration, not a guarantee; OKCA's promise is the WCAG bound. The lift only raises the darker proxy, so it can only lower a score (§4). `#1d4ed8` on white scores 4.8, against a dichromat's 5.4.
 
 ---
 
@@ -282,37 +282,30 @@ For neutral grey pairs, chroma compression reduces to identity:
 - **Step 3:** $a = b = 0$, so $w_L = 0$, $\text{satW} = 0$, $\text{exp} = 1$, and $Y_{\text{lighter}} = L^3$. Step 4's lift is likewise $e_D = 1$.
 - **Step 4:** $Y_{\text{darker}} = L^3$ on backgrounds at least as light as `#767676`. On darker backgrounds, background induction raises it to $L^{3s}$ (§3).
 
-Since $L^3 \approx Y_{\text{WCAG}}$ for greys (up to floating-point precision of the OKLCH transform), the raw contrast ratio before Step 5 equals the WCAG ratio for neutral pairs on backgrounds at least as light as `#767676`, and falls below it on darker ones. The polarity power model (Step 5) then scales scores according to polarity. The achromatic anchors are:
+Since $L^3 \approx Y_{\text{WCAG}}$ for greys (up to floating-point precision of the OKLCH transform), the raw contrast ratio before Step 5 equals the WCAG ratio for neutral pairs on backgrounds at least as light as `#767676`, and falls below it on darker ones. Step 5 then scales the ratio by one power curve. Achromatic pairs on backgrounds at least as light as `#767676` score the same in both directions. The achromatic anchors are:
 
 | Pair | Polarity | Score |
 |------|----------|------:|
 | white on black | L-o-D | 20.9 |
-| black on white | D-o-L | 20.0 |
+| black on white | D-o-L | 20.9 |
 | white on `#767676` | L-o-D | 3.9 |
-| `#767676` on white | D-o-L | 3.7 |
+| `#767676` on white | D-o-L | 3.9 |
 
 The WCAG AA boundary grey (`#767676`) fails AA under OKCA in both polarities.
 
 ---
 
-## 7. Polarity Model and Flare Ceiling (Steps 5–6)
+## 7. Scaling, Polarity and Flare Ceiling (Steps 5–6)
 
-OKCA is **polarity-aware**: `okca(A, B) ≠ okca(B, A)` when A and B differ in lightness. The ratio formula takes the designated text and background roles into account via a final power-curve scaling.
-
-**Mechanism.** Let $r$ denote the raw ratio after Steps 1–4, and let $\text{CAP}$ be the polarity cap:
+**Mechanism.** Let $r$ denote the raw ratio after Steps 1–4:
 
 $$\text{ratio} = \text{CAP} \times \left(\frac{r}{21}\right)^{k}$$
 
-where $k =$ `POL_K` $= 1.100$ and:
+where $k =$ `POL_K` $= 1.100$ and $\text{CAP} =$ `CAP` $= 20.9$ in both polarities. The formula pins at 20.9 when $r = 21$ --- a hair below WCAG's 21, the strict margin that makes FP = 0 hold by construction (Section 4) --- and reduces all lower ratios by the power factor.
 
-$$\text{CAP} = \begin{cases}
-20.9 & \text{if text is lighter (light-on-dark)} \\
-20 & \text{if background is lighter (dark-on-light)}
-\end{cases}$$
+**Polarity.** OKCA is **polarity-aware**: `okca(A, B)` can differ from `okca(B, A)`. The difference comes only from Steps 4 and 6, which tighten dark backgrounds: background induction and the opponent-axis lift (§3, §5) and the flare ceiling (below). So a light-on-dark pair can score lower than the same colours reversed, and **never higher**. Where those steps do not act (achromatic pairs on backgrounds at least as light as `#767676`), the two directions tie.
 
-For L-o-D (`LOD_CAP`, $\text{CAP} = 20.9$): the formula pins at 20.9 when $r = 21$ — a hair below WCAG's 21, the strict-margin that makes FP = 0 hold by construction (Section 4) — and reduces all lower ratios by the power factor. For D-o-L ($\text{CAP} = 20$): the same power curve with a lower cap, applying a polarity penalty at every contrast level. Both polarities share the same exponent $k$, giving consistent curve shape.
-
-**Rationale.** Designers and design systems treat polarity as a meaningful input --- dark mode and light mode are distinct design decisions, and practitioners evaluate them differently. WCAG's symmetric formula discards this information. OKCA encodes the asymmetry as a calibrated design choice: a light-on-dark pair scores higher than the same colours reversed, anchored to practitioner-accepted reference values (white/black = 20.9/20.0, `#767676` = 3.9/3.7). Both transforms produce ratios strictly at or below the raw WCAG value (all scores are conservative).
+**Rationale, and what changed in 3.0.** Through 2.x, Step 5 used two caps: 20.9 for light-on-dark and 20 for dark-on-light. That was an editorial choice to score light-on-dark higher, anchored to practitioner reference values (white/black = 20.9/20.0, `#767676` = 3.9/3.7). In 3.0 it contradicted the evidence-based steps. Dark-on-light already scored higher for 82–99% of pairs whose darker colour has OKLab $L$ below 0.5; the editorial caps won only near the anchors. The reading literature also favours dark text on light backgrounds: Buchner & Baumgartner (2007); Piepenbrock, Mayr, Mund & Buchner (2013); Piepenbrock, Mayr & Buchner (2014a, 2014b). One cap removes the editorial input instead of replacing it with another magnitude. No source gives a contrast-equivalent size for the polarity effect ([`POLARITY_FINDINGS.md`](POLARITY_FINDINGS.md)).
 
 **Deriving $k$.** The exponent was calibrated so that white on `#767676` --- the canonical WCAG AA boundary grey, raw $r \approx 4.54$ --- rounds to 3.9 under L-o-D (raised from an earlier 3.5 anchor to reduce over-conservatism on mid-range chromatics; FP = 0 re-verified across the gamut):
 
@@ -364,14 +357,14 @@ Three independent batteries:
 |---------|------:|:--:|:------------------:|-------|
 | Light-on-dark | 53 | **0** | — | See design-systems for FP=0 coverage |
 | Dark-on-light | 54 | **0** | — | See design-systems for FP=0 coverage |
-| Design systems | 1,142 | **0** | 109 | See note below |
-| **Total** | **1,249** | **0** | **109** | |
+| Design systems | 1,142 | **0** | 107 | See note below |
+| **Total** | **1,249** | **0** | **107** | |
 
 **False passes are zero** --- the non-negotiable invariant holds across all 1,249 pairs.
 
 **WCAG disagreements** (pairs where OKCA < 4.5 but WCAG ≥ 4.5) are intentional and should not be read as miscalibration. WCAG's 4.5:1 AA threshold is widely considered too permissive by practitioners. White on `#767676` --- the canonical WCAG AA boundary anchor --- sits exactly on the line, where the verdict turns on the display and the room rather than on the colours (see *Does not model viewing conditions* in §10 below). All 97 disagreements involve colours in that marginal zone: proximity to the boundary is not the same as being safely above it, and a pair on the line has no margin against the conditions it will be read in. (The count was 111 before the white/#767676 anchor was raised 3.5 → 3.9; that recalibration cleared 14 mid-range chromatics that sat just under 4.5.)
 
-By system: Tailwind CSS v3.4 (45), GOV.UK Design System (14), USWDS v3.x (50). Step 4's induction added two: white on lime-700 and white on GOV.UK blue, each 4.5 to 4.4. The opponent-axis lift added ten, all Tailwind saturated 600–700 shades in the purple–magenta–red range (indigo-600, purple-700, fuchsia-700, pink-700, rose-700, red-700): the hues where dichromats do lose contrast. See `docs/WCAG_DISAGREEMENTS.md` for full enumeration with hex values.
+By system: Tailwind CSS v3.4 (43), GOV.UK Design System (14), USWDS v3.x (50). Step 4's induction added two: white on lime-700 and white on GOV.UK blue, each 4.5 to 4.4. The opponent-axis lift added ten, all Tailwind saturated 600–700 shades in the purple–magenta–red range (indigo-600, purple-700, fuchsia-700, pink-700, rose-700, red-700): the hues where dichromats do lose contrast. See `docs/WCAG_DISAGREEMENTS.md` for full enumeration with hex values. One cap for both polarities (§7) removed two: green-700 now passes as text on white, and lime-700 passes as text on white while still failing as white on lime-700.
 
 ---
 
@@ -385,8 +378,7 @@ By system: Tailwind CSS v3.4 (45), GOV.UK Design System (14), USWDS v3.x (50). S
 | `OPP_THETA_D` | 313.7° | Direction of the darker element's opponent-axis weight (CVD loss, dark on light) |
 | `OPP_K_D` | 0.09 | Darker-element lift strength |
 | `POL_K` | 1.100 | Shared polarity power exponent: $\text{CAP} \times (r/21)^{k}$ |
-| `LOD_CAP` | 20.9 | Light-on-dark contrast cap (< 21 → OKCA strictly below WCAG, FP=0 by construction) |
-| `DOL_CAP` | 20 | Dark-on-light contrast cap (< LOD_CAP); proportional polarity penalty |
+| `CAP` | 20.9 | Contrast cap, both polarities (< 21 → OKCA strictly below WCAG, FP=0 by construction) |
 | `IND_Z` | 1.48 | CAM16's lightness-exponent constant, used by Step 4 |
 | `IND_REF_L` | 0.5658 | OKLab $L$ of `#767676`: backgrounds at or above it keep $s = 1$ |
 | `FLARE` | 0.10 | Flare term for the Step 6 ceiling (twice WCAG's 0.05) |
@@ -400,9 +392,7 @@ By system: Tailwind CSS v3.4 (45), GOV.UK Design System (14), USWDS v3.x (50). S
 
 - **`POL_K` = 1.100** --- Calibrated so white/`#767676` (WCAG AA boundary grey) scores 3.9 under L-o-D (raised from a 3.5 anchor / `POL_K` 1.175 to reduce over-conservatism on mid-range chromatics). Derived: $k = \ln(3.9/21) / \ln(4.54/21) \approx 1.0996$.
 
-- **`LOD_CAP` = 20.9** --- Light-on-dark cap, one notch below 21. This is the strict-margin lever for the FP=0 proof: with the cap below 21 the identity $21^{1-k} \cdot A(\text{white}) \cdot B(\text{black}) = 1$ becomes $20.9/21 = 0.99524 < 1$, removing the single white-on-black equality point so OKCA is strictly below WCAG everywhere (Section 4). White on black: 20.9.
-
-- **`DOL_CAP` = 20** --- Proportional polarity penalty for D-o-L: at any given raw ratio, D-o-L scores $20/20.9 \approx 0.96$ — about 96% — of the equivalent L-o-D score. Black on white: 20.0. `#767676` on white: $(20/20.9) \times 3.9 \approx 3.7$.
+- **`CAP` = 20.9** --- One notch below 21, in both polarities. This is the strict-margin lever for the FP=0 proof: with the cap below 21 the identity $21^{1-k} \cdot A(\text{white}) \cdot B(\text{black}) = 1$ becomes $20.9/21 = 0.99524 < 1$, removing the single white-on-black equality point so OKCA is strictly below WCAG everywhere (Section 4). White on black and black on white: 20.9. Through 2.x a separate `DOL_CAP` = 20 scored dark-on-light about 4% lower; 3.0 removed it (§7).
 
 - **`IND_Z` = 1.48, `IND_REF_L` = 0.5658** --- Not tuned. `IND_Z` is the constant in CAM16's $z = 1.48 + \sqrt{Y_b}$, and `IND_REF_L` is the OKLab $L$ of the background in the white/`#767676` anchor. That reference keeps the anchors exact. A lighter reference would also even out light backgrounds (`#c8c8c8` trails white by about 10 CAM16 lightness units at the AA line), but it would move the anchor.
 
@@ -432,7 +422,7 @@ When modifying the algorithm, these properties must be preserved:
 
 1. **FP = 0.** Re-verify FP = 0 **across the sRGB gamut**, not only on the three probe batteries — the property is calibration-dependent off the achromatic axis (Section 4), so a constant change can introduce a false pass in a hue region the batteries miss. Run checks with rounding applied (`toFixed(1)` on the raw ratio), not just raw floats.
 
-2. **Achromatic anchors.** White/black = 20.9 (L-o-D) / 20.0 (D-o-L). White/`#767676` = 3.9 (L-o-D) / 3.7 (D-o-L). These are the calibration reference points. Any unintended deviation breaks the polarity model calibration. (White/black is 20.9, not 21, by design — see `LOD_CAP` and Section 4.)
+2. **Achromatic anchors.** White/black = 20.9 in both directions. White/`#767676` = 3.9 in both directions. These are the calibration reference points. (White/black is 20.9, not 21, by design — see `CAP` and Section 4.)
 
 3. **No third-party contrast algorithm source code.** Mathematical derivations from public specifications are permitted; copying control flow or constant blocks from third-party packages is not.
 
@@ -442,4 +432,4 @@ When modifying the algorithm, these properties must be preserved:
 
 6. **Flare ceiling.** `FLARE_K` must stay the largest exponent that leaves white/grey pairs untouched for the chosen `FLARE`; retuning one means re-deriving the other (`npm run midtone` reports the bound). The ceiling must stay a minimum --- that is what keeps it outside the FP=0 proof.
 
-7. **Opponent-axis terms.** The directions `OPP_THETA_L` and `OPP_THETA_D` are measured, not tuned (`npm run opponent` re-derives them), and `OPP_K_D` is the smallest CVD-safe strength. The darker lift must keep $e_D \ge 1$, so it only raises the darker proxy. Lemma A is verified under the opponent weight (`npm run fp0`; `OKCA_WEIGHT=chroma` re-runs the 2.x ramp).
+7. **Opponent-axis terms.** The directions `OPP_THETA_L` and `OPP_THETA_D` are measured, not tuned (`npm run opponent` re-derives them), and `OPP_K_D` was set as the smallest CVD-safe strength under the two-cap scaling (see §5 for how one cap changed that). The darker lift must keep $e_D \ge 1$, so it only raises the darker proxy. Lemma A is verified under the opponent weight (`npm run fp0`; `OKCA_WEIGHT=chroma` re-runs the 2.x ramp).

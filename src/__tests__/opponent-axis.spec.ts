@@ -17,8 +17,8 @@ describe('opponent axis: warm hues stay strict, cool hues ease', () => {
     ['#ff8c00', '#1a1a1a', 3.4], // dark orange: unchanged
     ['#3b82f6', '#000000', 3.6], // blue: 2.4 under the hue-uniform ramp; 4.4 from these terms alone, Step 6's flare ceiling binds on pure black
     ['#22c55e', '#000000', 6.0], // green: 4.3 under the hue-uniform ramp; 7.7 from these terms alone, Step 6 binds
-    ['#1d4ed8', '#ffffff', 4.6], // dark blue text on white: lifted, 5.3 before
-    ['#0000ff', '#dddddd', 3.9], // a dichromat sees 4.0
+    ['#1d4ed8', '#ffffff', 4.8], // dark blue text on white: lifted (5.3 before #28; equal caps since #30)
+    ['#0000ff', '#dddddd', 4.1], // a dichromat sees 4.0: one of the saturated-blue cases equal caps put just above (#30)
   ])('%s on %s → %d', (fg, bg, expected) => {
     expect(contrast(fg, bg)).toBe(expected);
   });
@@ -37,9 +37,9 @@ describe('opponent axis: structure', () => {
 
   it('greys are untouched, so the achromatic anchors hold', () => {
     expect(contrast('#ffffff', '#000000')).toBe(20.9);
-    expect(contrast('#000000', '#ffffff')).toBe(20);
+    expect(contrast('#000000', '#ffffff')).toBe(20.9);
     expect(contrast('#ffffff', '#767676')).toBe(3.9);
-    expect(contrast('#767676', '#ffffff')).toBe(3.7);
+    expect(contrast('#767676', '#ffffff')).toBe(3.9);
   });
 
   it('red keeps the full lighter penalty: the weight equals chroma along θ_L', () => {

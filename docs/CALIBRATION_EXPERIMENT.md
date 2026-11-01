@@ -13,19 +13,20 @@ light-on-dark cap (**`LOD_CAP` 21 → 20.9**, issue #14) to make FP=0 a theorem
 rather than a gamut-verified property — see **§9**.
 
 The body (§1–§7) records the method and data that led there; the tables in
-§5–§6 use the pre-change baseline. **Three of the four achromatic anchors named
-in §1's constraint list moved as a result**, so that list states the values as
-they stood when the experiment was designed, not the current ones. Current
-values are always these:
+§5–§6 use the pre-change baseline. **All four achromatic anchors named in §1's
+constraint list have since moved**: three as a result of this work, and the two
+dark-on-light ones again when 3.0 set one cap for both polarities (#30). That
+list states the values as they stood when the experiment was designed, not the
+current ones. Current values are always these:
 
 <!-- ANCHORS:BEGIN — checked against contrast() by src/__tests__/docs-lint.spec.ts -->
 
 | pair | OKCA | was, at §1 |
 |---|---:|---:|
 | `#ffffff` on `#000000` | 20.9 | 21.0 |
-| `#000000` on `#ffffff` | 20.0 | 20.0 |
+| `#000000` on `#ffffff` | 20.9 | 20.0 |
 | `#ffffff` on `#767676` | 3.9 | 3.5 |
-| `#767676` on `#ffffff` | 3.7 | 3.3 |
+| `#767676` on `#ffffff` | 3.9 | 3.3 |
 
 <!-- ANCHORS:END -->
 

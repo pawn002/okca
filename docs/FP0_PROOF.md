@@ -5,7 +5,7 @@
 arithmetic** — no calibration-dependent headroom, no residual. Reproduce:
 `npm run fp0` (certifies with **0 uncertified boxes**).
 
-Constants: `POL_K` = 1.100, `CHROMA_K` = 0.65, `LOD_CAP` = 20.9, `DOL_CAP` = 20,
+Constants: `POL_K` = 1.100, `CHROMA_K` = 0.65, `CAP` = 20.9 (both polarities),
 `IND_Z` = 1.48, `IND_REF_L` = 0.5658, `OPP_THETA_L` = 9.4°, `OPP_THETA_D` = 313.7°,
 `OPP_K_D` = 0.09, `FLARE` = 0.10, `FLARE_K` = 1.5.
 
@@ -28,8 +28,7 @@ $$\text{OKCA} = \text{CAP} \cdot \left(\frac{r_{\text{raw}}}{21}\right)^{k}, \qq
 
 where $Y_{\text{lighter}} = \left(L_{\text{lighter}}^{\text{exp}}\right)^{3}$ is
 the chroma-penalised lighter proxy, $Y_{\text{darker}} = L_{\text{darker}}^{3}$,
-$k =$ `POL_K`, and $\text{CAP} =$ `LOD_CAP` (light-on-dark) or `DOL_CAP`
-(dark-on-light). Writing $Y_l$ and $Y_d$ for the **WCAG** luminances of the
+$k =$ `POL_K`, and $\text{CAP} =$ `CAP`, the same in both polarities. Writing $Y_l$ and $Y_d$ for the **WCAG** luminances of the
 lighter and darker elements,
 
 $$r_{\text{WCAG}} = \frac{Y_l + 0.05}{Y_d + 0.05}.$$
@@ -65,14 +64,14 @@ $\max B = B(\text{black})$.
 With $\text{CAP} = 21$ the bound at the anchor is $21/21 = 1$ — **tight**, so
 white-on-black would be the single point where $\text{OKCA} = \text{WCAG}$, which
 interval arithmetic cannot certify (it cannot prove a non-strict equality).
-Setting **`LOD_CAP` $= 20.9 < 21$** — write $c$ for this cap — makes the anchor
+Setting **`CAP` $= 20.9 < 21$** — write $c$ for this cap — makes the anchor
 bound
 
 $$\frac{c}{21^{k}} \cdot A(\text{white}) \cdot B(\text{black}) = \frac{c}{21} = 0.99524 < 1,$$
 
 a **uniform strict margin**. There is now no equality point anywhere: OKCA is
-*strictly* below WCAG for every sRGB pair. (Dark-on-light, $\text{CAP} = 20$, is
-looser still.) The $20.9/21$ factor is the deliberate, minimal step that converts
+*strictly* below WCAG for every sRGB pair, in both polarities, since both use the
+same cap. (Through 2.x, dark-on-light used a cap of 20, which was looser still.) The $20.9/21$ factor is the deliberate, minimal step that converts
 the guarantee from "gamut-verified headroom" to "strict by construction".
 
 ## 4. Reduction to two verified lemmas
@@ -157,6 +156,6 @@ so it is robust to future retuning (the CI-invariant companion can gate on it).
 - **sRGB inputs.** Wide-gamut (`oklch()` outside sRGB, P3/Rec.2020) is not
   covered — the lemma search is over the sRGB cube; re-run over the wider domain
   to extend.
-- The lowered `LOD_CAP` means white-on-black = **20.9** (not 21). This is the
+- The lowered `CAP` means white-on-black and black-on-white = **20.9** (not 21). This is the
   deliberate cost of a strict-by-construction guarantee; see the scale note in
   `README.md` / `OKCA_DESIGN.md`.
