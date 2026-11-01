@@ -1,7 +1,11 @@
 # Darker-Element Lift — Fit Findings
 
-Research notes for [#31](https://github.com/pawn002/okca/issues/31). This is
-*analysis*: nothing here is in `src/`.
+Research notes for [#31](https://github.com/pawn002/okca/issues/31).
+
+> **Applied:** the linear lift along $\theta_D = 267°$ with $K_D$ = 0.070 is now
+> Step 4 in `src/index.ts`. The figures below compare against the line before
+> this change. `npm run darker-lift` still reimplements that line, so its
+> self-check against the live `contrast()` now reports mismatches.
 
 Reproduce:
 
@@ -112,4 +116,4 @@ rule (smallest with no grid pair above the dichromat ratio). Counts are on a
 ## 5. Recommendation
 
 Replace Step 4's darker lift with the linear form along $\theta_D = 267°$,
-$K_D = 0.070$. Not applied.
+$K_D = 0.070$. Applied.

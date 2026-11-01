@@ -6,8 +6,8 @@ arithmetic** — no calibration-dependent headroom, no residual. Reproduce:
 `npm run fp0` (certifies with **0 uncertified boxes**).
 
 Constants: `POL_K` = 1.100, `CHROMA_K` = 0.65, `CAP` = 20.9 (both polarities),
-`IND_Z` = 1.48, `IND_REF_L` = 0.5658, `OPP_THETA_L` = 9.4°, `OPP_THETA_D` = 313.7°,
-`OPP_K_D` = 0.09, `FLARE` = 0.10, `FLARE_K` = 1.5.
+`IND_Z` = 1.48, `IND_REF_L` = 0.5658, `OPP_THETA_L` = 9.4°, `OPP_THETA_D` = 267°,
+`OPP_K_D` = 0.070, `FLARE` = 0.10, `FLARE_K` = 1.5.
 
 The lighter proxy $Y_{\text{lighter}}$ below is Step 3's, whose exponent is driven
 by the opponent-axis weight $w_L = (C + a \cos\theta_L + b \sin\theta_L)/2$, not by
@@ -117,7 +117,7 @@ $$
 Y_{\text{darker}} = L_{\text{darker}}^{3s/e_D}, \qquad s = \min\left(1, \thinspace \frac{1.48 + L_{\text{bg}}^{1.5}}{1.48 + L_{\text{ref}}^{1.5}}\right) \le 1, \qquad e_D \ge 1,
 $$
 
-where $s$ is background induction and $e_D = 1 + K_D \cdot \text{ramp}(w_D)$ is the
+where $s$ is background induction and $e_D = 1 + K_D \cdot w_D / 0.15$ is the
 opponent-axis lift. For $L_{\text{darker}} \in [0, 1]$, $3s/e_D \le 3$ gives
 $L_{\text{darker}}^{3s/e_D} \ge L_{\text{darker}}^{3}$.
 In $B(d)$ the darker proxy appears only in the denominator, raised to $k > 0$,

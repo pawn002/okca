@@ -82,12 +82,12 @@ Tested against 1,249 color pairs across three batteries (light-on-dark, dark-on-
 |---------|------:|:------------:|:-----------------:|
 | Light-on-dark | 53 | 0 | — |
 | Dark-on-light | 54 | 0 | — |
-| Design systems | 1,142 | 0 | 107 |
-| **Total** | **1,249** | **0** | **107** |
+| Design systems | 1,142 | 0 | 108 |
+| **Total** | **1,249** | **0** | **108** |
 
 **False passes: zero.** OKCA never approves a pair that WCAG rejects.
 
-**WCAG disagreements** are pairs where OKCA scores below 4.5 but WCAG scores ≥ 4.5. These are intentional. WCAG's 4.5:1 AA threshold is widely considered too permissive: white on `#767676` — WCAG's own AA boundary anchor — sits exactly on the line, where the verdict turns on the display and the room rather than on the colors. The same pair can read acceptably on a bright screen and not on a dimmer one ([#22](https://github.com/pawn002/okca/issues/22#issuecomment-5282357292)). A threshold with no margin against viewing conditions is the problem, and all 107 disagreements sit in that zone.
+**WCAG disagreements** are pairs where OKCA scores below 4.5 but WCAG scores ≥ 4.5. These are intentional. WCAG's 4.5:1 AA threshold is widely considered too permissive: white on `#767676` — WCAG's own AA boundary anchor — sits exactly on the line, where the verdict turns on the display and the room rather than on the colors. The same pair can read acceptably on a bright screen and not on a dimmer one ([#22](https://github.com/pawn002/okca/issues/22#issuecomment-5282357292)). A threshold with no margin against viewing conditions is the problem, and all 108 disagreements sit in that zone.
 
 **Found a false pass?** `OKCA ≤ WCAG` is verified across sRGB (`docs/FP0_PROOF.md`). If you somehow find an sRGB pair OKCA scores **above** the WCAG ratio, that's a bug — [open an issue](https://github.com/pawn002/okca/issues) and I'll fix it.
 

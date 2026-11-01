@@ -8,6 +8,12 @@ the CVD survey in [`CVD_FINDINGS.md`](CVD_FINDINGS.md).
 > The prototype figures below were measured against the line before this change.
 > `npm run opponent` now runs on top of the applied change, so its "current"
 > column is the paired design itself.
+>
+> **Superseded in part by [#31](https://github.com/pawn002/okca/issues/31):**
+> Step 4's darker lift is now linear along $267°$ with $K_D$ = 0.070, fitted to
+> where OKCA needs a lift rather than to raw CVD loss. See
+> [`DARKER_LIFT_FINDINGS.md`](DARKER_LIFT_FINDINGS.md). Step 3's terms are
+> unchanged.
 
 Reproduce:
 

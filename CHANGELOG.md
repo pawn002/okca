@@ -7,22 +7,28 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
-**Breaking — release as 3.0.0.** Four changes, each researched on its own branch and combined by merge: a flare-robustness ceiling ([#25](https://github.com/pawn002/okca/issues/25)), CAM16 background induction ([#26](https://github.com/pawn002/okca/issues/26)), opponent-axis chroma terms ([#28](https://github.com/pawn002/okca/issues/28)) and one cap for both polarities ([#30](https://github.com/pawn002/okca/issues/30)). Dark-background pairs and saturated warm colours score lower; saturated cool colours score higher. The four anchors are unchanged.
+**Breaking — release as 3.0.0.** Five changes, each researched on its own branch and combined by merge: a flare-robustness ceiling ([#25](https://github.com/pawn002/okca/issues/25)), CAM16 background induction ([#26](https://github.com/pawn002/okca/issues/26)), opponent-axis chroma terms ([#28](https://github.com/pawn002/okca/issues/28)), one cap for both polarities ([#30](https://github.com/pawn002/okca/issues/30)) and a refitted darker lift ([#31](https://github.com/pawn002/okca/issues/31)). Dark-background pairs and saturated warm colours score lower; saturated cool colours score higher. The four anchors are unchanged.
 
 ### Combined effect against 2.0.3
-- On a 262,144-pair sRGB grid, 101,652 pairs rise and 30,857 fall; 3,490 newly pass AA and 1,387 lose it. No pair scores above WCAG. Against what a dichromat sees (Machado et al. 2009, severity 1.0), 43 pairs score at most 0.25 higher, all saturated pure-blue text on light backgrounds (#30); the CVD comparison is rationale for the calibration, not a promise.
+- On a 262,144-pair sRGB grid, 101,695 pairs rise and 30,156 fall; 3,487 newly pass AA and 1,410 lose it. No pair scores above WCAG, and none above what a dichromat sees (Machado et al. 2009, severity 1.0); the CVD comparison is rationale for the calibration, not a promise.
 - Examples: `#888888` on `#000000` 5.2 → 3.7 (Step 6); `#cccccc` on `#333333` 7.1 → 5.7 (Step 4); `#9f9f9f` on `#1a1a1a` 5.8 → 4.7; hot pink on `#1a1a1a` 3.6 → 3.0; blue `#3b82f6` on black 2.4 → 3.6 (Steps 3 and 6); green `#22c55e` on black 4.3 → 6.0; `#1d4ed8` on white 5.3 → 4.8; black on white 20.0 → 20.9; `#767676` on white 3.7 → 3.9.
-- WCAG disagreements 97 → 107 (Tailwind 43, GOV.UK 14, USWDS 50).
-- 96 curated probe values moved, 60 down and 36 up. Sixteen crossed 7.0; two crossed 4.5 in opposite directions (white on `#3a7d44` 4.6 → 4.4; `#3a7d44` on white 4.4 → 4.6).
+- WCAG disagreements 97 → 108 (Tailwind 44, GOV.UK 14, USWDS 50).
+- 92 curated probe values moved, 60 down and 32 up. Seventeen crossed 7.0; two crossed 4.5 in opposite directions (white on `#3a7d44` 4.6 → 4.3; `#3a7d44` on white 4.4 → 4.5).
 - FP = 0 needs no new lemma for Steps 4 and 6 (`docs/FP0_PROOF.md` §5–§6), and lemma A is re-verified under Step 3's opponent weight. `npm run fp0` certifies with 0 uncertified boxes.
 - The flare ceiling acts on plain L³, not on Step 4's induced and lifted proxy. Flare is physical light added to both patches; induction and the opponent-axis lift are perceptual corrections, and applying both to one denominator would count them twice.
 - Where both bind, the lower wins. On pure black the flare ceiling caps the eased cool colours: blue `#3b82f6` is 4.4 from the opponent terms alone and 3.6 with Step 6.
+
+### Changed — darker lift refitted ([#31](https://github.com/pawn002/okca/issues/31))
+- **Step 4's darker lift is linear along `OPP_THETA_D` = 267° with `OPP_K_D` = 0.070:** `eD = 1 + OPP_K_D·w_D/C_THRESH`, uncapped. Under one cap (#30), #28's lift (313.7°, capped ramp, 0.09) left 43 grid pairs above a dichromat's ratio, and no strength along 313.7° cleared them. The same rule is now applied to every piece: for each dark colour, the smallest lift at which no pair scores above the dichromat's ratio. Only 35 of 512 grid colours need one, nearly all blue to violet, growing roughly linearly with chroma. That sets the direction (requirement-weighted, essentially Oklab's −b), the shape (linear) and the strength (smallest meeting the rule).
+- **Effect:** no grid pair scores above the dichromat's ratio. Saturated blues tighten (`#0000ee` on `#eeeeee` 5.4 → 5.0); dark reds, purples and magentas on white ease slightly (`#800080` on white 6.6 → 6.9); dark greens and teals tighten by about 0.1–0.2. On the grid, 336 pairs lose AA and 310 gain it. WCAG disagreements 107 → 108: white on green-700, cyan-700, blue-700 and violet-700 now falls just short, while red-700 and rose-700 pass in both directions.
+- **FP = 0 unchanged.** The lift still only raises the darker proxy; lemma B holds a fortiori.
+- `docs/DARKER_LIFT_FINDINGS.md` (`npm run darker-lift`) records the fit.
 
 ### Changed — one cap for both polarities ([#30](https://github.com/pawn002/okca/issues/30))
 - **`LOD_CAP` 20.9 / `DOL_CAP` 20 → a single `CAP` = 20.9.** Through 2.x, dark-on-light was scored about 4.5% lower by editorial choice. In 3.0 that contradicted the evidence-based steps: dark-on-light already scored higher for 82–99% of pairs whose darker colour is below OKLab L 0.5. With one cap, light-on-dark never outscores dark-on-light, and every polarity difference comes from Steps 4 and 6, in the direction reading research supports (Buchner & Baumgartner 2007; Piepenbrock et al. 2013, 2014a, 2014b).
 - **Effect:** every dark-on-light score rises by 20.9/20. Black on white 20.0 → 20.9; `#767676` on white 3.7 → 3.9; light-on-dark is unchanged. On a 262,144-pair grid, 788 pairs newly pass AA and none lose it. WCAG disagreements 109 → 107: green-700 and lime-700 now pass as text on white.
 - **FP = 0 unchanged.** The dark-on-light cap now equals the cap the proof already uses.
-- **Interaction with #28.** `OPP_K_D` = 0.09 was derived under the two-cap scaling, as the smallest strength with no grid pair above a dichromat's ratio. With one cap, 43 grid pairs exceed that ratio by at most 0.25, all saturated pure-blue text (`#0000cc`, `#0000ee`) on light near-neutral backgrounds; raising `OPP_K_D` does not clear them. The CVD result is the rationale for the calibration, not a promise.
+- **Interaction with #28.** `OPP_K_D` = 0.09 was derived under the two-cap scaling, as the smallest strength with no grid pair above a dichromat's ratio. With one cap, 43 grid pairs exceed that ratio by at most 0.25, all saturated pure-blue text (`#0000cc`, `#0000ee`) on light near-neutral backgrounds; raising `OPP_K_D` does not clear them. Resolved by #31.
 - `docs/POLARITY_FINDINGS.md` (`npm run polarity`) records the exploration.
 
 ### Changed — opponent-axis chroma terms ([#28](https://github.com/pawn002/okca/issues/28))

@@ -7,7 +7,9 @@ Research notes for [#30](https://github.com/pawn002/okca/issues/30).
 > under the two-cap scaling. With one cap, 43 grid pairs exceed a dichromat's
 > ratio by at most 0.25, all saturated pure-blue text on light near-neutral
 > backgrounds, and raising `OPP_K_D` does not clear them. Documented, not tuned
-> around: the CVD result is rationale, not a promise.
+> around: the CVD result is rationale, not a promise. Resolved by
+> [#31](https://github.com/pawn002/okca/issues/31), which refits the darker lift
+> ([`DARKER_LIFT_FINDINGS.md`](DARKER_LIFT_FINDINGS.md)).
 
 Reproduce:
 
