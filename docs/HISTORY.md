@@ -18,7 +18,7 @@ rejects?
 
 The first release replaced WCAG's luminance with lightness from Oklab, and
 penalised saturated light colours. WCAG scores hot pink on near-black as a
-comfortable AA pass (6.6), though practitioners routinely reject it. It also carried
+comfortable AA pass (6.6), though designers routinely judge it inadequate. It also carried
 a green-hue correction: a patch for one region of the hue circle where the two
 models disagreed.
 
@@ -226,6 +226,12 @@ Open questions, roughly in order of how much they would change:
 - **Milder colour-vision deficiency.** The colour-vision checks model full
   dichromacy. Anomalous trichromacy, the more common form, loses less. Whether
   it changes any calibration is untested.
+- **A basis for the saturation penalty's strength.** `CHROMA_K` is set so hot
+  pink on near-black fails AA, matching designers' judgement. Colour-vision
+  deficiency explains part of that judgement: a dichromat keeps about 5.3 of the
+  pair's 6.6. No legibility study yet found pins down the rest. The reading
+  research so far (Legge et al., 1990) shows low-vision readers rely on
+  luminance contrast, not that saturated colours are harder to read.
 - **Viewing conditions.** OKCA is a relative measure and cannot see screen
   brightness or room light. #22 showed those conditions can flip a verdict at
   the AA line. A relative metric cannot fix that; whether anything should

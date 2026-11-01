@@ -13,7 +13,7 @@ $$\text{ratio} = \frac{Y_1 + 0.05}{Y_2 + 0.05}$$
 
 This has four failure modes OKCA addresses:
 
-1. **False passes for saturated chromatic text.** Hot pink on near-black scores 6.6:1 under WCAG --- a comfortable AA pass. Accessibility practitioners consistently identify it as inadequate, and it is one of the most commonly cited examples of WCAG producing a result that does not match production experience. WCAG's luminance formula treats it identically to an achromatic pair at the same luminance ratio.
+1. **False passes for saturated chromatic text.** Hot pink on near-black scores 6.6:1 under WCAG --- a comfortable AA pass. Designers routinely judge it inadequate for text, and it is one of the most commonly cited examples of WCAG producing a result that does not match production experience. Part of the gap is measurable: a reader with red–green colour-vision deficiency keeps about 5.3 of its 6.6, while a grey of the same luminance loses nothing ([`CVD_FINDINGS.md`](CVD_FINDINGS.md)). WCAG's luminance formula treats it identically to an achromatic pair at the same luminance ratio.
 
 2. **Polarity blindness.** WCAG's ratio is symmetric: `ratio(A on B) = ratio(B on A)`. The two directions are not equivalent: reading research finds dark text on a light background outperforms the reverse (§7), and dark backgrounds measurably cost contrast (failure modes 3 and 4). WCAG does not model this asymmetry.
 
@@ -226,7 +226,7 @@ wider domain (see [Section 11](#11-extension-guidelines)).
 
 ## 5. The Opponent-Axis Compression Mechanism (Step 3)
 
-**Problem.** Saturated chromatic light text on a dark background --- e.g. hot pink (`#ff69b4`) on near-black (`#1a1a1a`) --- scores 6.6:1 under WCAG, the same as an achromatic pair at equivalent luminance. It is one of the most commonly cited WCAG false passes: experienced practitioners flag it as inadequate, and it fails at moderate contrast sensitivity loss. WCAG's formula has no mechanism to distinguish it from an achromatic pair.
+**Problem.** Saturated chromatic light text on a dark background --- e.g. hot pink (`#ff69b4`) on near-black (`#1a1a1a`) --- scores 6.6:1 under WCAG, the same as an achromatic pair at equivalent luminance. It is one of the most commonly cited WCAG false passes: designers routinely judge it inadequate for text. WCAG's formula has no mechanism to distinguish it from an achromatic pair.
 
 Because WCAG contrast is a function of $Y$ alone, any two foreground colors sharing a luminance value produce identical ratios regardless of hue or saturation. `#9f9f9f` is the neutral grey with the same WCAG luminance as hot pink ($Y = 0.347$):
 

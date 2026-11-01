@@ -7,7 +7,7 @@ text on dark backgrounds, it scores contrast symmetrically when the perceptual r
 is not symmetric, it treats a colour's lightness as fixed whatever background it
 sits on, and its passes on near-black backgrounds rest on a margin that stray light
 removes first. All four cause marginal colour combinations to pass automated checks and
-reach production, where real users with contrast sensitivity loss cannot read them.
+reach production with the least margin for readers who need it most.
 
 OKCA is a **stricter drop-in for WCAG 2.x** that closes all four gaps on the familiar 1–21
 scale and the same AA/AAA thresholds — no new compliance vocabulary. Its one load-bearing
@@ -38,8 +38,10 @@ path to correction within its current architecture.
 
 **Chromatic over-rating near threshold.** Saturated chromatic text on dark
 backgrounds — the hot pink / near-black case is canonical — scores well above the
-4.5 AA threshold while failing in user studies at moderate to severe contrast
-sensitivity loss. The IEC 61966-2-1 weighting assigns 71.5% of luminance to the
+4.5 AA threshold (6.6), yet designers routinely judge it inadequate for text. Part
+of that is measurable: a reader with red–green colour-vision deficiency keeps about
+5.3 of its 6.6, while a grey of the same luminance loses nothing. The IEC 61966-2-1
+weighting assigns 71.5% of luminance to the
 green channel, which does not translate cleanly to chromatic legibility. The result
 is a systematic over-rating of vivid lighter elements in negative polarity.
 
