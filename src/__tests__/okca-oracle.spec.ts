@@ -12,8 +12,7 @@ import { contrast } from '../index';
 const C_THRESH  = 0.15;
 const CHROMA_K  = 0.65;
 const POL_K     = 1.100;
-const LOD_CAP   = 20.9;
-const DOL_CAP   = 20;
+const CAP       = 20.9;
 const IND_Z     = 1.48;
 const IND_REF_L = 0.5658363271;
 const FLARE     = 0.10;
@@ -51,7 +50,7 @@ function refContrast(textColor: string, bgColor: string): number | null {
   // Step 5 — polarity-aware scaling
   const isLightOnDark = tL > bL;
   const rawRatio = (lighterY + 0.05) / (darkerY + 0.05);
-  const cap = isLightOnDark ? LOD_CAP : DOL_CAP;
+  const cap = CAP;
   const ratio = cap * Math.pow(rawRatio / 21, POL_K);
 
   // Step 6 — flare-robustness ceiling

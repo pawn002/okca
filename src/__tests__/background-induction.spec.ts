@@ -24,7 +24,7 @@ function scoreWith(fg: string, bg: string, useInduction: boolean): number {
   const eD = 1 + 0.09 * Math.min(1, (w(dt, 313.7) / 0.15) ** 2);
   const s = useInduction ? Math.min(1, (IND_Z + bL ** 1.5) / (IND_Z + IND_REF_L ** 1.5)) : 1;
   const r = ((lL ** exp) ** 3 + 0.05) / (dL ** ((3 * s) / eD) + 0.05);
-  const cap = lod ? 20.9 : 20;
+  const cap = 20.9;
   const ceiling = cap * (((lL ** 3 + 0.1) / (dL ** 3 + 0.1)) / 11) ** 1.5;
   return parseFloat(Math.max(1, Math.min(21, cap * (r / 21) ** 1.1, ceiling)).toFixed(1));
 }

@@ -12,13 +12,13 @@ import { contrast, hexToOklab } from '../index';
 const FLARE = 0.10, FLARE_K = 1.5;
 const grey = (v: number) => '#' + v.toString(16).padStart(2, '0').repeat(3);
 
-/** Steps 1-5 of 2.x, without induction: the basis FLARE_K was derived on. */
+/** Steps 1-5 without induction or opponent terms: the basis FLARE_K was derived on (one cap, 20.9). */
 function step5(fg: string, bg: string): number {
   const t = hexToOklab(fg)!, b = hexToOklab(bg)!;
   const tL = Math.max(0, t[0]), bL = Math.max(0, b[0]);
   const lL = Math.max(tL, bL), dL = Math.min(tL, bL);
   const r = (lL ** 3 + 0.05) / (dL ** 3 + 0.05);
-  return parseFloat(Math.max(1, Math.min(21, (tL > bL ? 20.9 : 20) * (r / 21) ** 1.1)).toFixed(1));
+  return parseFloat(Math.max(1, Math.min(21, 20.9 * (r / 21) ** 1.1)).toFixed(1));
 }
 
 /** Steps 1-5 including Step 4's background induction: the score Step 6 caps. */
@@ -28,7 +28,7 @@ function steps1to5(fg: string, bg: string): number {
   const lL = Math.max(tL, bL), dL = Math.min(tL, bL);
   const s = Math.min(1, (1.48 + bL ** 1.5) / (1.48 + 0.5658363271 ** 1.5));
   const r = (lL ** 3 + 0.05) / (dL ** (3 * s) + 0.05);
-  return parseFloat(Math.max(1, Math.min(21, (tL > bL ? 20.9 : 20) * (r / 21) ** 1.1)).toFixed(1));
+  return parseFloat(Math.max(1, Math.min(21, 20.9 * (r / 21) ** 1.1)).toFixed(1));
 }
 
 describe('flare ceiling: mid-tones on near-black', () => {
@@ -39,7 +39,7 @@ describe('flare ceiling: mid-tones on near-black', () => {
     ['#919191', '#121212', 3.9],
     ['#9f9f9f', '#1a1a1a', 4.7],
     ['#8d9297', '#000000', 4.3],
-    ['#000000', '#767676', 2.6],
+    ['#000000', '#767676', 2.7], // 2.6 with the 2.x dark-on-light cap of 20
   ])('%s on %s → %d', (fg, bg, expected) => {
     expect(contrast(fg, bg)).toBe(expected);
   });
@@ -66,7 +66,7 @@ describe('flare ceiling: never binds on the light side', () => {
     const ceil = (fg: string, bg: string, k: number) => {
       const t = hexToOklab(fg)![0], b = hexToOklab(bg)![0];
       const r = (Math.max(t, b) ** 3 + FLARE) / (Math.min(t, b) ** 3 + FLARE);
-      return (t > b ? 20.9 : 20) * (r / ((1 + FLARE) / FLARE)) ** k;
+      return 20.9 * (r / ((1 + FLARE) / FLARE)) ** k;
     };
     const binds = (k: number) => {
       for (let v = 0; v < 256; v++)
