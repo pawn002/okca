@@ -66,7 +66,7 @@ $$
 w = \frac{C + a \cos\theta + b \sin\theta}{2}
 $$
 
-which is $C$ in direction $\theta$, $C/2$ at 90° from it and $0$ opposite. It is linear in $a$ and $b$, and there is **no hue branch**: no hue ranges and no conditions on hue angle. It is deliberately *not* rotationally symmetric. Before 3.0 the penalty used chroma $C$ alone and treated every hue the same. Colour-vision deficiency does not: dichromats lose much of the contrast of reds, oranges and magentas, and little of greens, blues and purples ([`CVD_FINDINGS.md`](CVD_FINDINGS.md)). The two directions are the loss-weighted directions of that loss ([`OPPONENT_AXIS_FINDINGS.md`](OPPONENT_AXIS_FINDINGS.md)). The lighter element's direction, $9.4°$, is essentially Oklab's $+a$ axis: the red end of the red–green opponent channel that protans and deutans lose.
+which is $C$ in direction $\theta$, $C/2$ at 90° from it and $0$ opposite. It is linear in $a$ and $b$, and there is **no hue branch**: no hue ranges and no conditions on hue angle. It is deliberately *not* rotationally symmetric. Before 3.0 the penalty used chroma $C$ alone and treated every hue the same. Colour-vision deficiency does not: dichromats lose much of the contrast of reds, oranges and magentas, and little of greens, blues and purples ([`CVD_FINDINGS.md`](CVD_FINDINGS.md)). The lighter element's direction, $9.4°$, is the loss-weighted direction of that loss ([`OPPONENT_AXIS_FINDINGS.md`](OPPONENT_AXIS_FINDINGS.md)), essentially Oklab's $+a$ axis: the red end of the red–green opponent channel that protans and deutans lose. The darker element's direction, $267°$, is where OKCA's own scores need a lift to stay at or below a dichromat's ([`DARKER_LIFT_FINDINGS.md`](DARKER_LIFT_FINDINGS.md)), essentially Oklab's $-b$ axis.
 
 FP = 0 is maintained by the polarity model (see [Section 4](#4-the-fp--0-guarantee)) rather than by green-channel patches.
 
@@ -267,11 +267,11 @@ From these terms alone, blue `#3b82f6` on black goes from 2.4 to 4.4, and green 
 
 ### The darker element's opponent-axis lift (Step 4)
 
-Easing the lighter penalty alone left a gap: saturated dark text on light fills, where the colour-vision loss is in the darker *text*, which dichromats see as lighter. Step 4 therefore also lifts the darker element along its own direction, $\theta_D =$ `OPP_THETA_D` $= 313.7°$ (between blue and magenta):
+Easing the lighter penalty alone left a gap: saturated dark text on light fills, where the colour-vision loss is in the darker *text*, which dichromats see as lighter. Step 4 therefore also lifts the darker element along its own direction, $\theta_D =$ `OPP_THETA_D` $= 267°$ (blue, essentially Oklab's $-b$ axis), linearly and without a cap:
 
-$$e_D = 1 + K_D \cdot \min\left(1, \left(\frac{w_D}{0.15}\right)^{2}\right), \qquad Y_{\text{darker}} = L_{\text{darker}}^{3s/e_D}$$
+$$e_D = 1 + K_D \cdot \frac{w_D}{0.15}, \qquad Y_{\text{darker}} = L_{\text{darker}}^{3s/e_D}$$
 
-$K_D =$ `OPP_K_D` $= 0.09$ was derived as the smallest strength at which no pair on a 262,144-pair grid scores above what a dichromat sees (Machado et al. 2009, severity 1.0), under the two-cap scaling OKCA then used. That took the count from 243 pairs (11 passing AA) to none. With one cap for both polarities (§7), dark-on-light scores rose about 4.5%. Now 43 grid pairs exceed the dichromat's ratio by at most 0.25, all saturated pure-blue text (`#0000cc`, `#0000ee`) on light near-neutral backgrounds. Raising $K_D$ does not clear them. This is rationale for the calibration, not a guarantee; OKCA's promise is the WCAG bound. The lift only raises the darker proxy, so it can only lower a score (§4). `#1d4ed8` on white scores 4.8, against a dichromat's 5.4.
+All three pieces are fitted to one rule: no pair on a 262,144-pair grid should score above what a dichromat sees (Machado et al. 2009, severity 1.0). For each dark colour, find the smallest $e_D$ that meets it. Only 35 of 512 need any lift, nearly all blue to violet, and the requirement grows roughly in proportion to chroma. Hence the direction ($\theta_D$, the requirement-weighted direction), the linear shape, and $K_D =$ `OPP_K_D` $= 0.070$, the smallest strength meeting the rule ([`DARKER_LIFT_FINDINGS.md`](DARKER_LIFT_FINDINGS.md)). No grid pair then scores above the dichromat's ratio. That is rationale for the calibration, not a guarantee; OKCA's promise is the WCAG bound. The first version (#28) set the direction from raw CVD loss ($313.7°$) and capped the ramp; after one cap for both polarities (§7) it left 43 saturated-blue pairs above the dichromat's ratio, which no strength along $313.7°$ could clear. The lift only raises the darker proxy, so it can only lower a score (§4). `#1d4ed8` on white scores 4.8, against a dichromat's 5.4.
 
 ---
 
@@ -357,14 +357,14 @@ Three independent batteries:
 |---------|------:|:--:|:------------------:|-------|
 | Light-on-dark | 53 | **0** | — | See design-systems for FP=0 coverage |
 | Dark-on-light | 54 | **0** | — | See design-systems for FP=0 coverage |
-| Design systems | 1,142 | **0** | 107 | See note below |
-| **Total** | **1,249** | **0** | **107** | |
+| Design systems | 1,142 | **0** | 108 | See note below |
+| **Total** | **1,249** | **0** | **108** | |
 
 **False passes are zero** --- the non-negotiable invariant holds across all 1,249 pairs.
 
-**WCAG disagreements** (pairs where OKCA < 4.5 but WCAG ≥ 4.5) are intentional and should not be read as miscalibration. WCAG's 4.5:1 AA threshold is widely considered too permissive by practitioners. White on `#767676` --- the canonical WCAG AA boundary anchor --- sits exactly on the line, where the verdict turns on the display and the room rather than on the colours (see *Does not model viewing conditions* in §10 below). All 97 disagreements involve colours in that marginal zone: proximity to the boundary is not the same as being safely above it, and a pair on the line has no margin against the conditions it will be read in. (The count was 111 before the white/#767676 anchor was raised 3.5 → 3.9; that recalibration cleared 14 mid-range chromatics that sat just under 4.5.)
+**WCAG disagreements** (pairs where OKCA < 4.5 but WCAG ≥ 4.5) are intentional and should not be read as miscalibration. WCAG's 4.5:1 AA threshold is widely considered too permissive by practitioners. White on `#767676` --- the canonical WCAG AA boundary anchor --- sits exactly on the line, where the verdict turns on the display and the room rather than on the colours (see *Does not model viewing conditions* in §10 below). All 108 disagreements involve colours in that marginal zone: proximity to the boundary is not the same as being safely above it, and a pair on the line has no margin against the conditions it will be read in. (The count was 111 before the white/#767676 anchor was raised 3.5 → 3.9; that recalibration cleared 14 mid-range chromatics that sat just under 4.5.)
 
-By system: Tailwind CSS v3.4 (43), GOV.UK Design System (14), USWDS v3.x (50). Step 4's induction added two: white on lime-700 and white on GOV.UK blue, each 4.5 to 4.4. The opponent-axis lift added ten, all Tailwind saturated 600–700 shades in the purple–magenta–red range (indigo-600, purple-700, fuchsia-700, pink-700, rose-700, red-700): the hues where dichromats do lose contrast. See `docs/WCAG_DISAGREEMENTS.md` for full enumeration with hex values. One cap for both polarities (§7) removed two: green-700 now passes as text on white, and lime-700 passes as text on white while still failing as white on lime-700.
+By system: Tailwind CSS v3.4 (44), GOV.UK Design System (14), USWDS v3.x (50). Step 4's induction added two: white on lime-700 and white on GOV.UK blue, each 4.5 to 4.4. The opponent-axis lift added ten, all Tailwind saturated 600–700 shades in the purple–magenta–red range (indigo-600, purple-700, fuchsia-700, pink-700, rose-700, red-700): the hues where dichromats do lose contrast. See `docs/WCAG_DISAGREEMENTS.md` for full enumeration with hex values. One cap for both polarities (§7) removed two: green-700 now passes as text on white, and lime-700 passes as text on white while still failing as white on lime-700. The linear darker lift netted one: white on green-700, cyan-700, blue-700 and violet-700 now falls just short, while red-700 and rose-700 pass in both directions.
 
 ---
 
@@ -375,8 +375,8 @@ By system: Tailwind CSS v3.4 (43), GOV.UK Design System (14), USWDS v3.x (50). S
 | `C_THRESH` | 0.15 | Oklab chroma at which lighter-element penalty is fully active |
 | `CHROMA_K` | 0.65 | Maximum additional power exponent at full saturation (exp range: 1.0–1.65) |
 | `OPP_THETA_L` | 9.4° | Direction of the lighter element's opponent-axis weight (CVD loss, light on dark) |
-| `OPP_THETA_D` | 313.7° | Direction of the darker element's opponent-axis weight (CVD loss, dark on light) |
-| `OPP_K_D` | 0.09 | Darker-element lift strength |
+| `OPP_THETA_D` | 267° | Direction of the darker element's lift (where OKCA needs one, dark on light) |
+| `OPP_K_D` | 0.070 | Darker-element lift strength (linear in $w_D$, uncapped) |
 | `POL_K` | 1.100 | Shared polarity power exponent: $\text{CAP} \times (r/21)^{k}$ |
 | `CAP` | 20.9 | Contrast cap, both polarities (< 21 → OKCA strictly below WCAG, FP=0 by construction) |
 | `IND_Z` | 1.48 | CAM16's lightness-exponent constant, used by Step 4 |
@@ -432,4 +432,4 @@ When modifying the algorithm, these properties must be preserved:
 
 6. **Flare ceiling.** `FLARE_K` must stay the largest exponent that leaves white/grey pairs untouched for the chosen `FLARE`; retuning one means re-deriving the other (`npm run midtone` reports the bound). The ceiling must stay a minimum --- that is what keeps it outside the FP=0 proof.
 
-7. **Opponent-axis terms.** The directions `OPP_THETA_L` and `OPP_THETA_D` are measured, not tuned (`npm run opponent` re-derives them), and `OPP_K_D` was set as the smallest CVD-safe strength under the two-cap scaling (see §5 for how one cap changed that). The darker lift must keep $e_D \ge 1$, so it only raises the darker proxy. Lemma A is verified under the opponent weight (`npm run fp0`; `OKCA_WEIGHT=chroma` re-runs the 2.x ramp).
+7. **Opponent-axis terms.** The directions are derived, not tuned: `OPP_THETA_L` from CVD loss (`npm run opponent`), `OPP_THETA_D` from where OKCA needs a darker lift (`npm run darker-lift`, which also fits `OPP_K_D` as the smallest CVD-consistent strength). Any change to Steps 3–6 can move that requirement, so re-run the fit after one. The darker lift must keep $e_D \ge 1$, so it only raises the darker proxy. Lemma A is verified under the opponent weight (`npm run fp0`; `OKCA_WEIGHT=chroma` re-runs the 2.x ramp).

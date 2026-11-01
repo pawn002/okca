@@ -17,7 +17,7 @@ const IND_Z     = 1.48;
 const IND_REF_L = 0.5658363271;
 const FLARE     = 0.10;
 const FLARE_K   = 1.5;
-const OPP_THETA_L = 9.4, OPP_THETA_D = 313.7, OPP_K_D = 0.09;
+const OPP_THETA_L = 9.4, OPP_THETA_D = 267, OPP_K_D = 0.070;
 const w = (o: number[], th: number) => (Math.hypot(o[1], o[2]) + o[1] * Math.cos(th * Math.PI / 180) + o[2] * Math.sin(th * Math.PI / 180)) / 2;
 
 function refContrast(textColor: string, bgColor: string): number | null {
@@ -44,7 +44,7 @@ function refContrast(textColor: string, bgColor: string): number | null {
 
   // Step 4 — luminance proxy with background induction
   const s = Math.min(1, (IND_Z + Math.pow(bL, 1.5)) / (IND_Z + Math.pow(IND_REF_L, 1.5)));
-  const eD = 1 + OPP_K_D * Math.min(1, (w(darker.to('oklab').coords as number[], OPP_THETA_D) / C_THRESH) ** 2);
+  const eD = 1 + (OPP_K_D * w(darker.to('oklab').coords as number[], OPP_THETA_D)) / C_THRESH;
   const darkerY = Math.pow(darkerL, (3 * s) / eD);
 
   // Step 5 — polarity-aware scaling

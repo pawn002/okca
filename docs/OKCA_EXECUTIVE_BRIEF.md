@@ -15,7 +15,7 @@ property is safety: **it is never more permissive than WCAG.** Every score lands
 below the WCAG score for the same pair, so a pair that clears OKCA always clears WCAG.
 That property is verified across the full sRGB gamut (an exact identity plus
 interval-checked lemmas, `docs/FP0_PROOF.md`). A 1,249-pair audit across Tailwind, GOV.UK
-Design System, and USWDS found zero false passes and flagged 107 pairs that WCAG passes but
+Design System, and USWDS found zero false passes and flagged 108 pairs that WCAG passes but
 practitioners consistently reject as inadequate.
 
 ---
@@ -61,7 +61,7 @@ simulations do not flag these pairs. The weakness is in the luminance margin.
 
 These are not rare conditions. A structured audit of three production design systems
 — Tailwind CSS v3.4, GOV.UK Design System, and USWDS v3.x —
-found **107 pairs** that pass WCAG 2.x AA while sitting in the marginal zone
+found **108 pairs** that pass WCAG 2.x AA while sitting in the marginal zone
 practitioners and user research consistently flag as inadequate.
 
 ---
@@ -92,9 +92,10 @@ pink on near-black: WCAG 6.6, OKCA 3.0.
 Northern European descent have red–green colour-vision deficiency. Dichromats
 lose much of the contrast of reds, oranges and magentas, and little of greens,
 blues and purples. OKCA weights its chroma penalty along the direction in Oklab
-where that loss is greatest, essentially the red–green opponent axis, and adds a
-small matching lift to dark text in the hues where dichromats see it as lighter.
-The directions are measured, not tuned, and there is no hue branch. Reds stay
+where that loss is greatest, essentially the red–green opponent axis. It adds a
+small lift to dark blue text, sized from where its scores would otherwise exceed
+what dichromats see. Both are derived from data, not tuned, and there is no hue
+branch. Reds stay
 exactly as strict as before; saturated blue on black moves from 2.4 to 3.6.
 
 **The darker colour is corrected for its background.** On any background darker
@@ -163,7 +164,7 @@ existing compliance postures. It catches what WCAG 2.x misses without requiring
 organisations to re-baseline.
 
 For working group purposes, the algorithm and its calibration corpus are open and
-auditable. The 107-pair disagreement dataset (see `docs/WCAG_DISAGREEMENTS.md`)
+auditable. The 108-pair disagreement dataset (see `docs/WCAG_DISAGREEMENTS.md`)
 documents exactly where OKCA and WCAG 2.x diverge, by design system, colour family,
 and polarity — a resource for empirical comparison with APCA scoring on the same
 pairs.
@@ -182,5 +183,5 @@ pairs.
 | Background | Ignored | Corrected on dark backgrounds (CAM16) |
 | Margin on near-black backgrounds | Smaller than on light | Matched (flare cap) |
 | False passes vs. WCAG 2.x | Reference | **Zero** (verified across sRGB: exact identity + interval-checked lemmas) |
-| Marginal pairs flagged in audit | 0 of 107 | 107 of 107 |
+| Marginal pairs flagged in audit | 0 of 108 | 108 of 108 |
 | Deployable today | Yes | Yes |

@@ -21,11 +21,12 @@
  *      colours, which dichromats see with little loss, are penalised less.
  *   4. Darker element — background induction and opponent-axis lift:
  *        s         = min(1, (IND_Z + bgL^1.5) / (IND_Z + IND_REF_L^1.5))
- *        eD        = 1 + OPP_K_D × min(1, (w_D / C_THRESH)²),  w_D along θ_D
+ *        eD        = 1 + OPP_K_D × w_D / C_THRESH,  w_D along θ_D (linear, uncapped)
  *        darkerY   = darkerL ^ (3 × s / eD)
  *      CAM16's background induction (docs/CAM16_FINDINGS.md): a background
  *      darker than the AA boundary grey lifts the darker element's effective
- *      lightness. eD lifts dark colours that dichromats see as lighter.
+ *      lightness. eD lifts dark colours that dichromats see as lighter, in the
+ *      direction and proportion OKCA needs (docs/DARKER_LIFT_FINDINGS.md).
  *      Both only raise the proxy; it stays L³ for greys on lighter backgrounds.
  *   5. Contrast ratio:
  *        rawRatio  = (lighterY + 0.05) / (darkerY + 0.05)
@@ -72,8 +73,8 @@ const CAP      = 20.9;  // Max contrast, both polarities (< 21 keeps OKCA strict
 const IND_Z     = 1.48;          // CAM16's lightness-exponent constant, z = 1.48 + sqrt(Yb)
 const IND_REF_L = 0.5658363271;  // OKLab L of #767676: backgrounds at or above it keep s = 1
 const OPP_THETA_L = 9.4;   // Direction of CVD contrast loss for lighter colours, degrees in (a, b)
-const OPP_THETA_D = 313.7; // Direction of CVD contrast loss for darker colours, degrees in (a, b)
-const OPP_K_D     = 0.09;  // Darker-lift strength: smallest with no grid pair above the CVD ratio
+const OPP_THETA_D = 267;   // Direction in (a, b) where darker colours need a lift (≈ Oklab −b)
+const OPP_K_D     = 0.070; // Darker-lift strength: smallest with no grid pair above the CVD ratio
 const FLARE     = 0.10;  // Flare allowance for the step-6 ceiling (2× WCAG's 0.05)
 const FLARE_K   = 1.5;   // Ceiling exponent: the largest that leaves every white/grey pair untouched
 
@@ -112,7 +113,7 @@ export class OkcaService {
     const s        = Math.min(1, (IND_Z + Math.pow(bL, 1.5)) / (IND_Z + Math.pow(IND_REF_L, 1.5)));
     // Opponent-axis lift: dark colours that dichromats see as lighter (≤ 1 → ≥ L³).
     const darkerOklab = isBoW ? tOklab : bOklab;
-    const eD       = 1 + OPP_K_D * this.ramp(this.opponentWeight(darkerOklab, OPP_THETA_D));
+    const eD       = 1 + (OPP_K_D * this.opponentWeight(darkerOklab, OPP_THETA_D)) / C_THRESH;
     const darkerY  = Math.pow(darkerL, (3 * s) / eD);
 
     // Step 5 — power-curve scaling: CAP*(r/21)^POL_K, the same in both polarities.

@@ -2,7 +2,7 @@
  * Opponent-axis terms (#28, docs/OPPONENT_AXIS_FINDINGS.md).
  *
  * Step 3's chroma ramp is driven by w = (C + a cos θ_L + b sin θ_L) / 2, and
- * Step 4 lifts the darker element along θ_D. These pin the behaviour the terms
+ * Step 4 lifts the darker element along θ_D (linear in w_D since #31). These pin the behaviour the terms
  * were derived for, and the properties that keep them safe and branch-free.
  */
 import { contrast, hexToOklab } from '../index';
@@ -18,7 +18,7 @@ describe('opponent axis: warm hues stay strict, cool hues ease', () => {
     ['#3b82f6', '#000000', 3.6], // blue: 2.4 under the hue-uniform ramp; 4.4 from these terms alone, Step 6's flare ceiling binds on pure black
     ['#22c55e', '#000000', 6.0], // green: 4.3 under the hue-uniform ramp; 7.7 from these terms alone, Step 6 binds
     ['#1d4ed8', '#ffffff', 4.8], // dark blue text on white: lifted (5.3 before #28; equal caps since #30)
-    ['#0000ff', '#dddddd', 4.1], // a dichromat sees 4.0: one of the saturated-blue cases equal caps put just above (#30)
+    ['#0000ff', '#dddddd', 3.8], // a dichromat sees 4.0: 4.1 under the capped lift with equal caps (#30); the linear lift (#31) brings it below
   ])('%s on %s → %d', (fg, bg, expected) => {
     expect(contrast(fg, bg)).toBe(expected);
   });
@@ -28,7 +28,7 @@ describe('opponent axis: structure', () => {
   it('the weight is between 0 and chroma for every colour', () => {
     for (let r = 0; r < 256; r += 17) for (let g = 0; g < 256; g += 17) for (let b = 0; b < 256; b += 17) {
       const o = hexToOklab('#' + [r, g, b].map((v) => v.toString(16).padStart(2, '0')).join(''))!;
-      for (const th of [9.4, 313.7]) {
+      for (const th of [9.4, 267]) {
         expect(w(o, th)).toBeGreaterThanOrEqual(-1e-12);
         expect(w(o, th)).toBeLessThanOrEqual(Math.hypot(o[1], o[2]) + 1e-12);
       }
