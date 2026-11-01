@@ -10,10 +10,10 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 **Breaking — release as 3.0.0.** Four changes, each researched on its own branch and combined by merge: a flare-robustness ceiling ([#25](https://github.com/pawn002/okca/issues/25)), CAM16 background induction ([#26](https://github.com/pawn002/okca/issues/26)), opponent-axis chroma terms ([#28](https://github.com/pawn002/okca/issues/28)) and one cap for both polarities ([#30](https://github.com/pawn002/okca/issues/30)). Dark-background pairs and saturated warm colours score lower; saturated cool colours score higher. The four anchors are unchanged.
 
 ### Combined effect against 2.0.3
-- On a 262,144-pair sRGB grid, 93,639 pairs rise and 35,771 fall; 2,840 newly pass AA and 1,525 lose it. No pair scores above WCAG, and none scores above what a dichromat sees (Machado et al. 2009, severity 1.0).
-- Examples: `#888888` on `#000000` 5.2 → 3.7 (Step 6); `#cccccc` on `#333333` 7.1 → 5.7 (Step 4); `#9f9f9f` on `#1a1a1a` 5.8 → 4.7; hot pink on `#1a1a1a` 3.6 → 3.0; blue `#3b82f6` on black 2.4 → 3.6 (Steps 3 and 6); green `#22c55e` on black 4.3 → 6.0; `#1d4ed8` on white 5.3 → 4.6.
-- WCAG disagreements 97 → 109 (Tailwind 45, GOV.UK 14, USWDS 50).
-- 67 curated probe values moved, 63 down and 4 up. Fourteen crossed 7.0 and one crossed 4.5 (white on `#3a7d44`, 4.6 → 4.4).
+- On a 262,144-pair sRGB grid, 101,652 pairs rise and 30,857 fall; 3,490 newly pass AA and 1,387 lose it. No pair scores above WCAG. Against what a dichromat sees (Machado et al. 2009, severity 1.0), 43 pairs score at most 0.25 higher, all saturated pure-blue text on light backgrounds (#30); the CVD comparison is rationale for the calibration, not a promise.
+- Examples: `#888888` on `#000000` 5.2 → 3.7 (Step 6); `#cccccc` on `#333333` 7.1 → 5.7 (Step 4); `#9f9f9f` on `#1a1a1a` 5.8 → 4.7; hot pink on `#1a1a1a` 3.6 → 3.0; blue `#3b82f6` on black 2.4 → 3.6 (Steps 3 and 6); green `#22c55e` on black 4.3 → 6.0; `#1d4ed8` on white 5.3 → 4.8; black on white 20.0 → 20.9; `#767676` on white 3.7 → 3.9.
+- WCAG disagreements 97 → 107 (Tailwind 43, GOV.UK 14, USWDS 50).
+- 96 curated probe values moved, 60 down and 36 up. Sixteen crossed 7.0; two crossed 4.5 in opposite directions (white on `#3a7d44` 4.6 → 4.4; `#3a7d44` on white 4.4 → 4.6).
 - FP = 0 needs no new lemma for Steps 4 and 6 (`docs/FP0_PROOF.md` §5–§6), and lemma A is re-verified under Step 3's opponent weight. `npm run fp0` certifies with 0 uncertified boxes.
 - The flare ceiling acts on plain L³, not on Step 4's induced and lifted proxy. Flare is physical light added to both patches; induction and the opponent-axis lift are perceptual corrections, and applying both to one denominator would count them twice.
 - Where both bind, the lower wins. On pure black the flare ceiling caps the eased cool colours: blue `#3b82f6` is 4.4 from the opponent terms alone and 3.6 with Step 6.
