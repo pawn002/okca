@@ -29,7 +29,7 @@ Three later findings push the other way:
   & Baumgartner (2007); Piepenbrock, Mayr, Mund & Buchner (2013); Piepenbrock,
   Mayr & Buchner (2014a, 2014b). See
   [`MIDTONE_SURVEY_FINDINGS.md`](MIDTONE_SURVEY_FINDINGS.md) §6.
-- **Moving the induction reference** ([`INDUCTION_REFERENCE_FINDINGS.md`](INDUCTION_REFERENCE_FINDINGS.md))
+- **Moving the induction reference** ([#29](https://github.com/pawn002/okca/issues/29), on branch `okca-29-induction-reference`)
   could not hold both polarity anchors.
 
 The full 3.0 algorithm is reimplemented with both caps as parameters. It
