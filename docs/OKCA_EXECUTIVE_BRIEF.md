@@ -15,8 +15,9 @@ property is safety: **it is never more permissive than WCAG.** Every score lands
 below the WCAG score for the same pair, so a pair that clears OKCA always clears WCAG.
 That property is verified across the full sRGB gamut (an exact identity plus
 interval-checked lemmas, `docs/FP0_PROOF.md`). A 1,249-pair audit across Tailwind, GOV.UK
-Design System, and USWDS found zero false passes and flagged 108 pairs that WCAG passes but
-practitioners consistently reject as inadequate.
+Design System, and USWDS found zero false passes and flagged 108 pairs that WCAG passes
+while sitting on or near the AA line, with no margin against the conditions they will be
+read in.
 
 ---
 
@@ -49,7 +50,7 @@ any background. The CAM16 colour appearance model, the basis of the CIE's CIECAM
 (CIE 248:2022), does not: a darker background flattens the lightness scale. At the
 AA line, a grey that just passes on a near-black background carries about 25% less
 CAM16 lightness difference than one that just passes on white. Dark-mode passes
-were systematically easier to earn.
+are systematically easier to earn under WCAG.
 
 **Fragile margin on near-black backgrounds.** WCAG's ratio adds a fixed 0.05 to both
 luminances to stand in for ambient light. On a near-black background the ratio gets
@@ -61,8 +62,8 @@ simulations do not flag these pairs. The weakness is in the luminance margin.
 
 These are not rare conditions. A structured audit of three production design systems
 — Tailwind CSS v3.4, GOV.UK Design System, and USWDS v3.x —
-found **108 pairs** that pass WCAG 2.x AA while sitting in the marginal zone
-practitioners and user research consistently flag as inadequate.
+found **108 pairs** that pass WCAG 2.x AA while sitting on or near the line, where
+the verdict can turn on screen brightness and room light rather than on the colours.
 
 ---
 
@@ -95,29 +96,29 @@ blues and purples. OKCA weights its chroma penalty along the direction in Oklab
 where that loss is greatest, essentially the red–green opponent axis. It adds a
 small lift to dark blue text, sized from where its scores would otherwise exceed
 what dichromats see. Both are derived from data, not tuned, and there is no hue
-branch. Reds stay
-exactly as strict as before; saturated blue on black moves from 2.4 to 3.6.
+branch. Pure red on black scores 2.5 (WCAG 5.3); saturated blue `#3b82f6` on black
+scores 3.6 (WCAG 5.7).
 
 **The darker colour is corrected for its background.** On any background darker
 than the AA boundary grey `#767676`, OKCA applies CAM16's background effect to the
 darker colour's lightness, using CAM16's own constant and no tuned value. Lighter
 backgrounds, and so the anchors above, are untouched. The correction can only lower
-a score. Light grey `#cccccc` on `#333333` goes from 7.1 to 5.7 (WCAG 7.9). Grey and
-near-grey text on dark surfaces has to be lighter to pass, and AAA is affected most.
+a score. Light grey `#cccccc` on `#333333` scores 5.7 (WCAG 7.9). Grey and near-grey
+text on dark surfaces needs more lightness to pass than WCAG asks, and AAA is affected
+most.
 
 **Each score is capped at what survives doubled flare.** OKCA re-scores every pair
-with twice WCAG's flare allowance and keeps the lower result. The cap was tuned so
-it never moves a light-background grey pair, so the anchors above are unchanged.
-On dark backgrounds, grey and near-grey text has to be about one palette grade
-lighter to pass: mid-grey `#888888` on black goes from 5.2 to 3.7 (WCAG 5.9).
+with twice WCAG's flare allowance and keeps the lower result. Its strength is the
+largest that never moves a grey pair on a white background, so the anchors above hold.
+On dark backgrounds, grey and near-grey text needs about one palette grade more
+lightness to pass: mid-grey `#888888` on black scores 3.7 (WCAG 5.9).
 This is a margin argument, not a model of viewing conditions: OKCA still has no
 access to the room, so it keeps the same margin everywhere.
 
 The two corrections cover different ground. The background correction cannot act
 on pure black, whose lightness is zero on any background; the flare cap does. The
 flare cap acts mainly near black; the background correction reaches mid-dark
-surfaces as well. Together, across Tailwind, GOV.UK and USWDS palettes as light text
-on 15 dark and mid-dark surfaces, 286 of 7,851 pairs lose AA. No score rises.
+surfaces as well.
 
 ---
 
@@ -127,7 +128,7 @@ The property that matters most for a working group context: **OKCA produces zero
 false passes against WCAG 2.x** — it never approves a pair WCAG rejects.
 
 The guarantee is **verified for the full sRGB gamut** — not calibration-dependent
-headroom. The argument has three parts:
+headroom. The argument:
 
 - **Algebraic reduction.** $\text{OKCA} \le \text{WCAG}$ separates into two
   single-element factors: it is equivalent to
@@ -141,8 +142,9 @@ headroom. The argument has three parts:
   $B(d) \le B(\text{black})$ are each
   confirmed by interval arithmetic over the sRGB cube with **0 uncertified boxes**
   — a machine-checked proof over continuous regions, not a sample.
-- **The background correction only lowers scores.** It raises the darker colour's
-  effective luminance, which shrinks the ratio, so it needs no new lemma.
+- **The background correction and the blue lift only lower scores.** Both raise the
+  darker colour's effective luminance, which shrinks the ratio, so they need no new
+  lemma.
 - **The flare cap only lowers scores.** It is a minimum with the proven score, so
   it inherits the guarantee without a new lemma.
 
