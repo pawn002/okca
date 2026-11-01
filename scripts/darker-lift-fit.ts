@@ -1,6 +1,9 @@
 /**
  * #31: fit Step 4's darker-element lift to what OKCA actually needs.
  * Read-only; no algorithm change. Run: npm run darker-lift
+ * Research record: "current" below is the pre-#31 algorithm (capped, 313.7°,
+ * K_D 0.09). The linear lift it recommends is now live, so the self-check
+ * against contrast() reports mismatches on later commits.
  *
  * #28 set the lift's direction from the loss-weighted direction of raw CVD
  * loss (313.7°), capped its ramp at C_THRESH, and set K_D as the smallest

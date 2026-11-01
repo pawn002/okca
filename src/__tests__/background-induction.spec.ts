@@ -21,7 +21,7 @@ function scoreWith(fg: string, bg: string, useInduction: boolean): number {
   if (Math.abs(tL - bL) < 1e-6) return 1;
   const lod = tL > bL, lL = Math.max(tL, bL), dL = Math.min(tL, bL), lt = lod ? t : b, dt = lod ? b : t;
   const exp = 1 + 0.65 * Math.min(1, (w(lt, 9.4) / 0.15) ** 2);
-  const eD = 1 + 0.09 * Math.min(1, (w(dt, 313.7) / 0.15) ** 2);
+  const eD = 1 + (0.070 * w(dt, 267)) / 0.15;
   const s = useInduction ? Math.min(1, (IND_Z + bL ** 1.5) / (IND_Z + IND_REF_L ** 1.5)) : 1;
   const r = ((lL ** exp) ** 3 + 0.05) / (dL ** ((3 * s) / eD) + 0.05);
   const cap = 20.9;
