@@ -31,7 +31,9 @@ import {
 } from './interval';
 
 const POL_K = 1.1;
-const CHROMA_K = 0.65;
+// OKCA_CHROMA_K and OKCA_RAMP=linear re-run lemma A for Step 3 variants (#33).
+const CHROMA_K = process.env.OKCA_CHROMA_K ? Number(process.env.OKCA_CHROMA_K) : 0.65;
+const RAMP = process.env.OKCA_RAMP === 'linear' ? 'linear' : 'capped';
 const C_THRESH = 0.15;
 
 // Step 3's ramp is driven by the opponent-axis weight w = (C + a cos θ_L + b sin θ_L) / 2
@@ -53,8 +55,10 @@ function weight(col: ColorIv): Iv {
 }
 
 function penalisedProxy(col: ColorIv): Iv {
-  const satW = imin(mulK(square(weight(col)), 1 / (C_THRESH * C_THRESH)), 1);
-  const exp = addK(mulK(satW, CHROMA_K), 1); // [1, 1.65]
+  const satW = RAMP === 'linear'
+    ? mulK(weight(col), 1 / C_THRESH)
+    : imin(mulK(square(weight(col)), 1 / (C_THRESH * C_THRESH)), 1);
+  const exp = addK(mulK(satW, CHROMA_K), 1); // [1, 1.65] for the capped ramp
   return powK(powIv(col.L, exp), 3);
 }
 function A(col: ColorIv): Iv {
