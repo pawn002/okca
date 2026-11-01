@@ -7,7 +7,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
-**Breaking — release as 3.0.0.** Three changes, each researched on its own branch and combined by merge: a flare-robustness ceiling ([#25](https://github.com/pawn002/okca/issues/25)), CAM16 background induction ([#26](https://github.com/pawn002/okca/issues/26)) and opponent-axis chroma terms ([#28](https://github.com/pawn002/okca/issues/28)). Dark-background pairs and saturated warm colours score lower; saturated cool colours score higher. The four anchors are unchanged.
+**Breaking — release as 3.0.0.** Four changes, each researched on its own branch and combined by merge: a flare-robustness ceiling ([#25](https://github.com/pawn002/okca/issues/25)), CAM16 background induction ([#26](https://github.com/pawn002/okca/issues/26)), opponent-axis chroma terms ([#28](https://github.com/pawn002/okca/issues/28)) and one cap for both polarities ([#30](https://github.com/pawn002/okca/issues/30)). Dark-background pairs and saturated warm colours score lower; saturated cool colours score higher. The four anchors are unchanged.
 
 ### Combined effect against 2.0.3
 - On a 262,144-pair sRGB grid, 93,639 pairs rise and 35,771 fall; 2,840 newly pass AA and 1,525 lose it. No pair scores above WCAG, and none scores above what a dichromat sees (Machado et al. 2009, severity 1.0).
@@ -17,6 +17,13 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - FP = 0 needs no new lemma for Steps 4 and 6 (`docs/FP0_PROOF.md` §5–§6), and lemma A is re-verified under Step 3's opponent weight. `npm run fp0` certifies with 0 uncertified boxes.
 - The flare ceiling acts on plain L³, not on Step 4's induced and lifted proxy. Flare is physical light added to both patches; induction and the opponent-axis lift are perceptual corrections, and applying both to one denominator would count them twice.
 - Where both bind, the lower wins. On pure black the flare ceiling caps the eased cool colours: blue `#3b82f6` is 4.4 from the opponent terms alone and 3.6 with Step 6.
+
+### Changed — one cap for both polarities ([#30](https://github.com/pawn002/okca/issues/30))
+- **`LOD_CAP` 20.9 / `DOL_CAP` 20 → a single `CAP` = 20.9.** Through 2.x, dark-on-light was scored about 4.5% lower by editorial choice. In 3.0 that contradicted the evidence-based steps: dark-on-light already scored higher for 82–99% of pairs whose darker colour is below OKLab L 0.5. With one cap, light-on-dark never outscores dark-on-light, and every polarity difference comes from Steps 4 and 6, in the direction reading research supports (Buchner & Baumgartner 2007; Piepenbrock et al. 2013, 2014a, 2014b).
+- **Effect:** every dark-on-light score rises by 20.9/20. Black on white 20.0 → 20.9; `#767676` on white 3.7 → 3.9; light-on-dark is unchanged. On a 262,144-pair grid, 788 pairs newly pass AA and none lose it. WCAG disagreements 109 → 107: green-700 and lime-700 now pass as text on white.
+- **FP = 0 unchanged.** The dark-on-light cap now equals the cap the proof already uses.
+- **Interaction with #28.** `OPP_K_D` = 0.09 was derived under the two-cap scaling, as the smallest strength with no grid pair above a dichromat's ratio. With one cap, 43 grid pairs exceed that ratio by at most 0.25, all saturated pure-blue text (`#0000cc`, `#0000ee`) on light near-neutral backgrounds; raising `OPP_K_D` does not clear them. The CVD result is the rationale for the calibration, not a promise.
+- `docs/POLARITY_FINDINGS.md` (`npm run polarity`) records the exploration.
 
 ### Changed — opponent-axis chroma terms ([#28](https://github.com/pawn002/okca/issues/28))
 - **Step 3's chroma ramp is weighted along Oklab's opponent axes.** It is driven by `w = (C + a·cos θ_L + b·sin θ_L) / 2` instead of chroma `C`. That is chroma in direction `θ_L`, half at 90° and zero opposite: linear in `a` and `b`, with no hue branch. `OPP_THETA_L` = 9.4°, essentially Oklab's +a axis, is the direction in which colour-vision deficiency loses the most contrast for light colours on dark backgrounds. Reds, oranges and magentas keep the full penalty; blues and greens, which dichromats see with little loss, carry much less of it.

@@ -15,7 +15,7 @@ property is safety: **it is never more permissive than WCAG.** Every score lands
 below the WCAG score for the same pair, so a pair that clears OKCA always clears WCAG.
 That property is verified across the full sRGB gamut (an exact identity plus
 interval-checked lemmas, `docs/FP0_PROOF.md`). A 1,249-pair audit across Tailwind, GOV.UK
-Design System, and USWDS found zero false passes and flagged 109 pairs that WCAG passes but
+Design System, and USWDS found zero false passes and flagged 107 pairs that WCAG passes but
 practitioners consistently reject as inadequate.
 
 ---
@@ -61,7 +61,7 @@ simulations do not flag these pairs. The weakness is in the luminance margin.
 
 These are not rare conditions. A structured audit of three production design systems
 — Tailwind CSS v3.4, GOV.UK Design System, and USWDS v3.x —
-found **109 pairs** that pass WCAG 2.x AA while sitting in the marginal zone
+found **107 pairs** that pass WCAG 2.x AA while sitting in the marginal zone
 practitioners and user research consistently flag as inadequate.
 
 ---
@@ -75,10 +75,12 @@ IEC 61966-2-1 sRGB decomposition. This is not a patch on top of
 WCAG — it is a different measurement model that happens to be expressible on the
 same 1–21 scale with the same AA/AAA thresholds, allowing parallel deployment.
 
-**Polarity is a first-class input.** `okca(text, background) ≠ okca(background, text)`
-when the elements differ in lightness. Light-on-dark and dark-on-light scores diverge
-by design, calibrated against the achromatic anchors white/black (20.9 L-o-D, 20.0
-D-o-L) and the canonical AA boundary grey `#767676` (3.9 L-o-D, 3.7 D-o-L).
+**Polarity follows the evidence.** `okca(text, background)` can differ from
+`okca(background, text)`, but only because dark backgrounds measurably cost contrast:
+light text on a dark background can score lower than the same pair reversed, never
+higher. That matches reading research, which finds dark text on a light background
+outperforms the reverse. There is no editorial polarity bias: the achromatic anchors
+score the same both ways (white/black 20.9, `#767676` and white 3.9).
 
 **Chromatic text receives a chroma-weighted luminance penalty.** The lighter
 element's luminance proxy is compressed by a power exponent that scales with Oklab
@@ -131,7 +133,7 @@ headroom. The argument has three parts:
   $(\text{CAP}/21^{k}) \cdot A(\text{lighter}) \cdot B(\text{darker}) \le 1$.
 - **An exact identity.** At the achromatic anchors,
   $21^{1-k} \cdot A(\text{white}) \cdot B(\text{black}) = 1$ for any $k$. Because
-  the light-on-dark cap is set just below 21 (`LOD_CAP = 20.9`), the anchor bound
+  the cap is set just below 21 (`CAP = 20.9`, both polarities), the anchor bound
   is $20.9/21 = 0.99524 < 1$ — a strict margin, so OKCA is *strictly* below WCAG
   everywhere (no equality point).
 - **Two verified lemmas.** $A(l) \le A(\text{white})$ and
@@ -143,7 +145,7 @@ headroom. The argument has three parts:
 - **The flare cap only lowers scores.** It is a minimum with the proven score, so
   it inherits the guarantee without a new lemma.
 
-**The one visible consequence:** OKCA's maximum (white on black) is **20.9**, a
+**The one visible consequence:** OKCA's maximum (white on black, and black on white) is **20.9**, a
 hair under WCAG's 21 — the deliberate headroom that makes zero-false-pass a
 theorem. Thresholds (4.5 / 7.0) and the 1–21 scale are otherwise unchanged, so
 OKCA still drops into WCAG-based tooling. Full argument:
@@ -161,7 +163,7 @@ existing compliance postures. It catches what WCAG 2.x misses without requiring
 organisations to re-baseline.
 
 For working group purposes, the algorithm and its calibration corpus are open and
-auditable. The 109-pair disagreement dataset (see `docs/WCAG_DISAGREEMENTS.md`)
+auditable. The 107-pair disagreement dataset (see `docs/WCAG_DISAGREEMENTS.md`)
 documents exactly where OKCA and WCAG 2.x diverge, by design system, colour family,
 and polarity — a resource for empirical comparison with APCA scoring on the same
 pairs.
@@ -175,10 +177,10 @@ pairs.
 | Luminance input | IEC 61966-2-1 sRGB | OKLCH $L^3$ (Oklab) |
 | Scale | 1–21 | 1–21 |
 | AA / AAA thresholds | 4.5 / 7.0 | 4.5 / 7.0 |
-| Polarity | Symmetric | Asymmetric |
+| Polarity | Symmetric | Asymmetric where dark backgrounds cost contrast |
 | Chromatic lighter element | Over-rated | Penalised where colour-vision deficiency loses contrast |
 | Background | Ignored | Corrected on dark backgrounds (CAM16) |
 | Margin on near-black backgrounds | Smaller than on light | Matched (flare cap) |
 | False passes vs. WCAG 2.x | Reference | **Zero** (verified across sRGB: exact identity + interval-checked lemmas) |
-| Marginal pairs flagged in audit | 0 of 109 | 109 of 109 |
+| Marginal pairs flagged in audit | 0 of 107 | 107 of 107 |
 | Deployable today | Yes | Yes |

@@ -1,7 +1,13 @@
 # Polarity Caps — Exploration Findings
 
-Research notes for [#30](https://github.com/pawn002/okca/issues/30). This is
-*analysis*: nothing here is in `src/`.
+Research notes for [#30](https://github.com/pawn002/okca/issues/30).
+
+> **Applied:** equal caps, as a single `CAP` = 20.9 in `src/index.ts`. One
+> interaction surfaced in implementation. `OPP_K_D` = 0.09 (#28) was derived
+> under the two-cap scaling. With one cap, 43 grid pairs exceed a dichromat's
+> ratio by at most 0.25, all saturated pure-blue text on light near-neutral
+> backgrounds, and raising `OPP_K_D` does not clear them. Documented, not tuned
+> around: the CVD result is rationale, not a promise.
 
 Reproduce:
 
@@ -96,4 +102,4 @@ holds two contradictory positions on polarity.
 
 ## 4. Recommendation
 
-Equal caps: `DOL_CAP` = `LOD_CAP` = 20.9. Not applied.
+Equal caps: `DOL_CAP` = `LOD_CAP` = 20.9. Applied as a single `CAP`.
