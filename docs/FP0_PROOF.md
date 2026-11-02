@@ -5,9 +5,9 @@
 arithmetic** — no calibration-dependent headroom, no residual. Reproduce:
 `npm run fp0` (certifies with **0 uncertified boxes**).
 
-Constants: `POL_K` = 1.100, `CHROMA_K` = 0.65, `CAP` = 20.9 (both polarities),
+Constants: `POL_K` = 1.100, `CHROMA_K` = 0.22, `CAP` = 20.9 (both polarities),
 `IND_Z` = 1.48, `IND_REF_L` = 0.5658, `OPP_THETA_L` = 9.4°, `OPP_THETA_D` = 267°,
-`OPP_K_D` = 0.070, `FLARE` = 0.10, `FLARE_K` = 1.5.
+`OPP_K_D` = 0.065, `FLARE` = 0.10, `FLARE_K` = 1.5.
 
 The lighter proxy $Y_{\text{lighter}}$ below is Step 3's, whose exponent is driven
 by the opponent-axis weight $w_L = (C + a \cos\theta_L + b \sin\theta_L)/2$, not by
@@ -98,13 +98,14 @@ Result (`npm run fp0`):
 
 | lemma | boxes | certified | equality corners | **uncertified** |
 |-------|------:|----------:|-----------------:|----------------:|
-| $A(l) \le A(\text{white}) \cdot s$ | ~139k | all | 0 | **0** |
+| $A(l) \le A(\text{white}) \cdot s$ | ~116k | all | 0 | **0** |
 | $B(d) \le B(\text{black}) \cdot s$ | ~272k | all | 0 | **0** |
 
-Lemma A is run under the opponent-axis weight. The verifier encloses $w_L$ from
-the enclosures of $a$ and $b$, clamped at $0$; the clamp is exact, since
-$|a \cos\theta + b \sin\theta| \le C$. The weaker penalty takes more boxes than the
-2.x chroma ramp (about 96k, `OKCA_WEIGHT=chroma`), but every box certifies.
+Lemma A is run under Step 3's linear opponent-axis penalty. The verifier encloses
+$w_L$ from the enclosures of $a$ and $b$, clamped at $0$; the clamp is exact, since
+$|a \cos\theta + b \sin\theta| \le C$. Every box certifies. The penalty matters
+here as well as for colour vision: with no penalty at all, lemma A does not
+certify.
 
 Every sRGB point is certified; the slack $s > 1$ from the lowered cap lets even
 the anchors certify, so no neighbourhood is excluded.

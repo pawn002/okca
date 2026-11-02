@@ -38,7 +38,7 @@ const CHROMA_K = process.env.OKCA_CHROMA_K ? Number(process.env.OKCA_CHROMA_K) :
 const C_THRESH = 0.15;
 
 // Step 3's ramp is driven by the opponent-axis weight w = (C + a cos θ_L + b sin θ_L) / 2
-// (#28). OKCA_WEIGHT=chroma re-runs the 2.x chroma ramp for comparison. Step 4's darker
+// (#28). OKCA_WEIGHT=chroma OKCA_RAMP=capped re-runs the 2.x ramp for comparison. Step 4's darker
 // terms (induction, opponent-axis lift) only raise the darker proxy, so lemma B holds a
 // fortiori and is verified on plain L^3.
 const WEIGHT = process.env.OKCA_WEIGHT === 'chroma' ? 'chroma' : 'opponent';

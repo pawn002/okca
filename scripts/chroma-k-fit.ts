@@ -2,6 +2,9 @@
  * #33: validate or eliminate CHROMA_K by fitting Step 3's lighter penalty to
  * the same rule #31 used for the darker lift. Read-only; no algorithm change.
  * Run: npm run chroma-k
+ * Research record: "current" below is the pre-#33 algorithm (capped ramp,
+ * CHROMA_K 0.65, OPP_K_D 0.070). The linear fit it recommends is now live, so
+ * the self-check against contrast() reports mismatches on later commits.
  *
  * CHROMA_K = 0.65 was set so hot pink on near-black fails AA. Here the rule is
  * applied instead: no grid pair may score above a dichromat's ratio (Machado

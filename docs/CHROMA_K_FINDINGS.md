@@ -1,7 +1,11 @@
 # Lighter-Element Penalty — Fit Findings
 
-Research notes for [#33](https://github.com/pawn002/okca/issues/33). This is
-*analysis*: nothing here is in `src/`.
+Research notes for [#33](https://github.com/pawn002/okca/issues/33).
+
+> **Applied:** the linear penalty with $K_L$ = 0.22 and $K_D$ = 0.065 is now
+> Steps 3–4 in `src/index.ts`. Dark orange passing AA was accepted, and "hot pink
+> on near-black fails AA" is pinned as a test. The figures below compare against
+> the line before this change.
 
 Reproduce:
 
@@ -130,4 +134,4 @@ maintainer:
 - whether "hot pink on near-black fails AA" becomes a pinned test, as a
   check on the derivation rather than an input to it.
 
-Not applied.
+Applied, with both: dark orange passes, and hot pink is pinned.

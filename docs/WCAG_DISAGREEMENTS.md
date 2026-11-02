@@ -1,6 +1,6 @@
 # OKCA / WCAG Disagreements — Reference
 
-**Total: 108 pairs** (Tailwind 44 · GOV.UK 14 · USWDS 50)
+**Total: 107 pairs** (Tailwind 43 · GOV.UK 14 · USWDS 50)
 
 > **Calibration note.** Counts are as of the current calibration: white/#767676
 > anchor at 3.9 (`POL_K = 1.100`) and the cap lowered to `CAP
@@ -36,6 +36,11 @@
 > colour: green-700, cyan-700, blue-700 and violet-700. Red-700 and rose-700 now
 > pass in both directions. The lift now points at blue rather than between blue
 > and magenta, so warm and magenta shades ease slightly and blues tighten.
+>
+> **The derived lighter penalty** (#33, `docs/CHROMA_K_FINDINGS.md`) removes
+> one, 108 → 107: white on blue-700 now passes. Every pair here has white as
+> the lighter colour, which carries no penalty, so the change comes from the
+> darker lift's refit (0.070 → 0.065); most values move by 0.1 or not at all.
 
 ### Source versions
 
@@ -45,13 +50,13 @@
 | GOV.UK Design System | govuk-frontend (MIT) | [github.com/alphagov/govuk-frontend](https://github.com/alphagov/govuk-frontend) `_colours-palette.scss` |
 | US Web Design System | USWDS v3.x (MIT) | [github.com/uswds/uswds](https://github.com/uswds/uswds) `packages/uswds-core/src/styles/tokens/color/` |
 
-All 108 are pairs where OKCA scores below 4.5 AA but WCAG scores $\ge 4.5$. These are intentional — they represent colours in the marginal zone that WCAG's threshold passes but real-world practitioners routinely reject. Each colour is scored twice due to OKCA's polarity model — once as a L-o-D pair (white text on colour) and once as a D-o-L pair (colour on white) — and counted separately; a "D-o-L only" note marks colours where just one direction falls below 4.5.
+All 107 are pairs where OKCA scores below 4.5 AA but WCAG scores $\ge 4.5$. These are intentional — they represent colours in the marginal zone that WCAG's threshold passes but real-world practitioners routinely reject. Each colour is scored twice due to OKCA's polarity model — once as a L-o-D pair (white text on colour) and once as a D-o-L pair (colour on white) — and counted separately; a "D-o-L only" note marks colours where just one direction falls below 4.5.
 
 WCAG score shown is symmetric. OKCA scores can differ by polarity, but light-on-dark never scores above dark-on-light for the same colour. Here, where the colour is the darker partner, the two columns differ mainly through Step 4's corrections to the darker background.
 
 ---
 
-## Tailwind CSS v3.4 — 44 disagreements
+## Tailwind CSS v3.4 — 43 disagreements
 
 The 500-level neutral greys are the most practically significant: designers reach for them as body text or icon colours on white. The remaining entries are mid-range chromatic shades (500–700) that WCAG passes and OKCA's chroma compression plus polarity model fail.
 
@@ -59,7 +64,7 @@ The 500-level neutral greys are the most practically significant: designers reac
 |--------|-----|-----:|----------:|----------:|------|
 | slate-500 | `#64748b` | 4.8 | 3.9 | 4.0 |  |
 | gray-500 | `#6b7280` | 4.8 | 4.0 | 4.1 |  |
-| zinc-500 | `#71717a` | 4.8 | 4.0 | 4.1 |  |
+| zinc-500 | `#71717a` | 4.8 | 4.1 | 4.1 |  |
 | neutral-500 | `#737373` | 4.7 | 4.0 | 4.1 |  |
 | stone-500 | `#78716c` | 4.8 | 4.1 | 4.1 |  |
 | red-600 | `#dc2626` | 4.8 | 3.6 | 3.6 |  |
@@ -68,22 +73,21 @@ The 500-level neutral greys are the most practically significant: designers reac
 | yellow-700 | `#a16207` | 4.9 | 4.0 | 4.1 |  |
 | lime-700 | `#4d7c0f` | 5.0 | 4.3 | 4.5 | L-o-D only |
 | green-700 | `#15803d` | 5.0 | 4.4 | 4.5 | L-o-D only |
-| cyan-700 | `#0e7490` | 5.4 | 4.3 | 4.5 | L-o-D only |
-| blue-600 | `#2563eb` | 5.2 | 3.6 | 3.7 |  |
-| blue-700 | `#1d4ed8` | 6.7 | 4.4 | 4.8 | L-o-D only |
-| indigo-500 | `#6366f1` | 4.5 | 3.1 | 3.1 |  |
+| cyan-700 | `#0e7490` | 5.4 | 4.4 | 4.5 | L-o-D only |
+| blue-600 | `#2563eb` | 5.2 | 3.7 | 3.7 |  |
+| indigo-500 | `#6366f1` | 4.5 | 3.2 | 3.2 |  |
 | indigo-600 | `#4f46e5` | 6.3 | 4.1 | 4.3 |  |
-| violet-600 | `#7c3aed` | 5.7 | 3.6 | 3.7 |  |
+| violet-600 | `#7c3aed` | 5.7 | 3.7 | 3.8 |  |
 | violet-700 | `#6d28d9` | 7.1 | 4.4 | 4.7 | L-o-D only |
 | purple-600 | `#9333ea` | 5.4 | 3.5 | 3.5 |  |
-| purple-700 | `#7e22ce` | 7.0 | 4.3 | 4.6 | L-o-D only |
+| purple-700 | `#7e22ce` | 7.0 | 4.4 | 4.7 | L-o-D only |
 | fuchsia-600 | `#c026d3` | 4.7 | 3.1 | 3.1 |  |
 | fuchsia-700 | `#a21caf` | 6.3 | 4.1 | 4.3 |  |
-| pink-600 | `#db2777` | 4.6 | 3.2 | 3.2 |  |
-| pink-700 | `#be185d` | 6.0 | 4.2 | 4.4 |  |
+| pink-600 | `#db2777` | 4.6 | 3.3 | 3.3 |  |
+| pink-700 | `#be185d` | 6.0 | 4.3 | 4.4 |  |
 | rose-600 | `#e11d48` | 4.7 | 3.4 | 3.4 |  |
 
-**Pattern:** The Tailwind neutral 500 scale lands at WCAG ~4.7–4.8 but OKCA scores it 3.9–4.1 — squarely in the zone where whether a pair reads comfortably as body text turns on the viewing conditions rather than on the pair (see *Practitioner benchmark* below). Indigo-500 and fuchsia-600 (3.1/3.1) carry the largest penalty: indigo from the darker lift, fuchsia from the lighter penalty. Six 700 shades (lime, green, cyan, blue, violet, purple) fall short only with white text on them; as text on white they pass.
+**Pattern:** The Tailwind neutral 500 scale lands at WCAG ~4.7–4.8 but OKCA scores it 3.9–4.1 — squarely in the zone where whether a pair reads comfortably as body text turns on the viewing conditions rather than on the pair (see *Practitioner benchmark* below). Fuchsia-600 (3.1) and indigo-500 (3.2) score lowest. Five 700 shades (lime, green, cyan, violet, purple) fall short only with white text on them; as text on white they pass.
 
 ---
 
@@ -121,18 +125,18 @@ USWDS makes explicit WCAG 2.x AA claims. The 50 disagreements are the grade-50 s
 | green-warm-50 | `#6f7a41` | 4.6 | 4.0 | 4.0 |
 | green-50 | `#607f35` | 4.6 | 4.0 | 4.0 |
 | green-cool-50 | `#4d8055` | 4.6 | 4.0 | 4.1 |
-| mint-50 | `#2e8367` | 4.6 | 4.0 | 4.0 |
+| mint-50 | `#2e8367` | 4.6 | 4.0 | 4.1 |
 | mint-cool-50 | `#40807e` | 4.6 | 3.9 | 3.9 |
 | cyan-50 | `#168092` | 4.6 | 3.9 | 3.9 |
-| blue-cool-50 | `#3a7d95` | 4.6 | 3.8 | 3.9 |
+| blue-cool-50 | `#3a7d95` | 4.6 | 3.9 | 3.9 |
 | blue-50 | `#2378c3` | 4.6 | 3.6 | 3.6 |
-| blue-warm-50 | `#4a77b4` | 4.6 | 3.6 | 3.6 |
-| indigo-cool-50 | `#496fd8` | 4.6 | 3.4 | 3.4 |
+| blue-warm-50 | `#4a77b4` | 4.6 | 3.6 | 3.7 |
+| indigo-cool-50 | `#496fd8` | 4.6 | 3.5 | 3.5 |
 | indigo-50 | `#676cc8` | 4.6 | 3.5 | 3.5 |
 | indigo-warm-50 | `#7665d1` | 4.6 | 3.4 | 3.4 |
 | violet-50 | `#8168b3` | 4.6 | 3.5 | 3.5 |
 | violet-warm-50 | `#b04abd` | 4.6 | 3.2 | 3.2 |
-| magenta-50 | `#c84281` | 4.6 | 3.3 | 3.3 |
+| magenta-50 | `#c84281` | 4.6 | 3.4 | 3.4 |
 | gray-cool-50 | `#71767a` | 4.6 | 3.9 | 3.9 |
 | gray-50 | `#757575` | 4.6 | 3.9 | 3.9 |
 | gray-warm-50 | `#76766a` | 4.6 | 3.9 | 3.9 |
@@ -156,7 +160,7 @@ USWDS makes explicit WCAG 2.x AA claims. The 50 disagreements are the grade-50 s
 4. **Blue / indigo / purple hues** — perceptually darker than luminance alone predicts.
 
 ### The D-o-L asymmetry
-Most colours appear as both a L-o-D and D-o-L failure. With one cap for both polarities, D-o-L scores sit at or slightly above L-o-D scores for the same colour, because Step 4 corrects the darker background in the L-o-D direction. A colour near the line can therefore fail only in the L-o-D direction; six Tailwind 700 shades do.
+Most colours appear as both a L-o-D and D-o-L failure. With one cap for both polarities, D-o-L scores sit at or slightly above L-o-D scores for the same colour, because Step 4 corrects the darker background in the L-o-D direction. A colour near the line can therefore fail only in the L-o-D direction; five Tailwind 700 shades do.
 
 ### Practitioner benchmark
 The canonical marginal pair — white on `#767676` — scores WCAG 4.5, OKCA 3.9 (L-o-D). Everything in this document is in the same zone or worse. A designer who accepts `#767676` as passing AA is accepting the same risk for every entry here.
