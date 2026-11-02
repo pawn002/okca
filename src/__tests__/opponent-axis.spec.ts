@@ -10,17 +10,27 @@ import { contrast, hexToOklab } from '../index';
 const w = (o: number[], th: number) =>
   (Math.hypot(o[1], o[2]) + o[1] * Math.cos((th * Math.PI) / 180) + o[2] * Math.sin((th * Math.PI) / 180)) / 2;
 
-describe('opponent axis: warm hues stay strict, cool hues ease', () => {
+describe('opponent axis: warm hues carry the penalty, cool hues ease', () => {
   it.each([
-    ['#ff69b4', '#1a1a1a', 3.0], // hot pink: unchanged
-    ['#ff0000', '#000000', 2.5], // pure red: unchanged
-    ['#ff8c00', '#1a1a1a', 3.4], // dark orange: unchanged
+    ['#ff69b4', '#1a1a1a', 4.1], // hot pink: a dichromat sees 5.3
+    ['#ff0000', '#000000', 3.3], // pure red: a dichromat sees 3.3
+    ['#ff8c00', '#1a1a1a', 4.8], // dark orange: a dichromat sees 6.1, so it passes AA (#33)
     ['#3b82f6', '#000000', 3.6], // blue: 2.4 under the hue-uniform ramp; 4.4 from these terms alone, Step 6's flare ceiling binds on pure black
     ['#22c55e', '#000000', 6.0], // green: 4.3 under the hue-uniform ramp; 7.7 from these terms alone, Step 6 binds
     ['#1d4ed8', '#ffffff', 4.8], // dark blue text on white: lifted (5.3 before #28; equal caps since #30)
     ['#0000ff', '#dddddd', 3.8], // a dichromat sees 4.0: 4.1 under the capped lift with equal caps (#30); the linear lift (#31) brings it below
   ])('%s on %s → %d', (fg, bg, expected) => {
     expect(contrast(fg, bg)).toBe(expected);
+  });
+});
+
+describe('opponent axis: a check on the derivation, not an input to it (#33)', () => {
+  // The lighter penalty's strength is fitted to colour-vision data, not to this
+  // pair. Designers judge hot pink on near-black inadequate for text; the
+  // derived penalty agrees. If a refit breaks this, investigate: do not tune it
+  // back.
+  it('hot pink on near-black fails AA', () => {
+    expect(contrast('#ff69b4', '#1a1a1a')).toBeLessThan(4.5);
   });
 });
 

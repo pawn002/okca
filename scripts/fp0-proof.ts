@@ -31,11 +31,14 @@ import {
 } from './interval';
 
 const POL_K = 1.1;
-const CHROMA_K = 0.65;
+// Step 3's penalty is linear in the weight (#33). OKCA_RAMP=capped OKCA_CHROMA_K=0.65
+// re-runs lemma A for the pre-#33 capped ramp; OKCA_CHROMA_K alone varies the strength.
+const RAMP = process.env.OKCA_RAMP === 'capped' ? 'capped' : 'linear';
+const CHROMA_K = process.env.OKCA_CHROMA_K ? Number(process.env.OKCA_CHROMA_K) : (RAMP === 'capped' ? 0.65 : 0.22);
 const C_THRESH = 0.15;
 
 // Step 3's ramp is driven by the opponent-axis weight w = (C + a cos θ_L + b sin θ_L) / 2
-// (#28). OKCA_WEIGHT=chroma re-runs the 2.x chroma ramp for comparison. Step 4's darker
+// (#28). OKCA_WEIGHT=chroma OKCA_RAMP=capped re-runs the 2.x ramp for comparison. Step 4's darker
 // terms (induction, opponent-axis lift) only raise the darker proxy, so lemma B holds a
 // fortiori and is verified on plain L^3.
 const WEIGHT = process.env.OKCA_WEIGHT === 'chroma' ? 'chroma' : 'opponent';
@@ -53,8 +56,10 @@ function weight(col: ColorIv): Iv {
 }
 
 function penalisedProxy(col: ColorIv): Iv {
-  const satW = imin(mulK(square(weight(col)), 1 / (C_THRESH * C_THRESH)), 1);
-  const exp = addK(mulK(satW, CHROMA_K), 1); // [1, 1.65]
+  const satW = RAMP === 'linear'
+    ? mulK(weight(col), 1 / C_THRESH)
+    : imin(mulK(square(weight(col)), 1 / (C_THRESH * C_THRESH)), 1);
+  const exp = addK(mulK(satW, CHROMA_K), 1);
   return powK(powIv(col.L, exp), 3);
 }
 function A(col: ColorIv): Iv {

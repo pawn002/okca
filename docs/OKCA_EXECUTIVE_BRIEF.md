@@ -15,7 +15,7 @@ property is safety: **it is never more permissive than WCAG.** Every score lands
 below the WCAG score for the same pair, so a pair that clears OKCA always clears WCAG.
 That property is verified across the full sRGB gamut (an exact identity plus
 interval-checked lemmas, `docs/FP0_PROOF.md`). A 1,249-pair audit across Tailwind, GOV.UK
-Design System, and USWDS found zero false passes and flagged 108 pairs that WCAG passes
+Design System, and USWDS found zero false passes and flagged 107 pairs that WCAG passes
 while sitting on or near the AA line, with no margin against the conditions they will be
 read in.
 
@@ -64,7 +64,7 @@ simulations do not flag these pairs. The weakness is in the luminance margin.
 
 These are not rare conditions. A structured audit of three production design systems
 — Tailwind CSS v3.4, GOV.UK Design System, and USWDS v3.x —
-found **108 pairs** that pass WCAG 2.x AA while sitting on or near the line, where
+found **107 pairs** that pass WCAG 2.x AA while sitting on or near the line, where
 the verdict can turn on screen brightness and room light rather than on the colours.
 
 ---
@@ -86,20 +86,20 @@ outperforms the reverse. There is no editorial polarity bias: the achromatic anc
 score the same both ways (white/black 20.9, `#767676` and white 3.9).
 
 **Chromatic text receives a chroma-weighted luminance penalty.** The lighter
-element's luminance proxy is compressed by a power exponent that scales with Oklab
-chroma. Achromatic pairs are unaffected. Vivid chromatic lighter elements — the
-failure zone — score lower than an achromatic element at equivalent OKLCH L. Hot
-pink on near-black: WCAG 6.6, OKCA 3.0.
+element's luminance proxy is compressed by a power exponent that grows with Oklab
+chroma. Achromatic pairs are unaffected. Vivid chromatic lighter elements score lower
+than an achromatic element at equivalent OKLCH L. Hot pink on near-black: WCAG 6.6,
+OKCA 4.1.
 
 **The penalty follows colour-vision deficiency, hue by hue.** About 8% of men of
 Northern European descent have red–green colour-vision deficiency. Dichromats
 lose much of the contrast of reds, oranges and magentas, and little of greens,
 blues and purples. OKCA weights its chroma penalty along the direction in Oklab
-where that loss is greatest, essentially the red–green opponent axis. It adds a
-small lift to dark blue text, sized from where its scores would otherwise exceed
-what dichromats see. Both are derived from data, not tuned, and there is no hue
-branch. Pure red on black scores 2.5 (WCAG 5.3); saturated blue `#3b82f6` on black
-scores 3.6 (WCAG 5.7).
+where that loss is greatest, essentially the red–green opponent axis, and adds a
+small lift to dark blue text. The strength of each is the smallest that keeps
+scores at or below what dichromats see. Both are derived from data, not tuned, and
+there is no hue branch. Pure red on black scores 3.3 (WCAG 5.3); saturated blue
+`#3b82f6` on black scores 3.6 (WCAG 5.7).
 
 **The darker colour is corrected for its background.** On any background darker
 than the AA boundary grey `#767676`, OKCA applies CAM16's background effect to the
@@ -168,7 +168,7 @@ existing compliance postures. It catches what WCAG 2.x misses without requiring
 organisations to re-baseline.
 
 For working group purposes, the algorithm and its calibration corpus are open and
-auditable. The 108-pair disagreement dataset (see `docs/WCAG_DISAGREEMENTS.md`)
+auditable. The 107-pair disagreement dataset (see `docs/WCAG_DISAGREEMENTS.md`)
 documents exactly where OKCA and WCAG 2.x diverge, by design system, colour family,
 and polarity — a resource for empirical comparison with APCA scoring on the same
 pairs.
@@ -187,5 +187,5 @@ pairs.
 | Background | Ignored | Corrected on dark backgrounds (CAM16) |
 | Margin on near-black backgrounds | Smaller than on light | Matched (flare cap) |
 | False passes vs. WCAG 2.x | Reference | **Zero** (verified across sRGB: exact identity + interval-checked lemmas) |
-| Marginal pairs flagged in audit | 0 of 108 | 108 of 108 |
+| Marginal pairs flagged in audit | 0 of 107 | 107 of 107 |
 | Deployable today | Yes | Yes |

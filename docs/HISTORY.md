@@ -75,7 +75,7 @@ conditions.
 
 3.0 began with a complaint: mid-tone text on near-black backgrounds scored too
 generously, compared with other modern contrast methods. Following that
-complaint led through five changes, several dead ends, and two reversals of
+complaint led through six changes, several dead ends, and three reversals of
 earlier decisions. The comparison methods that prompted it were never used as a
 target, so OKCA's calibration stays independent of them.
 
@@ -202,16 +202,42 @@ blue to violet, and the need grows in step with saturation. That gave the
 direction (blue), the shape (linear) and the strength. No pair on the test grid
 now scores above the dichromat's ratio, and other hues moved by 0.03 or less.
 
+### The last editorial strength ([#33](https://github.com/pawn002/okca/issues/33))
+
+Writing this history exposed an overclaim. The docs had said hot pink on
+near-black fails "in user studies" at reduced contrast sensitivity. No such
+study was ever cited. The call came from early design work, and it rests on
+designers' judgement, which experience supports. Colour-vision deficiency
+explains part of it: a dichromat keeps about 5.3 of the pair's 6.6. Nothing
+measured explained the rest. The strength of the saturation penalty,
+`CHROMA_K`, had been set so hot pink would fail, which made it the last
+strength in OKCA chosen by eye.
+
+- **Dead end:** removing the penalty. Over a hundred light colours need one to
+  stay at or below what a dichromat sees, and without it the proof of the WCAG
+  bound does not go through.
+- **What the rule said:** the penalty was about twice as strong as needed, and
+  its capped shape could not follow a need that grows steadily with
+  saturation, the same lesson #31 taught for the darker lift.
+
+**Adopted: a derived penalty.** The same rule as #31 now sets the penalty's
+shape (linear) and strength (0.22, down from 0.65), fitted together with the
+darker lift. Hot pink on near-black scores 4.1 and still fails AA, so the
+designers' call survives derivation with less margin. It is kept as a test of
+the result, not an input to it. Dark orange on near-black scores 4.8 and now
+passes. The earlier docs had named it as a pair OKCA should fail, but a
+dichromat sees 6.1, and the evidence was allowed to decide.
+
 ### Where 3.0 landed
 
 - **The guarantee is unchanged:** OKCA never scores a pair above WCAG, proven
   for every sRGB pair. The proof now covers five steps instead of three, and
   needed no new bounds. The new steps can only lower a score.
-- **Every constant added in 3.0 is derived, not tuned.** Each comes from CAM16,
+- **Every strength in OKCA is now derived, not tuned.** Each comes from CAM16,
   from colour-vision data, from WCAG's own flare term, or from a constraint
   stated in advance.
-- **Two earlier decisions were reversed:** the 1.0 polarity premise, and a
-  saturation penalty that ignored hue.
+- **Three earlier decisions were reversed:** the 1.0 polarity premise, a
+  saturation penalty that ignored hue, and a penalty strength set by eye.
 
 ---
 
@@ -226,10 +252,12 @@ Open questions, roughly in order of how much they would change:
 - **Milder colour-vision deficiency.** The colour-vision checks model full
   dichromacy. Anomalous trichromacy, the more common form, loses less. Whether
   it changes any calibration is untested.
-- **A basis for the saturation penalty's strength.** `CHROMA_K` is set so hot
-  pink on near-black fails AA, matching designers' judgement. Colour-vision
-  deficiency explains part of that judgement: a dichromat keeps about 5.3 of the
-  pair's 6.6. No legibility study yet found pins down the rest. The reading
+- **The boundary anchor.** White on `#767676` scores 3.9, which sets the
+  scaling exponent. It was chosen at 2.0 to keep WCAG's own boundary pair below
+  AA. It is the one calibration input left that no measurement sets.
+- **Legibility of saturated text.** Designers judge hot pink on near-black
+  inadequate, and OKCA agrees with less margin than before. No legibility study
+  yet found measures how saturated text reads at equal luminance; the reading
   research so far (Legge et al., 1990) shows low-vision readers rely on
   luminance contrast, not that saturated colours are harder to read.
 - **Viewing conditions.** OKCA is a relative measure and cannot see screen
