@@ -6,6 +6,8 @@ on:
 
 jobs:
   publish:
+    # Release candidates are GitHub prereleases only; they never reach npm.
+    if: ${{ !github.event.release.prerelease && !contains(github.event.release.tag_name, '-rc.') }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
