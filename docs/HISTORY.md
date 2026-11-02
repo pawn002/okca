@@ -18,8 +18,8 @@ rejects?
 
 The first release replaced WCAG's luminance with lightness from Oklab, and
 penalised saturated light colours. WCAG scores hot pink on near-black as a
-comfortable AA pass (6.6), though designers routinely judge it inadequate. It also carried
-a green-hue correction: a patch for one region of the hue circle where the two
+comfortable AA pass (6.6), though designers routinely judge it inadequate. It
+also carried a green-hue correction: a patch for one region of the hue circle where the two
 models disagreed.
 
 ## 1.0: polarity, and the end of hue patches (April 2026)
@@ -122,8 +122,8 @@ ceiling leaves alone.
 - **Dead end:** CAM16's full form adjusts both colours. Applied that way, it
   produced false passes, so only the darker colour is adjusted.
 - **Dead end:** induction moved hot pink on `#1a1a1a` from its published 3.6
-  to 3.0. Restoring it would have meant weakening the saturation penalty. That loosened over 1,300 pairs, and no evidence
-  supported a weaker penalty. The decision: **let the science dictate the
+  to 3.0. Restoring it would have meant weakening the saturation penalty. That
+  loosened over 1,300 pairs, and no evidence supported a weaker penalty. The decision: **let the science dictate the
   work.** The algorithm stays, and published figures are updated to match it.
 
 ### Hue, through colour-vision deficiency ([#28](https://github.com/pawn002/okca/issues/28))
@@ -231,8 +231,8 @@ dichromat sees 6.1, and the evidence was allowed to decide.
 ### Where 3.0 landed
 
 - **The guarantee is unchanged:** OKCA never scores a pair above WCAG, proven
-  for every sRGB pair. The proof now covers five steps instead of three, and
-  needed no new bounds. The new steps can only lower a score.
+  for every sRGB pair. The proof now also covers Steps 4 and 6 and needed no
+  new bounds, because both can only lower a score.
 - **Every strength in OKCA is now derived, not tuned.** Each comes from CAM16,
   from colour-vision data, from WCAG's own flare term, or from a constraint
   stated in advance.

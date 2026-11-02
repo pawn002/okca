@@ -14,7 +14,7 @@ by the opponent-axis weight $w_L = (C + a \cos\theta_L + b \sin\theta_L)/2$, not
 chroma $C$ alone (§4 verifies lemma A under it).
 
 The proof below is stated for the step-5 score with the darker proxy
-$L_{\text{darker}}^{3}$. Two later changes can only lower the score, so the
+$L_{\text{darker}}^{3}$. Two other steps can only lower the score, so the
 bound carries over to the published score. Step 4's background induction and
 opponent-axis lift raise the darker proxy to $L_{\text{darker}}^{3s/e_D}$ with
 $3s/e_D \le 3$ (§5). Step 6, the
@@ -79,13 +79,13 @@ guarantee strict by construction rather than a property of sampled headroom.
 $A \ge 0$, $B \ge 0$, and the identity give: the pair inequality follows from
 
 $$\begin{aligned}
-\text{(L-A)} \quad & A(l) \le A(\text{white}) \cdot s && \text{for all sRGB } l, \\
-\text{(L-B)} \quad & B(d) \le B(\text{black}) \cdot s && \text{for all sRGB } d,
+\text{(L-A)} \quad & A(l) \le A(\text{white}) \cdot \sigma && \text{for all sRGB } l, \\
+\text{(L-B)} \quad & B(d) \le B(\text{black}) \cdot \sigma && \text{for all sRGB } d,
 \end{aligned}$$
 
-with $s = \sqrt{21 / c} = 1.00239$, since then
+with $\sigma = \sqrt{21 / c} = 1.00239$, since then
 
-$$\frac{c}{21^{k}} \cdot A \cdot B \le \frac{c}{21^{k}} \cdot A(\text{white}) \cdot B(\text{black}) \cdot s^{2} = \frac{c}{21} \cdot \frac{21}{c} = 1.$$
+$$\frac{c}{21^{k}} \cdot A \cdot B \le \frac{c}{21^{k}} \cdot A(\text{white}) \cdot B(\text{black}) \cdot \sigma^{2} = \frac{c}{21} \cdot \frac{21}{c} = 1.$$
 
 `scripts/fp0-proof.ts` branch-and-bounds each
 lemma over the sRGB cube with sound outward-rounded interval arithmetic
@@ -98,8 +98,8 @@ Result (`npm run fp0`):
 
 | lemma | boxes | certified | equality corners | **uncertified** |
 |-------|------:|----------:|-----------------:|----------------:|
-| $A(l) \le A(\text{white}) \cdot s$ | ~116k | all | 0 | **0** |
-| $B(d) \le B(\text{black}) \cdot s$ | ~272k | all | 0 | **0** |
+| $A(l) \le A(\text{white}) \cdot \sigma$ | ~116k | all | 0 | **0** |
+| $B(d) \le B(\text{black}) \cdot \sigma$ | ~272k | all | 0 | **0** |
 
 Lemma A is run under Step 3's linear opponent-axis penalty. The verifier encloses
 $w_L$ from the enclosures of $a$ and $b$, clamped at $0$; the clamp is exact, since
@@ -107,7 +107,7 @@ $|a \cos\theta + b \sin\theta| \le C$. Every box certifies. The penalty matters
 here as well as for colour vision: with no penalty at all, lemma A does not
 certify.
 
-Every sRGB point is certified; the slack $s > 1$ from the lowered cap lets even
+Every sRGB point is certified; the slack $\sigma > 1$ from the lowered cap lets even
 the anchors certify, so no neighbourhood is excluded.
 
 ## 5. Step 4 keeps the bound
@@ -150,7 +150,8 @@ is no higher.
 **FP = 0 is guaranteed by construction across the full sRGB gamut**, for
 chromatic and achromatic pairs alike. The argument depends only on the
 closed-form structure and re-runs via `npm run fp0` after any constant change,
-so it is robust to future retuning (the CI-invariant companion can gate on it).
+so it is robust to future retuning. CI does not run the proof; it runs a sampled
+invariant test (`fp0-invariant.spec.ts`) on every change.
 
 ### Scope
 
