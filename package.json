@@ -34,7 +34,8 @@
     "cvd": "tsc -p tsconfig.scripts.json && node dist-scripts/scripts/cvd-survey.js",
     "opponent": "tsc -p tsconfig.scripts.json && node dist-scripts/scripts/opponent-axis-prototype.js",
     "polarity": "tsc -p tsconfig.scripts.json && node dist-scripts/scripts/polarity-caps.js",
-    "darker-lift": "tsc -p tsconfig.scripts.json && node dist-scripts/scripts/darker-lift-fit.js"
+    "darker-lift": "tsc -p tsconfig.scripts.json && node dist-scripts/scripts/darker-lift-fit.js",
+    "chroma-k": "tsc -p tsconfig.scripts.json && node dist-scripts/scripts/chroma-k-fit.js"
   },
   "devDependencies": {
     "colorjs.io": "^0.5.2",

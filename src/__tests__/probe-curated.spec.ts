@@ -41,48 +41,48 @@ const LIGHT_ON_DARK: ProbePair[] = [
   ['#ffffff', '#9acd32',  1.5, 'B  white on yellow-green'],
 
   // C: Dark blue backgrounds
-  ['#ffffff', '#000080', 10.1, 'C  white on navy'],
+  ['#ffffff', '#000080', 10.2, 'C  white on navy'],
   ['#ffffff', '#0000cd',  6.3, 'C  white on medium blue'],
-  ['#ffffff', '#0057b7',  4.8, 'C  white on D3 blue'],
-  ['#ffffff', '#003399',  7.0, 'C  white on dark blue'],
-  ['#ffffff', '#1a237e', 8.6, 'C  white on indigo 900'],
+  ['#ffffff', '#0057b7',  4.9, 'C  white on D3 blue'],
+  ['#ffffff', '#003399',  7.1, 'C  white on dark blue'],
+  ['#ffffff', '#1a237e', 8.7, 'C  white on indigo 900'],
   ['#ffffff', '#0d47a1',  5.9, 'C  white on blue 900'],
-  ['#add8e6', '#000080',  6.2, 'C  light blue on navy'],
+  ['#add8e6', '#000080',  6.3, 'C  light blue on navy'],
 
   // D: Dark purple backgrounds
   ['#ffffff', '#4b0082', 8.0, 'D  white on indigo'],
   ['#ffffff', '#6a0dad',  5.6, 'D  white on purple'],
   ['#ffffff', '#800080',  6.0, 'D  white on pure purple'],
   ['#ffffff', '#4a004a', 10.2, 'D  white on very dark purple'],
-  ['#ffccff', '#4b0082',  5.5, 'D  light magenta on indigo'],
+  ['#ffccff', '#4b0082',  5.7, 'D  light magenta on indigo'],
 
   // E: Dark red/magenta backgrounds
   ['#ffffff', '#8b0000',  7.0, 'E  white on dark red'],
-  ['#ffffff', '#b22222',  4.8, 'E  white on firebrick'],
+  ['#ffffff', '#b22222',  4.9, 'E  white on firebrick'],
   ['#ffffff', '#d62728',  3.7, 'E  white on D3 red'],
   ['#ffffff', '#800000',  7.6, 'E  white on maroon'],
   ['#ffcccc', '#8b0000',  4.7, 'E  light pink on dark red'],
 
   // F: Dark cyan/teal backgrounds
   ['#ffffff', '#006666',  5.5, 'F  white on dark teal'],
-  ['#ffffff', '#008080',  4.0, 'F  white on teal'],
+  ['#ffffff', '#008080',  4.1, 'F  white on teal'],
   ['#ffffff', '#004c4c',  7.6, 'F  white on very dark teal'],
   ['#ccffff', '#004c4c',  6.8, 'F  light cyan on very dark teal'],
 
   // G: Chromatic light text on dark neutral
-  ['#ffff00', '#1a1a1a', 12.3, 'G  yellow on near-black'],
-  ['#00ff00', '#1a1a1a',  8.7, 'G  pure green on near-black'],
+  ['#ffff00', '#1a1a1a', 12.4, 'G  yellow on near-black'],
+  ['#00ff00', '#1a1a1a',  8.6, 'G  pure green on near-black'],
   ['#00ffff', '#1a1a1a', 10.2, 'G  cyan on near-black'],
-  ['#ff69b4', '#1a1a1a',  3.0, 'G  hot pink on near-black'],
+  ['#ff69b4', '#1a1a1a',  4.1, 'G  hot pink on near-black'],
   ['#7fff00', '#333333',  6.5, 'G  chartreuse on dark gray'],
-  ['#ff8c00', '#1a1a1a',  3.4, 'G  dark orange on near-black'],
+  ['#ff8c00', '#1a1a1a',  4.8, 'G  dark orange on near-black'],
 
   // H: Near-threshold boundary probes
   ['#ffffff', '#595959',  5.7, 'H  white on #595959'],
   ['#ffffff', '#767676',  3.9, 'H  white on #767676 (AA boundary)'],
   ['#ffffff', '#808080',  3.3, 'H  white on mid gray'],
   ['#ffffff', '#007700',  4.9, 'H  white on dark green'],
-  ['#ffffff', '#00008b', 9.4, 'H  white on dark blue'],
+  ['#ffffff', '#00008b', 9.5, 'H  white on dark blue'],
   ['#ffffff', '#8b008b',  5.4, 'H  white on dark magenta'],
 ];
 
@@ -114,22 +114,22 @@ const DARK_ON_LIGHT: ProbePair[] = [
   ['#228b22', '#f0fff0',  3.7, 'J  forest green on honeydew'],
 
   // K: Dark blue text on white
-  ['#000080', '#ffffff', 12.9, 'K  navy on white'],
+  ['#000080', '#ffffff', 13.0, 'K  navy on white'],
   ['#003399', '#ffffff',  8.5, 'K  dark blue on white'],
   ['#0057b7', '#ffffff',  5.3, 'K  D3 blue on white'],
   ['#0d47a1', '#ffffff',  6.8, 'K  blue 900 on white'],
-  ['#1a237e', '#ffffff', 10.8, 'K  indigo 900 on white'],
-  ['#000080', '#e3f2fd', 11.1, 'K  navy on very light blue bg'],
+  ['#1a237e', '#ffffff', 10.9, 'K  indigo 900 on white'],
+  ['#000080', '#e3f2fd', 11.2, 'K  navy on very light blue bg'],
 
   // L: Dark purple/indigo text on white
   ['#4b0082', '#ffffff', 9.9, 'L  indigo on white'],
   ['#6a0dad', '#ffffff',  6.4, 'L  purple on white'],
   ['#800080', '#ffffff',  6.9, 'L  pure purple on white'],
-  ['#8b008b', '#ffffff',  6.0, 'L  dark magenta on white'],
+  ['#8b008b', '#ffffff',  6.1, 'L  dark magenta on white'],
 
   // M: Dark red text on white
   ['#8b0000', '#ffffff',  8.2, 'M  dark red on white'],
-  ['#800000', '#ffffff',  9.1, 'M  maroon on white'],
+  ['#800000', '#ffffff',  9.2, 'M  maroon on white'],
   ['#b22222', '#ffffff',  5.2, 'M  firebrick on white'],
   ['#d62728', '#ffffff',  3.7, 'M  D3 red on white'],
 

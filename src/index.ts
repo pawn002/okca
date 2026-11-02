@@ -12,13 +12,14 @@
  *   3. Lighter element — opponent-axis power compression:
  *        [_, a, b] = Oklab(lighter)
  *        w         = (C + a·cos θ_L + b·sin θ_L) / 2,  C = sqrt(a² + b²)
- *        satW      = min(1, (w / C_THRESH)²)    // quadratic ramp
- *        exp       = 1 + CHROMA_K × satW         // 1.0 … 1.65
- *        lighterY  = (lighterL ^ exp) ^ 3        // L → luminance proxy
+ *        exp       = 1 + CHROMA_K × w / C_THRESH  // linear, uncapped; ≈ 1.0 … 1.4 in sRGB
+ *        lighterY  = (lighterL ^ exp) ^ 3          // L → luminance proxy
  *      w is chroma weighted toward OPP_THETA_L ≈ Oklab's +a axis, the
  *      red–green opponent channel colour-vision deficiency loses
- *      (docs/OPPONENT_AXIS_FINDINGS.md). Reds keep the full penalty; cool
- *      colours, which dichromats see with little loss, are penalised less.
+ *      (docs/OPPONENT_AXIS_FINDINGS.md). Reds and magentas carry the most
+ *      penalty; cool colours, which dichromats see with little loss, carry
+ *      little. CHROMA_K is the smallest strength with no grid pair above the
+ *      CVD ratio (docs/CHROMA_K_FINDINGS.md).
  *   4. Darker element — background induction and opponent-axis lift:
  *        s         = min(1, (IND_Z + bgL^1.5) / (IND_Z + IND_REF_L^1.5))
  *        eD        = 1 + OPP_K_D × w_D / C_THRESH,  w_D along θ_D (linear, uncapped)
@@ -66,15 +67,15 @@
 import { hexToOklab, cssOklabToOklab, cssOklchToOklch, oklchToOklab } from './transforms.js';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
-const C_THRESH = 0.15;  // Oklab chroma for full lighter-element penalty
-const CHROMA_K = 0.65;  // Power-compression exponent at full saturation
+const C_THRESH = 0.15;  // Weight scale for both opponent-axis terms (Oklab chroma units)
+const CHROMA_K = 0.22;  // Lighter-penalty strength: fitted with OPP_K_D, no grid pair above the CVD ratio
 const POL_K    = 1.100; // Shared polarity power exponent: CAP*(r/21)^k
 const CAP      = 20.9;  // Max contrast, both polarities (< 21 keeps OKCA strictly below WCAG → FP=0 by construction)
 const IND_Z     = 1.48;          // CAM16's lightness-exponent constant, z = 1.48 + sqrt(Yb)
 const IND_REF_L = 0.5658363271;  // OKLab L of #767676: backgrounds at or above it keep s = 1
 const OPP_THETA_L = 9.4;   // Direction of CVD contrast loss for lighter colours, degrees in (a, b)
 const OPP_THETA_D = 267;   // Direction in (a, b) where darker colours need a lift (≈ Oklab −b)
-const OPP_K_D     = 0.070; // Darker-lift strength: smallest with no grid pair above the CVD ratio
+const OPP_K_D     = 0.065; // Darker-lift strength: fitted with CHROMA_K, no grid pair above the CVD ratio
 const FLARE     = 0.10;  // Flare allowance for the step-6 ceiling (2× WCAG's 0.05)
 const FLARE_K   = 1.5;   // Ceiling exponent: the largest that leaves every white/grey pair untouched
 
@@ -104,7 +105,7 @@ export class OkcaService {
     const lighterOklab = isBoW ? bOklab : tOklab;
 
     // Step 3 — lighter element: opponent-axis power compression → luminance proxy
-    const exp      = 1 + CHROMA_K * this.ramp(this.opponentWeight(lighterOklab, OPP_THETA_L));
+    const exp      = 1 + (CHROMA_K * this.opponentWeight(lighterOklab, OPP_THETA_L)) / C_THRESH;
     const lighterY = Math.pow(Math.pow(lighterL, exp), 3);
 
     // Step 4 — darker element: luminance proxy with CAM16 background induction.
@@ -140,11 +141,6 @@ export class OkcaService {
     const b = oklab[2];
     const t = (thetaDeg * Math.PI) / 180;
     return (Math.sqrt(a * a + b * b) + a * Math.cos(t) + b * Math.sin(t)) / 2;
-  }
-
-  /** Quadratic ramp to full strength at C_THRESH. */
-  private ramp(w: number): number {
-    return Math.min(1, (w / C_THRESH) ** 2);
   }
 }
 

@@ -10,14 +10,14 @@ import { contrast } from '../index';
 // ── Reference implementation (colorjs-backed, copied from original) ──────────
 
 const C_THRESH  = 0.15;
-const CHROMA_K  = 0.65;
+const CHROMA_K  = 0.22;
 const POL_K     = 1.100;
 const CAP       = 20.9;
 const IND_Z     = 1.48;
 const IND_REF_L = 0.5658363271;
 const FLARE     = 0.10;
 const FLARE_K   = 1.5;
-const OPP_THETA_L = 9.4, OPP_THETA_D = 267, OPP_K_D = 0.070;
+const OPP_THETA_L = 9.4, OPP_THETA_D = 267, OPP_K_D = 0.065;
 const w = (o: number[], th: number) => (Math.hypot(o[1], o[2]) + o[1] * Math.cos(th * Math.PI / 180) + o[2] * Math.sin(th * Math.PI / 180)) / 2;
 
 function refContrast(textColor: string, bgColor: string): number | null {
@@ -38,8 +38,7 @@ function refContrast(textColor: string, bgColor: string): number | null {
 
   // Step 3 — opponent-axis weight
   const oklab1 = lighter.to('oklab').coords as number[];
-  const satW = Math.min(1, (w(oklab1, OPP_THETA_L) / C_THRESH) ** 2);
-  const exp = 1 + CHROMA_K * satW;
+  const exp = 1 + (CHROMA_K * w(oklab1, OPP_THETA_L)) / C_THRESH;
   const lighterY = Math.pow(Math.pow(lighterL, exp), 3);
 
   // Step 4 — luminance proxy with background induction
