@@ -236,6 +236,13 @@ dichromat sees 6.1, and the evidence was allowed to decide.
 - **Every strength in OKCA is now derived, not tuned.** Each comes from CAM16,
   from colour-vision data, from WCAG's own flare term, or from a constraint
   stated in advance.
+- **One policy input remains, stated as one.** White on `#767676`, WCAG's own
+  boundary pair, scores 3.9, and that sets the exponent that scales every
+  score. It was chosen at 2.0 and no measurement sets it. Rather than search
+  for a derivation with no data to fit, it is stated as OKCA's position: a pair
+  on the AA line has no margin and should not pass. A check made later
+  agrees: under doubled flare, the premise of Step 6, the pair keeps 3.91. That
+  supports the value; it does not derive it.
 - **Three earlier decisions were reversed:** the 1.0 polarity premise, a
   saturation penalty that ignored hue, and a penalty strength set by eye.
 
@@ -252,9 +259,8 @@ Open questions, roughly in order of how much they would change:
 - **Milder colour-vision deficiency.** The colour-vision checks model full
   dichromacy. Anomalous trichromacy, the more common form, loses less. Whether
   it changes any calibration is untested.
-- **The boundary anchor.** White on `#767676` scores 3.9, which sets the
-  scaling exponent. It was chosen at 2.0 to keep WCAG's own boundary pair below
-  AA. It is the one calibration input left that no measurement sets.
+- **The boundary anchor.** Kept as a stated policy (above). If a threshold
+  study with more than one observer appears, it could test the value.
 - **Legibility of saturated text.** Designers judge hot pink on near-black
   inadequate, and OKCA agrees with less margin than before. No legibility study
   yet found measures how saturated text reads at equal luminance; the reading

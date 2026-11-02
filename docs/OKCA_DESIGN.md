@@ -387,7 +387,9 @@ By system: Tailwind CSS v3.4 (43), GOV.UK Design System (14), USWDS v3.x (50). S
 
 - **`CHROMA_K` = 0.22** --- Fitted with `OPP_K_D` = 0.065 as the least correction at which no grid pair scores above a dichromat's ratio (§5). Hot pink on near-black scores 4.1 and dark orange 4.8, where WCAG rates them 6.6 and 7.5. The penalty acts only on chromatic lighter elements, so the achromatic anchors are untouched.
 
-- **`POL_K` = 1.100** --- Calibrated so white/`#767676` (WCAG AA boundary grey) scores 3.9 under L-o-D (raised from a 3.5 anchor / `POL_K` 1.175 to reduce over-conservatism on mid-range chromatics). Derived: $k = \ln(3.9/21) / \ln(4.54/21) \approx 1.0996$.
+- **`POL_K` = 1.100** --- Set by the boundary anchor: white/`#767676`, WCAG's own AA boundary pair, scores 3.9. Derived: $k = \ln(3.9/21) / \ln(4.54/21) \approx 1.0996$.
+
+  **The anchor is OKCA's one policy input.** Every other strength is fitted to data or fixed by a constraint. This one states OKCA's position: a pair sitting on WCAG's AA line has no margin against the conditions it will be read in, so it should not pass AA (§8, §10). How far below the line is a judgement, and 3.9 is that judgement. One measurement agrees with it: under doubled flare, the premise of Step 6, white on `#767676` keeps a WCAG ratio of 3.91. That match was found after the anchor was set and holds at this pair only, not along the grey ramp, so it is a consistency check, not a derivation.
 
 - **`CAP` = 20.9** --- One notch below 21, in both polarities. This is the strict-margin lever for the FP=0 proof: with the cap below 21 the identity $21^{1-k} \cdot A(\text{white}) \cdot B(\text{black}) = 1$ becomes $20.9/21 = 0.99524 < 1$, removing the single white-on-black equality point so OKCA is strictly below WCAG everywhere (Section 4). White on black and black on white: 20.9. Through 2.x a separate `DOL_CAP` = 20 scored dark-on-light about 4% lower; 3.0 removed it (§7).
 
