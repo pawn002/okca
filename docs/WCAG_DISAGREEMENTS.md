@@ -2,45 +2,12 @@
 
 **Total: 107 pairs** (Tailwind 43 · GOV.UK 14 · USWDS 50)
 
-> **Calibration note.** Counts are as of the current calibration: white/#767676
-> anchor at 3.9 (`POL_K = 1.100`) and the cap lowered to `CAP
-> = 20.9` (which keeps OKCA strictly below WCAG — white-on-black = 20.9, not 21 —
-> so FP=0 is guaranteed by construction; see `docs/FP0_PROOF.md`). Since 3.0
-> the same cap applies to both polarities. FP=0 holds
-> across the full sRGB gamut (interval-verified).
->
-> **Background induction (Step 4)** adds two disagreements, 97 → 99: white on
-> Tailwind lime-700 and white on GOV.UK blue each drop from 4.5 to 4.4. Every
-> colour here is darker than `#767676`, so the light-on-dark column carries a
-> small induction correction (most values move by 0.1 or not at all). The
-> dark-on-light column is unchanged.
->
-> **Opponent-axis terms (Steps 3 and 4)** add ten more, 99 → 109, all Tailwind
-> saturated 600–700 shades in the purple–magenta–red range: indigo-600,
-> purple-700, fuchsia-700, pink-700, rose-700 and red-700. Their darker-element
-> lift applies in the hues where dichromats see dark colours as lighter. See
-> `docs/OPPONENT_AXIS_FINDINGS.md`.
->
-> **Step 6 (flare-robustness ceiling) changes none of these rows.** Every pair
-> here has a white partner, and the ceiling's exponent is the largest that never
-> binds on such pairs at these scores. Its effect is on dark backgrounds, which
-> this battery does not sample: see `docs/MIDTONE_SURVEY_FINDINGS.md`.
->
-> **One cap for both polarities** (#30, `docs/POLARITY_FINDINGS.md`) removes
-> two, 109 → 107. The dark-on-light column rises by 20.9/20 (about 4.5%):
-> green-700 now passes as text on white, and lime-700 passes as text on white
-> while still failing as white on lime-700.
->
-> **The linear darker lift** (#31, `docs/DARKER_LIFT_FINDINGS.md`) nets one
-> more, 107 → 108. Four Tailwind 700 shades now fall just short as white on the
-> colour: green-700, cyan-700, blue-700 and violet-700. Red-700 and rose-700 now
-> pass in both directions. The lift now points at blue rather than between blue
-> and magenta, so warm and magenta shades ease slightly and blues tighten.
->
-> **The derived lighter penalty** (#33, `docs/CHROMA_K_FINDINGS.md`) removes
-> one, 108 → 107: white on blue-700 now passes. Every pair here has white as
-> the lighter colour, which carries no penalty, so the change comes from the
-> darker lift's refit (0.070 → 0.065); most values move by 0.1 or not at all.
+> **What these counts cover.** Every pair here has white as one partner, so
+> the battery samples light backgrounds and the light-on-dark direction on
+> mid-tone fills. Step 6's flare ceiling never binds on these pairs; its effect
+> is on dark backgrounds, which this battery does not sample (see
+> `docs/MIDTONE_SURVEY_FINDINGS.md`). OKCA never scores above WCAG, so every row
+> is a pair WCAG passes and OKCA does not.
 
 ### Source versions
 
@@ -50,7 +17,7 @@
 | GOV.UK Design System | govuk-frontend (MIT) | [github.com/alphagov/govuk-frontend](https://github.com/alphagov/govuk-frontend) `_colours-palette.scss` |
 | US Web Design System | USWDS v3.x (MIT) | [github.com/uswds/uswds](https://github.com/uswds/uswds) `packages/uswds-core/src/styles/tokens/color/` |
 
-All 107 are pairs where OKCA scores below 4.5 AA but WCAG scores $\ge 4.5$. These are intentional — they represent colours in the marginal zone that WCAG's threshold passes but real-world practitioners routinely reject. Each colour is scored twice due to OKCA's polarity model — once as a L-o-D pair (white text on colour) and once as a D-o-L pair (colour on white) — and counted separately; a "D-o-L only" note marks colours where just one direction falls below 4.5.
+All 107 are pairs where OKCA scores below 4.5 AA but WCAG scores $\ge 4.5$. These are intentional — they sit on or near WCAG's line, where a pair has little margin against the conditions it will be read in. Each colour is scored twice due to OKCA's polarity model — once as a L-o-D pair (white text on colour) and once as a D-o-L pair (colour on white) — and counted separately; a "D-o-L only" note marks colours where just one direction falls below 4.5.
 
 WCAG score shown is symmetric. OKCA scores can differ by polarity, but light-on-dark never scores above dark-on-light for the same colour. Here, where the colour is the darker partner, the two columns differ mainly through Step 4's corrections to the darker background.
 
@@ -58,7 +25,7 @@ WCAG score shown is symmetric. OKCA scores can differ by polarity, but light-on-
 
 ## Tailwind CSS v3.4 — 43 disagreements
 
-The 500-level neutral greys are the most practically significant: designers reach for them as body text or icon colours on white. The remaining entries are mid-range chromatic shades (500–700) that WCAG passes and OKCA's chroma compression plus polarity model fail.
+The 500-level neutral greys are the most practically significant: designers reach for them as body text or icon colours on white. The remaining entries are mid-range chromatic shades (500–700). Oklab rates saturated colours lighter than WCAG's luminance does, so against white they carry less contrast in OKCA than in WCAG.
 
 | Colour | Hex | WCAG | OKCA L-o-D | OKCA D-o-L | Note |
 |--------|-----|-----:|----------:|----------:|------|
@@ -105,7 +72,7 @@ GOV.UK makes explicit WCAG 2.2 AA claims and documents approved text pairings. T
 | orange-shade25 | `#b7592a` | 4.7 | 3.7 | 3.7 |  |
 | yellow-shade50 | `#806f00` | 5.0 | 4.2 | 4.3 |  |
 
-**Pattern:** GOV.UK blue (the brand/link colour) now falls just short in both directions: white-on-blue (L-o-D 4.0) and blue-on-white (D-o-L 4.1). Purple tint-25 and magenta are penalised most by chroma compression; red sits in the same mid-range chromatic zone as Tailwind red-600.
+**Pattern:** GOV.UK blue (the brand/link colour) falls just short in both directions: white-on-blue (L-o-D 4.0) and blue-on-white (D-o-L 4.1). Purple tint-25 and magenta score lowest; red sits in the same mid-range chromatic zone as Tailwind red-600.
 
 ---
 
@@ -156,7 +123,7 @@ USWDS makes explicit WCAG 2.x AA claims. The 50 disagreements are the grade-50 s
 ### Where OKCA consistently disagrees
 1. **Gray 500 zone** — the entire Tailwind neutral scale at 500 (~4.7–4.8 WCAG, OKCA 3.9–4.1). The most important disagreements from a practitioner standpoint.
 2. **USWDS grade 50 across all families** — calibrated to WCAG $\approx 4.6$ system-wide. A single threshold shift of 0.1 WCAG points separates these from USWDS grade 40 (which passes both).
-3. **Saturated chromatics at medium depth** — high-chroma hues near the WCAG boundary (fuchsia, pink, magenta, red). The chroma compression penalty is largest here.
+3. **Saturated chromatics at medium depth** — high-chroma hues near the WCAG boundary (fuchsia, pink, magenta, red). Oklab rates these lighter than WCAG's luminance does, so they lose the most contrast against white.
 4. **Blue / indigo / purple hues** — perceptually darker than luminance alone predicts.
 
 ### The D-o-L asymmetry

@@ -66,7 +66,7 @@ $$
 w = \frac{C + a \cos\theta + b \sin\theta}{2}
 $$
 
-which is $C$ in direction $\theta$, $C/2$ at 90° from it and $0$ opposite. It is linear in $a$ and $b$, and there is **no hue branch**: no hue ranges and no conditions on hue angle. It is deliberately *not* rotationally symmetric. Before 3.0 the penalty used chroma $C$ alone and treated every hue the same. Colour-vision deficiency does not: dichromats lose much of the contrast of reds, oranges and magentas, and little of greens, blues and purples ([`CVD_FINDINGS.md`](CVD_FINDINGS.md)). The lighter element's direction, $9.4°$, is the loss-weighted direction of that loss ([`OPPONENT_AXIS_FINDINGS.md`](OPPONENT_AXIS_FINDINGS.md)), essentially Oklab's $+a$ axis: the red end of the red–green opponent channel that protans and deutans lose. The darker element's direction, $267°$, is where OKCA's own scores need a lift to stay at or below a dichromat's ([`DARKER_LIFT_FINDINGS.md`](DARKER_LIFT_FINDINGS.md)), essentially Oklab's $-b$ axis.
+which is $C$ in direction $\theta$, $C/2$ at 90° from it and $0$ opposite. It is linear in $a$ and $b$, and there is **no hue branch**: no hue ranges and no conditions on hue angle. It is deliberately *not* rotationally symmetric, because colour-vision deficiency is not: dichromats lose much of the contrast of reds, oranges and magentas, and little of greens, blues and purples ([`CVD_FINDINGS.md`](CVD_FINDINGS.md)). The lighter element's direction, $9.4°$, is the loss-weighted direction of that loss ([`OPPONENT_AXIS_FINDINGS.md`](OPPONENT_AXIS_FINDINGS.md)), essentially Oklab's $+a$ axis: the red end of the red–green opponent channel that protans and deutans lose. The darker element's direction, $267°$, is where OKCA's own scores need a lift to stay at or below a dichromat's ([`DARKER_LIFT_FINDINGS.md`](DARKER_LIFT_FINDINGS.md)), essentially Oklab's $-b$ axis.
 
 FP = 0 is maintained by the polarity model (see [Section 4](#4-the-fp--0-guarantee)) rather than by green-channel patches.
 
@@ -102,7 +102,7 @@ $$
 J/100 \approx L^{\gamma}, \qquad \gamma \approx 1.26 \thinspace c \thinspace \left(1.48 + L_{\text{bg}}^{1.5}\right)
 $$
 
-from about 1.36 on near-black to 2.13 on white, fit to within 0.15 $J$. A darker background flattens the scale, so the same pair carries less lightness difference. Before Step 4 existed, a grey just passing 4.5 on `#1a1a1a` carried a background-aware CAM16-UCS lightness gap of 47.6, and one on `#333333` 45.1, against 63.4 on white ([`CAM16_FINDINGS.md`](CAM16_FINDINGS.md) §2–§3).
+from about 1.36 on near-black to 2.13 on white, fit to within 0.15 $J$. A darker background flattens the scale, so the same pair carries less lightness difference. Without Step 4, a grey just passing 4.5 on `#1a1a1a` carries a background-aware CAM16-UCS lightness gap of 47.6, and one on `#333333` 45.1, against 63.4 on white ([`CAM16_FINDINGS.md`](CAM16_FINDINGS.md) §2–§3).
 
 **Mechanism.** Take CAM16's exponent relative to a reference background. The factor $1.26 \thinspace c$ cancels:
 
@@ -120,7 +120,7 @@ where $L_{\text{bg}}$ is the background's OKLab $L$ and $L_{\text{ref}} = 0.5658
 
 **Effect.** The spread of the CAM16 lightness gap at the AA line, across backgrounds, falls from 18.2 to 13.2. Mid-dark backgrounds benefit most:
 
-| Pair | Before Step 4 | With Step 4 |
+| Pair | Without Step 4 | With Step 4 |
 |---|---:|---:|
 | `#919191` on `#121212` | 5.2 | 4.4 |
 | `#9f9f9f` on `#1a1a1a` | 5.8 | 4.8 |
@@ -213,7 +213,7 @@ interval arithmetic** over the sRGB cube with **0 uncertified boxes**
 So FP = 0 is **verified for all sRGB inputs** — an exact identity plus two
 interval-checked lemmas, not a calibration-dependent headroom property. (The
 chroma penalty and Step-5 compression still shape *how far* below WCAG each score
-sits; they are no longer load-bearing for the guarantee itself.)
+sits; they are not load-bearing for the guarantee itself.)
 
 **Scope and caveats.** The proof covers **sRGB** inputs. It re-runs via
 `npm run fp0` after any change to $k$, the caps, or the chroma penalty (the
@@ -268,7 +268,7 @@ Easing the lighter penalty alone left a gap: saturated dark text on light fills,
 
 $$e_D = 1 + K_D \cdot \frac{w_D}{0.15}, \qquad Y_{\text{darker}} = L_{\text{darker}}^{3s/e_D}$$
 
-All three pieces are fitted to one rule: no pair on a 262,144-pair grid should score above what a dichromat sees (Machado et al. 2009, severity 1.0). For each dark colour, find the smallest $e_D$ that meets it. Only 35 of 512 need any lift, nearly all blue to violet, and the requirement grows roughly in proportion to chroma. Hence the direction ($\theta_D$, the requirement-weighted direction), the linear shape, and $K_D =$ `OPP_K_D` $= 0.065$, fitted jointly with the lighter penalty's strength ([`DARKER_LIFT_FINDINGS.md`](DARKER_LIFT_FINDINGS.md), [`CHROMA_K_FINDINGS.md`](CHROMA_K_FINDINGS.md)). No grid pair then scores above the dichromat's ratio. That is rationale for the calibration, not a guarantee; OKCA's promise is the WCAG bound. The first version (#28) set the direction from raw CVD loss ($313.7°$) and capped the ramp; after one cap for both polarities (§7) it left 43 saturated-blue pairs above the dichromat's ratio, which no strength along $313.7°$ could clear. The lift only raises the darker proxy, so it can only lower a score (§4). `#1d4ed8` on white scores 4.8, against a dichromat's 5.4.
+All three pieces are fitted to one rule: no pair on a 262,144-pair grid should score above what a dichromat sees (Machado et al. 2009, severity 1.0). For each dark colour, find the smallest $e_D$ that meets it. Only 35 of 512 need any lift, nearly all blue to violet, and the requirement grows roughly in proportion to chroma. Hence the direction ($\theta_D$, the requirement-weighted direction), the linear shape, and $K_D =$ `OPP_K_D` $= 0.065$, fitted jointly with the lighter penalty's strength ([`DARKER_LIFT_FINDINGS.md`](DARKER_LIFT_FINDINGS.md), [`CHROMA_K_FINDINGS.md`](CHROMA_K_FINDINGS.md)). No grid pair then scores above the dichromat's ratio. That is rationale for the calibration, not a guarantee; OKCA's promise is the WCAG bound. The lift only raises the darker proxy, so it can only lower a score (§4). `#1d4ed8` on white scores 4.8, against a dichromat's 5.4.
 
 ---
 
@@ -302,9 +302,9 @@ where $k =$ `POL_K` $= 1.100$ and $\text{CAP} =$ `CAP` $= 20.9$ in both polariti
 
 **Polarity.** OKCA is **polarity-aware**: `okca(A, B)` can differ from `okca(B, A)`. The difference comes only from Steps 4 and 6, which tighten dark backgrounds: background induction and the opponent-axis lift (§3, §5) and the flare ceiling (below). So a light-on-dark pair can score lower than the same colours reversed, and **never higher**. Where those steps do not act (achromatic pairs on backgrounds at least as light as `#767676`), the two directions tie.
 
-**Rationale, and what changed in 3.0.** Through 2.x, Step 5 used two caps: 20.9 for light-on-dark and 20 for dark-on-light. That was an editorial choice to score light-on-dark higher, anchored to practitioner reference values (white/black = 20.9/20.0, `#767676` = 3.9/3.7). In 3.0 it contradicted the evidence-based steps. Dark-on-light already scored higher for 82–99% of pairs whose darker colour has OKLab $L$ below 0.5; the editorial caps won only near the anchors. The reading literature also favours dark text on light backgrounds: Buchner & Baumgartner (2007); Piepenbrock, Mayr, Mund & Buchner (2013); Piepenbrock, Mayr & Buchner (2014a, 2014b). One cap removes the editorial input instead of replacing it with another magnitude. No source gives a contrast-equivalent size for the polarity effect ([`POLARITY_FINDINGS.md`](POLARITY_FINDINGS.md)).
+**Why one cap.** Any polarity difference comes from a measured effect, not from the scaling. The measured effects all point the same way: Steps 4 and 6 tighten dark backgrounds, and the reading literature favours dark text on light backgrounds: Buchner & Baumgartner (2007); Piepenbrock, Mayr, Mund & Buchner (2013); Piepenbrock, Mayr & Buchner (2014a, 2014b). No source gives a contrast-equivalent size for the polarity effect itself, so the scaling adds none ([`POLARITY_FINDINGS.md`](POLARITY_FINDINGS.md)).
 
-**Deriving $k$.** The exponent was calibrated so that white on `#767676` --- the canonical WCAG AA boundary grey, raw $r \approx 4.54$ --- rounds to 3.9 under L-o-D (raised from an earlier 3.5 anchor to reduce over-conservatism on mid-range chromatics; FP = 0 re-verified across the gamut):
+**Deriving $k$.** The exponent is set so that white on `#767676` --- the canonical WCAG AA boundary grey, raw $r \approx 4.54$ --- rounds to 3.9, the boundary anchor (§9):
 
 $$k = \frac{\ln(3.9/21)}{\ln(4.54/21)} \approx 1.0996 \rightarrow 1.100$$
 
@@ -314,7 +314,7 @@ $$k = \frac{\ln(3.9/21)}{\ln(4.54/21)} \approx 1.0996 \rightarrow 1.100$$
 
 **Problem.** For achromatic pairs $L^3 = Y$, so Steps 1–5 inherit WCAG's behaviour on dark backgrounds. There the ratio is carried by the near-zero denominator $Y_{\text{darker}} + 0.05$, and that is the term stray light raises first. The chroma penalty masks this for saturated foregrounds, but greys get no protection. At the AA line the gap is large:
 
-| Background | Grey reaching 4.5 before Step 6 | Its ratio with flare 0.10 |
+| Background | Grey reaching 4.5 without Step 6 | Its ratio with flare 0.10 |
 |---|---|---:|
 | `#000000` | `#7e7e7e` | 3.09 |
 | `#1a1a1a` | `#8c8c8c` | 3.28 |
@@ -342,7 +342,7 @@ with $F =$ `FLARE` $= 0.10$ and $k_F =$ `FLARE_K` $= 1.5$.
 
 **Effect.** Grey and near-grey text on dark surfaces moves up about one palette grade. USWDS gray-40 (`#919191`) on `#121212` goes from 5.2 to 3.9, and `#888888` on black from 5.2 to 3.7. Across Tailwind, GOV.UK and USWDS palettes on nine real dark surfaces, 45 of 4,938 light-on-dark pairs lose AA, 44 of them grey or near-grey. The ceiling is polarity-independent because flare is: dark text on mid-tone fills tightens too (`#000000` on `#767676`: 3.8 to 2.6).
 
-**Not a viewing-conditions model.** The ceiling does not estimate a room (see §10). It measures how much of a pair's contrast depends on its darkest patch staying dark. Pairs with the same score now carry comparable margin against whatever room they are read in. That is the variance argument §10 makes for conservative floors, applied evenly across backgrounds.
+**Not a viewing-conditions model.** The ceiling does not estimate a room (see §10). It measures how much of a pair's contrast depends on its darkest patch staying dark. Pairs with the same score carry comparable margin against whatever room they are read in. That is the variance argument §10 makes for conservative floors, applied evenly across backgrounds.
 
 ---
 
@@ -359,9 +359,9 @@ Three independent batteries:
 
 **False passes are zero** --- the non-negotiable invariant holds across all 1,249 pairs.
 
-**WCAG disagreements** (pairs where OKCA < 4.5 but WCAG ≥ 4.5) are intentional and should not be read as miscalibration. WCAG's 4.5:1 AA threshold is widely considered too permissive by practitioners. White on `#767676` --- the canonical WCAG AA boundary anchor --- sits exactly on the line, where the verdict turns on the display and the room rather than on the colours (see *Does not model viewing conditions* in §10 below). All 107 disagreements involve colours in that marginal zone: proximity to the boundary is not the same as being safely above it, and a pair on the line has no margin against the conditions it will be read in. (The count was 111 before the white/#767676 anchor was raised 3.5 → 3.9; that recalibration cleared 14 mid-range chromatics that sat just under 4.5.)
+**WCAG disagreements** (pairs where OKCA < 4.5 but WCAG ≥ 4.5) are intentional and should not be read as miscalibration. White on `#767676` --- the canonical WCAG AA boundary anchor --- sits exactly on the line, where the verdict turns on the display and the room rather than on the colours (see *Does not model viewing conditions* in §10 below). All 107 disagreements involve colours in that marginal zone: proximity to the boundary is not the same as being safely above it, and a pair on the line has no margin against the conditions it will be read in.
 
-By system: Tailwind CSS v3.4 (43), GOV.UK Design System (14), USWDS v3.x (50). Step 4's induction added two: white on lime-700 and white on GOV.UK blue, each 4.5 to 4.4. The opponent-axis lift added ten, all Tailwind saturated 600–700 shades in the purple–magenta–red range (indigo-600, purple-700, fuchsia-700, pink-700, rose-700, red-700): the hues where dichromats do lose contrast. See `docs/WCAG_DISAGREEMENTS.md` for full enumeration with hex values. One cap for both polarities (§7) removed two: green-700 now passes as text on white, and lime-700 passes as text on white while still failing as white on lime-700. The linear darker lift netted one: white on green-700, cyan-700, blue-700 and violet-700 now falls just short, while red-700 and rose-700 pass in both directions.
+By system: Tailwind CSS v3.4 (43), GOV.UK Design System (14), USWDS v3.x (50). They are mid-range greys and saturated 500–700 shades near WCAG's line; five Tailwind 700 shades fail only as white text on the colour. See `docs/WCAG_DISAGREEMENTS.md` for the full enumeration with hex values.
 
 ---
 

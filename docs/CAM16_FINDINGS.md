@@ -1,12 +1,14 @@
 # CAM16 — What Oklab Abstracts
 
-Research notes. The question: which viewing-condition factors does Oklab fix,
-and which can OKCA pull back out using only OKLab/OKLCH coordinates? This is
-*analysis*. Running it changed no algorithm code.
+> **Research record** for [#26](https://github.com/pawn002/okca/issues/26),
+> October 2026. Outcome: adopted as Step 4's background induction. Figures
+> describe OKCA as it stood then and are not kept current; where a script
+> reimplements that version, its check against the live `contrast()` can report
+> mismatches. Current algorithm: [`OKCA_DESIGN.md`](OKCA_DESIGN.md). How this
+> work fits the project's path: [`HISTORY.md`](HISTORY.md).
 
-> **Step 6** in these notes is the flare-robustness ceiling from
-> [#25](https://github.com/pawn002/okca/issues/25), on branch `okca-25-near-black`.
-> This branch does not contain it; the scripts here reimplement it for comparison.
+The question: which viewing-condition factors does Oklab fix, and which can
+OKCA pull back out using only OKLab/OKLCH coordinates?
 
 Reproduce:
 

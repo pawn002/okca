@@ -1,6 +1,6 @@
-# FP=0 — guaranteed by construction (issue #14)
+# FP=0 — guaranteed by construction
 
-**Status: proven.** $\text{OKCA} \le \text{WCAG}$ for every sRGB pair is now an
+**Status: proven.** $\text{OKCA} \le \text{WCAG}$ for every sRGB pair is an
 **exact algebraic identity** plus **two single-colour lemmas verified by interval
 arithmetic** — no calibration-dependent headroom, no residual. Reproduce:
 `npm run fp0` (certifies with **0 uncertified boxes**).
@@ -69,10 +69,10 @@ bound
 
 $$\frac{c}{21^{k}} \cdot A(\text{white}) \cdot B(\text{black}) = \frac{c}{21} = 0.99524 < 1,$$
 
-a **uniform strict margin**. There is now no equality point anywhere: OKCA is
+a **uniform strict margin**. There is no equality point anywhere: OKCA is
 *strictly* below WCAG for every sRGB pair, in both polarities, since both use the
-same cap. (Through 2.x, dark-on-light used a cap of 20, which was looser still.) The $20.9/21$ factor is the deliberate, minimal step that converts
-the guarantee from "gamut-verified headroom" to "strict by construction".
+same cap. The $20.9/21$ factor is the deliberate, minimal margin that makes the
+guarantee strict by construction rather than a property of sampled headroom.
 
 ## 4. Reduction to two verified lemmas
 
@@ -147,8 +147,8 @@ $$\frac{c}{21^{k}} \cdot A(l) \cdot B(d) \le \frac{c}{21^{k}} \cdot A(\text{whit
 hence $\text{OKCA} \le \text{WCAG}$, strictly, and by §5–§6 the published score
 is no higher.
 
-**FP = 0 is guaranteed by construction across the full sRGB gamut** — the
-chromatic case (issue #14's gap) is closed. The argument depends only on the
+**FP = 0 is guaranteed by construction across the full sRGB gamut**, for
+chromatic and achromatic pairs alike. The argument depends only on the
 closed-form structure and re-runs via `npm run fp0` after any constant change,
 so it is robust to future retuning (the CI-invariant companion can gate on it).
 

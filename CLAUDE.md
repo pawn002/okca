@@ -15,13 +15,34 @@ be kept in sync:
 | `docs/OKCA_EXECUTIVE_BRIEF.md` | Non-technical stakeholders / decision-makers |
 | `docs/FP0_PROOF.md` | FP=0 proof (identity + interval-verified lemmas) |
 
-A typical algorithm change touches: constants (`C_THRESH`, `CHROMA_K`,
-`POL_K`, `LOD_CAP`, `DOL_CAP`), step descriptions, the FP=0 proof,
-achromatic anchor values (white/black = 20.9/20.0, white/#767676 = 3.9/3.7),
-and the WCAG disagreement counts. Probe test expectations
+A typical algorithm change touches: constants (`CHROMA_K`, `OPP_K_D`,
+`OPP_THETA_L`, `OPP_THETA_D`, `C_THRESH`, `POL_K`, `CAP`, `IND_Z`,
+`IND_REF_L`, `FLARE`, `FLARE_K`), step descriptions, the FP=0 proof, achromatic
+anchor values (white/black = 20.9 both ways, white/#767676 = 3.9 both ways),
+the WCAG disagreement counts, and a chapter in `docs/HISTORY.md`. Probe test expectations
 (`probe-curated.spec.ts`, `probe-design-systems.spec.ts`), the oracle
 (`okca-oracle.spec.ts`), and the FP=0 verifier (`npm run fp0`, which must
 still certify with 0 uncertified boxes) must also be updated/re-run.
+
+## Current state vs history
+
+The six docs above, and the CHANGELOG's Unreleased entry, describe OKCA **as it
+is**. They carry no history: no "was", no "before #N", no superseded values, no
+chains of past counts. Each constant gets one line on *why* it has its value,
+not how it got there.
+
+History has two homes:
+
+- **`docs/HISTORY.md`** — the narrative: what was tried, kept and dropped, and
+  why. When work settles, adopted or not, add its chapter there, and update
+  "What's ahead".
+- **Research records** (`docs/*_FINDINGS.md`, `CALIBRATION_EXPERIMENT.md`) —
+  dated, not kept current. Each opens with one `Research record` status line
+  naming its issue, date and outcome. Do not add "Applied" or "Superseded"
+  notes to them; update the outcome clause if it changes.
+
+When a change lands, update the current-state docs to the new state and write
+the path in HISTORY.md, not in the docs.
 
 ## Math notation in `docs/`
 
