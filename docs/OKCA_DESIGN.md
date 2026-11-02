@@ -411,6 +411,8 @@ Understanding the scope prevents incorrect use and misguided extension attempts.
 
 **Does not model viewing conditions.** The contrast at which text becomes acceptable moves substantially with display luminance and ambient light — far enough that a pair near the AA boundary can be judged shippable under one setup and not another by the same person in the same room ([#22](https://github.com/pawn002/okca/issues/22#issuecomment-5282357292)). OKCA is a relative metric over sRGB with no access to absolute luminance, so it does not model this and no constant of its own could: a level-dependent term was measured for and not detected, while the effect that does exist tracks a quantity the algorithm cannot observe. The safety bound is unaffected, being a relation between two relative metrics. The practical consequence is that OKCA's floors are viewing-condition independent by construction, which is a reason to keep them conservative rather than to tune them.
 
+**Does not rescue a pair WCAG fails.** OKCA never scores above WCAG, so where WCAG under-rates a pair, OKCA fails it too. It corrects WCAG in one direction only.
+
 **Does not patch WCAG's channel weighting.** OKCA does not compensate for the IEC 61966-2-1 green-channel weighting in WCAG's luminance formula. Its chroma terms are weighted along Oklab's opponent axes (§2.4), in directions derived from colour-vision-deficiency loss, not from WCAG's channel weights. There is no hue branch, and no per-hue table or condition.
 
 ---
