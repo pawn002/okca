@@ -83,7 +83,8 @@ Rules `docs-lint.spec.ts` enforces across every `docs/*.md`:
 1. **No backslash-escaped punctuation inside single-line math.** Markdown eats
    the backslash. `\_`→`_` and `\%`→`%` become hard KaTeX parse errors; `\,`→`,`
    `\;`→`;` `\\`→`\` silently render the wrong glyph. Letter-named commands
-   survive, so use `\thinspace`, `\quad`, `\lbrace`, `\rbrace`. For `\\` row
+   survive, so use `\quad`, `\lbrace`, `\rbrace`. Avoid `\thinspace`: GitHub renders
+   it, but not every Markdown math viewer does, and juxtaposition reads fine. For `\\` row
    breaks, write the `$$` block across multiple lines.
 2. **Never put a constant name inside math.** `\texttt{POL\_K}` and
    `\text{POL\_K}` both break — the escaped underscore does not survive. Split

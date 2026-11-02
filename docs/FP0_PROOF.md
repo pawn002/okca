@@ -115,7 +115,7 @@ the anchors certify, so no neighbourhood is excluded.
 Step 4 replaces the darker proxy with
 
 $$
-Y_{\text{darker}} = L_{\text{darker}}^{3s/e_D}, \qquad s = \min\left(1, \thinspace \frac{1.48 + L_{\text{bg}}^{1.5}}{1.48 + L_{\text{ref}}^{1.5}}\right) \le 1, \qquad e_D \ge 1,
+Y_{\text{darker}} = L_{\text{darker}}^{3s/e_D}, \qquad s = \min\left(1, \frac{1.48 + L_{\text{bg}}^{1.5}}{1.48 + L_{\text{ref}}^{1.5}}\right) \le 1, \qquad e_D \ge 1,
 $$
 
 where $s$ is background induction and $e_D = 1 + K_D \cdot w_D / 0.15$ is the
@@ -130,7 +130,7 @@ strict margin and the conclusion below apply unchanged. No new lemma is needed.
 
 The published score is
 
-$$\text{score} = \min\left(\text{OKCA}, \thinspace \text{ceiling}\right) \le \text{OKCA},$$
+$$\text{score} = \min\left(\text{OKCA}, \text{ceiling}\right) \le \text{OKCA},$$
 
 where the ceiling is the flare-robustness term of step 6
 ([`OKCA_DESIGN.md`](OKCA_DESIGN.md) §7). It is computed on the plain $L^3$ proxies, not on Step 4's induced and lifted one. Whatever value the ceiling takes, a

@@ -84,7 +84,7 @@ When the algorithm must choose between overcounting contrast (false pass) and un
 
 WCAG luminance is defined as:
 
-$$Y = 0.2126\thinspace R_{\text{lin}} + 0.7152\thinspace G_{\text{lin}} + 0.0722\thinspace B_{\text{lin}}$$
+$$Y = 0.2126 R_{\text{lin}} + 0.7152 G_{\text{lin}} + 0.0722 B_{\text{lin}}$$
 
 per IEC 61966-2-1 (linearised sRGB). This formula was designed for display calibration, not for predicting legibility. Two shortcomings are relevant to OKCA:
 
@@ -99,15 +99,15 @@ OKLCH $L^3$ addresses both points directly. For neutral greys, $L^3 \approx Y_{\
 **Problem.** $L^3$ is the same whatever a colour sits on. CAM16 (Li et al. 2017; the basis of the CIE's CIECAM16, CIE 248:2022) models lightness relative to the background. For greys, CAM16 lightness is very nearly a power of OKLab $L$, and the background sets the power:
 
 $$
-J/100 \approx L^{\gamma}, \qquad \gamma \approx 1.26 \thinspace c \thinspace \left(1.48 + L_{\text{bg}}^{1.5}\right)
+J/100 \approx L^{\gamma}, \qquad \gamma \approx 1.26 c \left(1.48 + L_{\text{bg}}^{1.5}\right)
 $$
 
 from about 1.36 on near-black to 2.13 on white, fit to within 0.15 $J$. A darker background flattens the scale, so the same pair carries less lightness difference. Without Step 4, a grey just passing 4.5 on `#1a1a1a` carries a background-aware CAM16-UCS lightness gap of 47.6, and one on `#333333` 45.1, against 63.4 on white ([`CAM16_FINDINGS.md`](CAM16_FINDINGS.md) §2–§3).
 
-**Mechanism.** Take CAM16's exponent relative to a reference background. The factor $1.26 \thinspace c$ cancels:
+**Mechanism.** Take CAM16's exponent relative to a reference background. The factor $1.26 c$ cancels:
 
 $$
-s = \min\left(1, \thinspace \frac{1.48 + L_{\text{bg}}^{1.5}}{1.48 + L_{\text{ref}}^{1.5}}\right), \qquad Y_{\text{darker}} = L_{\text{darker}}^{3s}
+s = \min\left(1, \frac{1.48 + L_{\text{bg}}^{1.5}}{1.48 + L_{\text{ref}}^{1.5}}\right), \qquad Y_{\text{darker}} = L_{\text{darker}}^{3s}
 $$
 
 where $L_{\text{bg}}$ is the background's OKLab $L$ and $L_{\text{ref}} = 0.5658$ is OKLab $L$ of `#767676`.
@@ -329,7 +329,7 @@ $$
 $$
 
 $$
-\text{score} = \min\left(\text{ratio}, \thinspace \text{ceiling}\right)
+\text{score} = \min\left(\text{ratio}, \text{ceiling}\right)
 $$
 
 with $F =$ `FLARE` $= 0.10$ and $k_F =$ `FLARE_K` $= 1.5$.

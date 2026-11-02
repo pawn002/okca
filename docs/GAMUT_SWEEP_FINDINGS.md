@@ -41,7 +41,7 @@ WCAG values use the standard relative-luminance formula, reimplemented inline
 OKCA's darker-element luminance proxy is $L^3$ (OKLCH lightness cubed). WCAG
 uses relative luminance
 
-$$Y = 0.2126\thinspace R_{\text{lin}} + 0.7152\thinspace G_{\text{lin}} + 0.0722\thinspace B_{\text{lin}}$$
+$$Y = 0.2126 R_{\text{lin}} + 0.7152 G_{\text{lin}} + 0.0722 B_{\text{lin}}$$
 
 (linearised sRGB). Their gap
 
