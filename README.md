@@ -8,7 +8,7 @@ It closes four WCAG 2.x gaps:
 
 1. **Saturated colours.** WCAG scores hot pink on near-black 6.6:1 — a comfortable pass. OKCA scores it **4.1**: it tells saturated colour from grey at the same luminance, and WCAG can't. The penalty follows how colour-vision deficiency actually loses contrast: strongest for reds and magentas, much lighter for blues and greens, and sized from colour-vision data rather than set by hand. Saturated blue `#3b82f6` on black scores 3.6.
 
-2. **Polarity.** WCAG rates `contrast(A on B)` and `contrast(B on A)` identically. OKCA doesn't, but only where it can say why: dark backgrounds measurably cost contrast (items 3 and 4), so light text on a dark background can score lower than the same pair reversed. Never higher.
+2. **Polarity.** WCAG rates `contrast(A on B)` and `contrast(B on A)` identically. OKCA doesn't, but only where it can say why: dark backgrounds measurably cost contrast (item 3), so light text on a dark background can score lower than the same pair reversed. Never higher.
 
 3. **Background.** WCAG treats a colour's lightness as fixed, whatever it sits on. In the CAM16 colour appearance model (the basis of the CIE's CIECAM16), a darker background flattens the lightness scale, so the same pair carries less lightness difference on dark than on light. OKCA applies that correction to the darker colour on any background darker than `#767676`: light grey `#cccccc` on `#333333` scores **5.7** where WCAG gives 7.9. Lighter backgrounds are unaffected, and the correction never raises a score.
 
