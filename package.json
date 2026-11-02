@@ -35,7 +35,8 @@
     "opponent": "tsc -p tsconfig.scripts.json && node dist-scripts/scripts/opponent-axis-prototype.js",
     "polarity": "tsc -p tsconfig.scripts.json && node dist-scripts/scripts/polarity-caps.js",
     "darker-lift": "tsc -p tsconfig.scripts.json && node dist-scripts/scripts/darker-lift-fit.js",
-    "chroma-k": "tsc -p tsconfig.scripts.json && node dist-scripts/scripts/chroma-k-fit.js"
+    "chroma-k": "tsc -p tsconfig.scripts.json && node dist-scripts/scripts/chroma-k-fit.js",
+    "scatter": "tsc -p tsconfig.scripts.json && node dist-scripts/scripts/scatter-prototype.js"
   },
   "devDependencies": {
     "colorjs.io": "^0.5.2",
