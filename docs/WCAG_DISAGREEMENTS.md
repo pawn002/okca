@@ -8,6 +8,10 @@
 > is on dark backgrounds, which this battery does not sample (see
 > `docs/MIDTONE_SURVEY_FINDINGS.md`). OKCA never scores above WCAG, so every row
 > is a pair WCAG passes and OKCA does not.
+>
+> All counts are for the default observer. Under the experimental scatter
+> observer the total is 247 (Tailwind 108 · GOV.UK 32 · USWDS 107), 182 of them
+> colour text on white, because a white background veils dark text.
 
 ### Source versions
 

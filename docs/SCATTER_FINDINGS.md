@@ -1,7 +1,8 @@
 # Intraocular Scatter and Polarity — Exploration Findings
 
 > **Research record** for [#34](https://github.com/pawn002/okca/issues/34),
-> November 2026. Outcome: open; a likely direction is recorded in §5. Figures
+> November 2026. Outcome: the default observer is kept, and the veil is implemented as an
+> experimental opt-in scatter observer for release candidates. Figures
 > describe OKCA as it stood then and are not kept current. Current algorithm:
 > [`OKCA_DESIGN.md`](OKCA_DESIGN.md). How this work fits the project's path:
 > [`HISTORY.md`](HISTORY.md).

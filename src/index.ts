@@ -61,6 +61,10 @@
  *   - Polarity-aware: foreground and background roles matter, because dark
  *     backgrounds measurably cost contrast (Step 4). Dark-on-light never
  *     scores lower than the same pair reversed; there is no editorial bias.
+ *   - Experimental scatter observer ({ observer: 'scatter' }): adds a veil
+ *     SCATTER_K × bgL³ to both patches of the raw ratio, as intraocular scatter
+ *     does in an ageing or clouded eye, so a bright background costs dark text
+ *     contrast. Never scores above the default (docs/SCATTER_FINDINGS.md).
  *   - Pure OKLCH/Oklab — no WCAG luminance formula, no hue branch. The chroma
  *     terms are weighted along Oklab's opponent axes, linearly in a and b.
  */

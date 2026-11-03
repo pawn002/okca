@@ -138,14 +138,28 @@ minimum never exceeds either argument. So every bound proved here for the
 step-5 score, including Step 4's, holds for the published score, with no new lemma. Rounding to
 one decimal place is monotone and preserves it as well.
 
-## 7. Conclusion
+## 7. The scatter observer inherits the bound
+
+The experimental scatter observer adds a veil $v = k_s L_{\text{bg}}^{3} \ge 0$
+to both patches of the raw ratio. For $Y_{\text{lighter}} \ge Y_{\text{darker}}$,
+
+$$
+\frac{Y_{\text{lighter}} + 0.05 + v}{Y_{\text{darker}} + 0.05 + v} \le \frac{Y_{\text{lighter}} + 0.05}{Y_{\text{darker}} + 0.05},
+$$
+
+so with the same $k$ and cap its step-5 score is at most the default one, and
+everything above applies. It keeps `POL_K` = 1.100. Holding the 3.9 anchor
+under the veil would need $k \approx 1.037$, and at that $k$ lemma A does not
+certify (`OKCA_POL_K=1.037 npm run fp0`).
+
+## 8. Conclusion
 
 For every ordered sRGB pair:
 
 $$\frac{c}{21^{k}} \cdot A(l) \cdot B(d) \le \frac{c}{21^{k}} \cdot A(\text{white}) \cdot B(\text{black}) = \frac{c}{21} < 1,$$
 
-hence $\text{OKCA} \le \text{WCAG}$, strictly, and by §5–§6 the published score
-is no higher.
+hence $\text{OKCA} \le \text{WCAG}$, strictly, and by §5–§7 the published score
+is no higher, for either observer.
 
 **FP = 0 is guaranteed by construction across the full sRGB gamut**, for
 chromatic and achromatic pairs alike. The argument depends only on the

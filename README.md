@@ -8,7 +8,7 @@ It closes four WCAG 2.x gaps:
 
 1. **Saturated colours.** WCAG scores hot pink on near-black 6.6:1 — a comfortable pass. OKCA scores it **4.1**: it tells saturated colour from grey at the same luminance, and WCAG can't. The penalty follows how colour-vision deficiency actually loses contrast: strongest for reds and magentas, much lighter for blues and greens, and sized from colour-vision data rather than set by hand. Saturated blue `#3b82f6` on black scores 3.6.
 
-2. **Polarity.** WCAG rates `contrast(A on B)` and `contrast(B on A)` identically. OKCA doesn't, but only where it can say why: dark backgrounds measurably cost contrast (item 3), so light text on a dark background can score lower than the same pair reversed. Never higher.
+2. **Polarity.** WCAG rates `contrast(A on B)` and `contrast(B on A)` identically. So does OKCA for most pairs, including those near the AA line: white on `#767676` scores 3.9 either way. The two directions differ only when the darker colour is darker than `#767676`, where background induction (item 3) lowers the light-on-dark score: white on `#595959` scores 5.7, `#595959` on white 6.2. That matches reading studies, where younger and older adults alike read dark text on a light background better. The exception is eyes that scatter light, as with cataract: for them a bright background veils the text, and light-on-dark can read better. An experimental option scores for that eye (see Usage).
 
 3. **Background.** WCAG treats a colour's lightness as fixed, whatever it sits on. In the CAM16 colour appearance model (the basis of the CIE's CIECAM16), a darker background flattens the lightness scale, so the same pair carries less lightness difference on dark than on light. OKCA applies that correction to the darker colour on any background darker than `#767676`: light grey `#cccccc` on `#333333` scores **5.7** where WCAG gives 7.9. Lighter backgrounds are unaffected, and the correction never raises a score.
 
@@ -39,6 +39,13 @@ contrast('#ff69b4', '#1a1a1a'); // 4.1
 
 // Mid-grey on black: WCAG 5.9, but most of it rides on the background staying black
 contrast('#888888', '#000000'); // 3.7
+```
+
+**Experimental: the scatter observer.** For eyes whose optics scatter light, as with an ageing or clouded lens, pass `{ observer: 'scatter' }`. A bright background then veils the text, so dark-on-light loses contrast. It never scores above the default observer, so the WCAG guarantee holds. Release candidates only; it may change or be removed before 3.0.0.
+
+```ts
+contrast('#000000', '#ffffff', { observer: 'scatter' }); // 5.2 — a white background veils black text
+contrast('#ffffff', '#000000', { observer: 'scatter' }); // 20.9 — a black background adds no veil
 ```
 
 Also accepts CSS `oklab()` and `oklch()` alongside hex:

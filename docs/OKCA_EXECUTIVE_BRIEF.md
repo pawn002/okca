@@ -28,10 +28,13 @@ legibility. Four gaps follow from that.
 
 **Polarity blindness.** The formula is symmetric — `contrast(A, B) = contrast(B, A)`.
 The two directions are not equivalent. Reading research finds proofreading
-consistently better with dark text on a light background (Buchner & Baumgartner,
-2007; Piepenbrock et al., 2013, 2014), and dark backgrounds measurably cost
-contrast, as the last two gaps below show. WCAG 2.x cannot capture this, because
-its formula gives the same score whichever colour is the text.
+better with dark text on a light background, for older adults as well as younger
+ones (Buchner & Baumgartner, 2007; Piepenbrock et al., 2013, 2014), and dark
+backgrounds measurably cost contrast, as the background gap below shows. Eyes
+that scatter light, as with cataract, are the exception: a bright background
+veils the text, and light-on-dark can read better (Rubin & Legge, 1989). WCAG 2.x
+cannot capture any of this, because its formula gives the same score whichever
+colour is the text.
 
 **Chromatic over-rating.** Saturated chromatic text on dark
 backgrounds — the hot pink / near-black case is canonical — scores well above the
@@ -78,9 +81,12 @@ mistake, so it can run alongside existing WCAG tooling.
 **Polarity follows the evidence.** `okca(text, background)` can differ from
 `okca(background, text)`, but only because dark backgrounds measurably cost contrast:
 light text on a dark background can score lower than the same pair reversed, never
-higher. That matches reading research, which finds dark text on a light background
-outperforms the reverse. There is no editorial polarity bias: the achromatic anchors
-score the same both ways (white/black 20.9, `#767676` and white 3.9).
+higher. That matches the reading research for younger and older adults. There is
+no editorial polarity bias: the achromatic anchors score the same both ways
+(white/black 20.9, `#767676` and white 3.9). For eyes that scatter light, an
+experimental option scores the other way: a bright background veils the text, so
+dark-on-light loses contrast. It is opt-in, never scores above the default, and may
+change before release.
 
 **Saturated colours are penalised, hue by hue, as colour-vision deficiency
 predicts.** About 8% of men of Northern European descent have red–green
@@ -174,7 +180,7 @@ pairs.
 | Luminance input | IEC 61966-2-1 sRGB | OKLCH $L^3$ (Oklab) |
 | Scale | 1–21 | 1–21 |
 | AA / AAA thresholds | 4.5 / 7.0 | 4.5 / 7.0 |
-| Polarity | Symmetric | Asymmetric where dark backgrounds cost contrast |
+| Polarity | Symmetric | Asymmetric where dark backgrounds cost contrast; opt-in scatter observer reverses it for eyes that scatter light |
 | Chromatic lighter element | Over-rated | Penalised where colour-vision deficiency loses contrast |
 | Background | Ignored | Corrected on dark backgrounds (CAM16) |
 | Margin on near-black backgrounds | Smaller than on light | Matched (flare cap) |

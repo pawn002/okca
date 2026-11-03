@@ -228,6 +228,36 @@ the result, not an input to it. Dark orange on near-black scores 4.8 and now
 passes. The earlier docs had named it as a pair OKCA should fail, but a
 dichromat sees 6.1, and the evidence was allowed to decide.
 
+### Which eye? ([#34](https://github.com/pawn002/okca/issues/34))
+
+Reviewing these docs raised an objection: a contrast algorithm aimed at readers
+with impaired vision was scoring polarity from CAM16, a model of a typical
+observer. Many people, the maintainer included, find light text on a dark
+background easier at the AA line.
+
+- **Checking the claim:** Rubin & Legge (1989) found that some low-vision
+  readers do read white-on-black faster, and four of the five who did had
+  cloudy ocular media. Light scattered inside such an eye veils the image, and
+  a bright background is its main source.
+- **Dead end:** scoring both directions and keeping the lower. It is cautious,
+  but it erases real differences instead of explaining them.
+- **The optics and the behaviour disagree.** Sized from the age-adjusted
+  Stiles–Holladay glare equation, the veil makes dark-on-light the weaker
+  arrangement for every eye, even at age 25. Yet reading studies find
+  dark-on-light better for younger and older adults alike (Piepenbrock et al.,
+  2013, which tested exactly this hypothesis for older eyes). Something,
+  probably pupil size, outweighs scatter for most readers.
+- **Dead end:** keeping the 3.9 anchor under the veil by lowering `POL_K` to
+  1.037. Lemma A of the proof does not certify there.
+
+**Adopted, for release candidates: two observers.** The default stays, grounded
+in the reading studies. An experimental scatter observer scores for eyes that
+scatter light: black on white falls to 5.2 for that eye, while white on black
+keeps 20.9. It can only lower scores, so the guarantee holds. This was the
+first decision published as a fork in outputs rather than settled in private:
+the release candidate carries both answers, and feedback decides whether the
+option survives into 3.0.0.
+
 ### Where 3.0 landed
 
 - **The guarantee is unchanged:** OKCA never scores a pair above WCAG, proven
@@ -266,6 +296,9 @@ Open questions, roughly in order of how much they would change:
   yet found measures how saturated text reads at equal luminance; the reading
   research so far (Legge et al., 1990) shows low-vision readers rely on
   luminance contrast, not that saturated colours are harder to read.
+- **The scatter observer.** Whether it graduates into 3.0.0, and how to apply a
+  veil without WCAG's ratio scale exaggerating it for dark text. The ages in
+  Piepenbrock et al. (2013) and the cataract veil are still to be checked.
 - **Viewing conditions.** OKCA is a relative measure and cannot see screen
   brightness or room light. #22 showed those conditions can flip a verdict at
   the AA line. A relative metric cannot fix that; whether anything should

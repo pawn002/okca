@@ -300,9 +300,11 @@ $$\text{ratio} = \text{CAP} \times \left(\frac{r}{21}\right)^{k}$$
 
 where $k =$ `POL_K` $= 1.100$ and $\text{CAP} =$ `CAP` $= 20.9$ in both polarities. The formula pins at 20.9 when $r = 21$ --- a hair below WCAG's 21, the strict margin that makes FP = 0 hold by construction (Section 4) --- and reduces all lower ratios by the power factor.
 
-**Polarity.** OKCA is **polarity-aware**: `okca(A, B)` can differ from `okca(B, A)`. The difference comes only from Step 4's background induction (§3), which depends on which colour is the background. Every other step treats the lighter and darker colour the same whichever is text, including Step 6's flare ceiling. So a light-on-dark pair can score lower than the same colours reversed, and **never higher**. Where those steps do not act (achromatic pairs on backgrounds at least as light as `#767676`), the two directions tie.
+**Polarity.** OKCA is **polarity-aware**: `okca(A, B)` can differ from `okca(B, A)`. The difference comes only from Step 4's background induction (§3), which depends on which colour is the background. Every other step treats the lighter and darker colour the same whichever is text, including Step 6's flare ceiling. So a light-on-dark pair can score lower than the same colours reversed, and **never higher**. Where Step 4 does not act (achromatic pairs on backgrounds at least as light as `#767676`), the two directions tie.
 
-**Why one cap.** Any polarity difference comes from a measured effect, not from the scaling. The measured effects all point the same way: Step 4 tightens dark backgrounds, and the reading literature favours dark text on light backgrounds: Buchner & Baumgartner (2007); Piepenbrock, Mayr, Mund & Buchner (2013); Piepenbrock, Mayr & Buchner (2014a, 2014b). No source gives a contrast-equivalent size for the polarity effect itself, so the scaling adds none ([`POLARITY_FINDINGS.md`](POLARITY_FINDINGS.md)).
+**Why one cap.** Any polarity difference comes from a measured effect, not from the scaling. Step 4 tightens dark backgrounds, and the reading studies point the same way for most readers: proofreading is better with dark text on a light background (Buchner & Baumgartner, 2007; Piepenbrock, Mayr & Buchner, 2014a, 2014b), for older adults as well as younger ones (Piepenbrock, Mayr, Mund & Buchner, 2013). No source gives a contrast-equivalent size for the polarity effect itself, so the scaling adds none ([`POLARITY_FINDINGS.md`](POLARITY_FINDINGS.md)).
+
+**The exception: eyes that scatter light.** Light scattered inside the eye veils the image in proportion to the background's luminance, so a bright background costs dark text contrast. For eyes with cloudy ocular media the effect is large enough to reverse the reading result: in Rubin & Legge (1989), four of the five low-vision readers who read white-on-black faster had cloudy media. The default score does not model this; the experimental scatter observer below does ([`SCATTER_FINDINGS.md`](SCATTER_FINDINGS.md)).
 
 **Deriving $k$.** The exponent is set so that white on `#767676` --- the canonical WCAG AA boundary grey, raw $r \approx 4.54$ --- rounds to 3.9, the boundary anchor (§9):
 
@@ -344,6 +346,23 @@ with $F =$ `FLARE` $= 0.10$ and $k_F =$ `FLARE_K` $= 1.5$.
 
 **Not a viewing-conditions model.** The ceiling does not estimate a room (see §10). It measures how much of a pair's contrast depends on its darkest patch staying dark. Pairs with the same score carry comparable margin against whatever room they are read in. That is the variance argument §10 makes for conservative floors, applied evenly across backgrounds.
 
+
+### Scatter observer (experimental)
+
+**Opt-in.** `contrast(fg, bg, { observer: 'scatter' })`. Release candidates only; it may change or be removed before 3.0.0.
+
+**Mechanism.** A veil proportional to the background's luminance is added to both patches of the Step 5 raw ratio:
+
+$$
+r_{\text{raw}} = \frac{Y_{\text{lighter}} + 0.05 + v}{Y_{\text{darker}} + 0.05 + v}, \qquad v = k_s L_{\text{bg}}^{3}
+$$
+
+with $k_s =$ `SCATTER_K` $= 0.155$. That is the age-adjusted Stiles–Holladay veil for an 80-year-old eye, the reader WCAG's 4.5:1 is calculated for, integrated over a uniform background from $1°$ to $20°$ around the text. Light closer than $1°$ counts as blur, which acuity covers. Every other step, including `POL_K`, is unchanged.
+
+**Effect.** Light-on-dark scores at least as high as the reverse for every pair where either direction reaches 3.0. A white background veils black text: black on white scores 5.2, white on black 20.9. White on `#767676` scores 3.5 and `#767676` on white 2.6. On WCAG's ratio scale a veil over the darker patch reads as a large loss: black text on white still keeps about 80% Weber contrast at 5.2.
+
+**FP = 0.** Adding the same $v \ge 0$ to both patches can only lower a ratio above 1, so every scatter score is at or below the default score and the guarantee carries over ([`FP0_PROOF.md`](FP0_PROOF.md) §7). Re-deriving `POL_K` to hold the 3.9 anchor under the veil would need $k \approx 1.037$, and lemma A does not certify there.
+
 ---
 
 ## 8. Probe Validation Summary
@@ -380,6 +399,7 @@ By system: Tailwind CSS v3.4 (43), GOV.UK Design System (14), USWDS v3.x (50). F
 | `IND_REF_L` | 0.5658 | OKLab $L$ of `#767676`: backgrounds at or above it keep $s = 1$ |
 | `FLARE` | 0.10 | Flare term for the Step 6 ceiling (twice WCAG's 0.05) |
 | `FLARE_K` | 1.5 | Step 6 ceiling exponent |
+| `SCATTER_K` | 0.155 | Scatter observer only: veil as a fraction of background luminance |
 
 **Calibration anchors:**
 
@@ -410,6 +430,8 @@ Understanding the scope prevents incorrect use and misguided extension attempts.
 **Does not replace perceptual judgement.** An OKCA score of 4.5 on a warm fuchsia text/white background means the pair clears the numerical threshold. A designer may still find it unpleasant. OKCA is a safety floor, not a design recommendation.
 
 **Does not model viewing conditions.** The contrast at which text becomes acceptable moves substantially with display luminance and ambient light — far enough that a pair near the AA boundary can be judged shippable under one setup and not another by the same person in the same room ([#22](https://github.com/pawn002/okca/issues/22#issuecomment-5282357292)). OKCA is a relative metric over sRGB with no access to absolute luminance, so it does not model this and no constant of its own could: a level-dependent term was measured for and not detected, while the effect that does exist tracks a quantity the algorithm cannot observe. The safety bound is unaffected, being a relation between two relative metrics. The practical consequence is that OKCA's floors are viewing-condition independent by construction, which is a reason to keep them conservative rather than to tune them.
+
+**Models one reader by default.** The default score follows the reading studies, in which dark text on a light background reads better for younger and older adults. Eyes that scatter light, as with cataract, can read light-on-dark better. The experimental scatter observer (§7) scores for that eye; the default does not.
 
 **Does not rescue a pair WCAG fails.** OKCA never scores above WCAG, so where WCAG under-rates a pair, OKCA fails it too. It corrects WCAG in one direction only.
 

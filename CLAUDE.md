@@ -17,7 +17,7 @@ be kept in sync:
 
 A typical algorithm change touches: constants (`CHROMA_K`, `OPP_K_D`,
 `OPP_THETA_L`, `OPP_THETA_D`, `C_THRESH`, `POL_K`, `CAP`, `IND_Z`,
-`IND_REF_L`, `FLARE`, `FLARE_K`), step descriptions, the FP=0 proof, achromatic
+`IND_REF_L`, `FLARE`, `FLARE_K`, `SCATTER_K`), step descriptions, the FP=0 proof, achromatic
 anchor values (white/black = 20.9 both ways, white/#767676 = 3.9 both ways),
 the WCAG disagreement counts, and a chapter in `docs/HISTORY.md`. Probe test expectations
 (`probe-curated.spec.ts`, `probe-design-systems.spec.ts`), the oracle
