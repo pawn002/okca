@@ -160,7 +160,7 @@ Dial settings that give each $k$:
 
 1. **Polarity tips over a narrow band.** Between $k = 0.02$ and $0.08$ the
    majority swings from dark-on-light (88%) to light-on-dark (95%). The two
-   arrangements are balanced near $k pprox 0.044$.
+   arrangements are balanced near $k \approx 0.044$.
 2. **No realistic eye reproduces the default.** The default's behaviour, which
    matches the reading studies, needs $k \le 0.02$. Even a young eye gives
    $0.058$ over a 1°–20° field. Whatever outweighs scatter for typical readers,
