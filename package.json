@@ -36,7 +36,8 @@
     "polarity": "tsc -p tsconfig.scripts.json && node dist-scripts/scripts/polarity-caps.js",
     "darker-lift": "tsc -p tsconfig.scripts.json && node dist-scripts/scripts/darker-lift-fit.js",
     "chroma-k": "tsc -p tsconfig.scripts.json && node dist-scripts/scripts/chroma-k-fit.js",
-    "scatter": "tsc -p tsconfig.scripts.json && node dist-scripts/scripts/scatter-prototype.js"
+    "scatter": "tsc -p tsconfig.scripts.json && node dist-scripts/scripts/scatter-prototype.js",
+    "scatter-dials": "tsc -p tsconfig.scripts.json && node dist-scripts/scripts/scatter-dials.js"
   },
   "devDependencies": {
     "colorjs.io": "^0.5.2",

@@ -123,3 +123,52 @@ scale.
   older group was;
 - the cataract value of $s$, which is assumed here;
 - the geometry: the inner limit of $1°$ and the display edge.
+
+---
+
+## 6. The two dials
+
+Reproduce: `npm run scatter-dials` (`scripts/scatter-dials.ts`).
+
+The eye's age (through $s$) and the field of background that veils the text
+($\theta_1$ to $\theta_2$) act only through the veil fraction $k$. Sweeping $k$
+from the default ($k = 0$) to the shipped observer ($k = 0.155$), over grid
+pairs where either direction reaches 3.0:
+
+| $k$ | D-o-L higher | tie | L-o-D higher | white / `#767676` | `#767676` / white | black / white | Disagreements | AA lost vs default |
+|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 0 | 95% | 5% | 0% | 3.9 | 3.9 | 20.9 | 107 | 0 |
+| 0.02 | 88% | 7% | 5% | 3.8 | 3.6 | 14.7 | 118 | 1,427 |
+| 0.03 | 72% | 14% | 14% | 3.8 | 3.5 | 12.9 | 122 | 2,184 |
+| 0.04 | 45% | 21% | 34% | 3.8 | 3.4 | 11.4 | 130 | 2,898 |
+| 0.05 | 24% | 17% | 59% | 3.8 | 3.3 | 10.3 | 135 | 3,606 |
+| 0.06 | 12% | 11% | 77% | 3.7 | 3.2 | 9.3 | 152 | 4,333 |
+| 0.08 | 1% | 4% | 95% | 3.7 | 3.0 | 7.9 | 172 | 5,711 |
+| 0.155 | 0% | 0% | 100% | 3.5 | 2.6 | 5.2 | 247 | 9,053 |
+
+Dial settings that give each $k$:
+
+| $k$ | age, field 1°–20° | age, 1°–10° | age, 2°–10° | field at age 80 |
+|---:|---:|---:|---:|---|
+| 0.04 | below a young eye | below a young eye | 52 | 1°–2.2° |
+| 0.05 | below a young eye | 42 | 62 | 1°–2.6° |
+| 0.06 | 32 | 54 | 69 | 1°–3.2° |
+| 0.08 | 56 | 67 | 79 | 1°–4.7° |
+| 0.155 | 80 | 88 | 99 | 1°–20° |
+
+**Readings.**
+
+1. **Polarity tips over a narrow band.** Between $k = 0.02$ and $0.08$ the
+   majority swings from dark-on-light (88%) to light-on-dark (95%). The two
+   arrangements are balanced near $k pprox 0.044$.
+2. **No realistic eye reproduces the default.** The default's behaviour, which
+   matches the reading studies, needs $k \le 0.02$. Even a young eye gives
+   $0.058$ over a 1°–20° field. Whatever outweighs scatter for typical readers,
+   such as pupil size, acts like a negative veil that the model does not have.
+3. **The field is the uncertain dial.** An 80-year-old eye reaches the balance
+   point if only the background within about 2° of the text veils it, and the
+   shipped value if the whole display does. No source here pins the effective
+   field for reading.
+4. **Every setting costs dark-on-light passes.** The veil only lowers scores,
+   so even the balance point loses 2,898 grid AA verdicts.
+
