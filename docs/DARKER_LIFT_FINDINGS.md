@@ -1,11 +1,11 @@
 # Darker-Element Lift — Fit Findings
 
-Research notes for [#31](https://github.com/pawn002/okca/issues/31).
-
-> **Applied:** the linear lift along $\theta_D = 267°$ with $K_D$ = 0.070 is now
-> Step 4 in `src/index.ts`. The figures below compare against the line before
-> this change. `npm run darker-lift` still reimplements that line, so its
-> self-check against the live `contrast()` now reports mismatches.
+> **Research record** for [#31](https://github.com/pawn002/okca/issues/31),
+> November 2026. Outcome: adopted as the linear darker lift along 267°. Figures
+> describe OKCA as it stood then and are not kept current; where a script
+> reimplements that version, its check against the live `contrast()` can report
+> mismatches. Current algorithm: [`OKCA_DESIGN.md`](OKCA_DESIGN.md). How this
+> work fits the project's path: [`HISTORY.md`](HISTORY.md).
 
 Reproduce:
 

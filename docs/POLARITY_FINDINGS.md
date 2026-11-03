@@ -1,15 +1,11 @@
 # Polarity Caps — Exploration Findings
 
-Research notes for [#30](https://github.com/pawn002/okca/issues/30).
-
-> **Applied:** equal caps, as a single `CAP` = 20.9 in `src/index.ts`. One
-> interaction surfaced in implementation. `OPP_K_D` = 0.09 (#28) was derived
-> under the two-cap scaling. With one cap, 43 grid pairs exceed a dichromat's
-> ratio by at most 0.25, all saturated pure-blue text on light near-neutral
-> backgrounds, and raising `OPP_K_D` does not clear them. Documented, not tuned
-> around: the CVD result is rationale, not a promise. Resolved by
-> [#31](https://github.com/pawn002/okca/issues/31), which refits the darker lift
-> ([`DARKER_LIFT_FINDINGS.md`](DARKER_LIFT_FINDINGS.md)).
+> **Research record** for [#30](https://github.com/pawn002/okca/issues/30),
+> November 2026. Outcome: adopted as one cap for both polarities. Figures
+> describe OKCA as it stood then and are not kept current; where a script
+> reimplements that version, its check against the live `contrast()` can report
+> mismatches. Current algorithm: [`OKCA_DESIGN.md`](OKCA_DESIGN.md). How this
+> work fits the project's path: [`HISTORY.md`](HISTORY.md).
 
 Reproduce:
 

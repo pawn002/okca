@@ -8,7 +8,7 @@ It closes four WCAG 2.x gaps:
 
 1. **Saturated colours.** WCAG scores hot pink on near-black 6.6:1 — a comfortable pass. OKCA scores it **4.1**: it tells saturated colour from grey at the same luminance, and WCAG can't. The penalty follows how colour-vision deficiency actually loses contrast: strongest for reds and magentas, much lighter for blues and greens, and sized from colour-vision data rather than set by hand. Saturated blue `#3b82f6` on black scores 3.6.
 
-2. **Polarity.** WCAG rates `contrast(A on B)` and `contrast(B on A)` identically. OKCA doesn't, but only where it can say why: dark backgrounds measurably cost contrast (items 3 and 4), so light text on a dark background can score lower than the same pair reversed. Never higher.
+2. **Polarity.** WCAG rates `contrast(A on B)` and `contrast(B on A)` identically. OKCA doesn't, but only where it can say why: dark backgrounds measurably cost contrast (item 3), so light text on a dark background can score lower than the same pair reversed. Never higher.
 
 3. **Background.** WCAG treats a colour's lightness as fixed, whatever it sits on. In the CAM16 colour appearance model (the basis of the CIE's CIECAM16), a darker background flattens the lightness scale, so the same pair carries less lightness difference on dark than on light. OKCA applies that correction to the darker colour on any background darker than `#767676`: light grey `#cccccc` on `#333333` scores **5.7** where WCAG gives 7.9. Lighter backgrounds are unaffected, and the correction never raises a score.
 
@@ -72,7 +72,7 @@ okca.contrast('#fff', '#000');  // 20.9
 - **Zero dependencies:** pure TypeScript, no runtime deps
 - **Clean-room implementation:** no third-party contrast algorithm source code
 
-*Never-more-permissive is verified, not hoped for:* `OKCA ≤ WCAG` holds for every sRGB pair — checked across the full gamut and re-run in CI on every change (`npm run fp0`; the argument is in [`docs/FP0_PROOF.md`](docs/FP0_PROOF.md)). OKCA's ceiling is 20.9, not 21 — the sliver of headroom that keeps the guarantee airtight.
+*Never-more-permissive is proven, not hoped for:* `OKCA ≤ WCAG` holds for every sRGB pair. The proof is machine-checked across the full gamut (`npm run fp0`; the argument is in [`docs/FP0_PROOF.md`](docs/FP0_PROOF.md)), and CI tests the bound on hundreds of thousands of sampled pairs on every change. OKCA's ceiling is 20.9, not 21 — the sliver of headroom that keeps the guarantee airtight.
 
 ## Validation
 
@@ -87,7 +87,7 @@ Tested against 1,249 color pairs across three batteries (light-on-dark, dark-on-
 
 **False passes: zero.** OKCA never approves a pair that WCAG rejects.
 
-**WCAG disagreements** are pairs where OKCA scores below 4.5 but WCAG scores ≥ 4.5. These are intentional. WCAG's 4.5:1 AA threshold is widely considered too permissive: white on `#767676` — WCAG's own AA boundary anchor — sits exactly on the line, where the verdict turns on the display and the room rather than on the colors. The same pair can read acceptably on a bright screen and not on a dimmer one ([#22](https://github.com/pawn002/okca/issues/22#issuecomment-5282357292)). A threshold with no margin against viewing conditions is the problem, and all 107 disagreements sit in that zone.
+**WCAG disagreements** are pairs where OKCA scores below 4.5 but WCAG scores ≥ 4.5. These are intentional. White on `#767676` — WCAG's own AA boundary anchor — sits exactly on the line, where the verdict turns on the display and the room rather than on the colors. The same pair can read acceptably on a bright screen and not on a dimmer one ([#22](https://github.com/pawn002/okca/issues/22#issuecomment-5282357292)). A threshold with no margin against viewing conditions is the problem, and 97 of the 107 disagreements sit in that zone, within about one point of the line. The other ten are saturated purples, violets and pinks that WCAG rates 5.7–7.1: Oklab rates them lighter than WCAG's luminance does, so they carry less contrast against white.
 
 **Found a false pass?** `OKCA ≤ WCAG` is verified across sRGB (`docs/FP0_PROOF.md`). If you somehow find an sRGB pair OKCA scores **above** the WCAG ratio, that's a bug — [open an issue](https://github.com/pawn002/okca/issues) and I'll fix it.
 

@@ -16,34 +16,29 @@ below the WCAG score for the same pair, so a pair that clears OKCA always clears
 That property is verified across the full sRGB gamut (an exact identity plus
 interval-checked lemmas, `docs/FP0_PROOF.md`). A 1,249-pair audit across Tailwind, GOV.UK
 Design System, and USWDS found zero false passes and flagged 107 pairs that WCAG passes
-while sitting on or near the AA line, with no margin against the conditions they will be
-read in.
+and OKCA does not. Most sit on or near the AA line, with no margin against the
+conditions they will be read in.
 
 ---
 
-## The Gap WCAG 2.x Has Always Had
+## The Gaps in WCAG 2.x
 
 The WCAG 2.x relative luminance formula encodes photopic luminance sensitivity, not
-legibility. The working group has known since at least 2019 that two failure modes
-accumulate at scale:
+legibility. Four gaps follow from that.
 
-**Polarity blindness.** The formula is symmetric — `contrast(A, B) = contrast(B, A)` —
-despite the fact that designers and accessibility practitioners consistently treat the
-two directions as different. Dark mode interfaces, light text on photographic
-backgrounds, and inverse colour schemes all behave differently in practice from their
-luminance-equivalent positive polarity counterparts. WCAG 2.x cannot capture this
-because its formula produces the same score regardless of which colour is text and
-which is background. WCAG 3.0 / Silver addresses this asymmetry; WCAG 2.x has no
-path to correction within its current architecture.
+**Polarity blindness.** The formula is symmetric — `contrast(A, B) = contrast(B, A)`.
+The two directions are not equivalent. Reading research finds proofreading
+consistently better with dark text on a light background (Buchner & Baumgartner,
+2007; Piepenbrock et al., 2013, 2014), and dark backgrounds measurably cost
+contrast, as the last two gaps below show. WCAG 2.x cannot capture this, because
+its formula gives the same score whichever colour is the text.
 
-**Chromatic over-rating near threshold.** Saturated chromatic text on dark
+**Chromatic over-rating.** Saturated chromatic text on dark
 backgrounds — the hot pink / near-black case is canonical — scores well above the
 4.5 AA threshold (6.6), yet designers routinely judge it inadequate for text. Part
 of that is measurable: a reader with red–green colour-vision deficiency keeps about
-5.3 of its 6.6, while a grey of the same luminance loses nothing. The IEC 61966-2-1
-weighting assigns 71.5% of luminance to the
-green channel, which does not translate cleanly to chromatic legibility. The result
-is a systematic over-rating of vivid lighter elements in negative polarity.
+5.3 of its 6.6, while a grey of the same luminance loses nothing. WCAG's formula
+sees only luminance, so it scores the two the same.
 
 Two further gaps are less often discussed.
 
@@ -64,8 +59,10 @@ simulations do not flag these pairs. The weakness is in the luminance margin.
 
 These are not rare conditions. A structured audit of three production design systems
 — Tailwind CSS v3.4, GOV.UK Design System, and USWDS v3.x —
-found **107 pairs** that pass WCAG 2.x AA while sitting on or near the line, where
-the verdict can turn on screen brightness and room light rather than on the colours.
+found **107 pairs** that pass WCAG 2.x AA and fail OKCA. 97 sit within about one point
+of the line, where the verdict can turn on screen brightness and room light rather
+than on the colours. The other ten are saturated purples and pinks that WCAG rates
+well above the line but Oklab rates lighter, leaving less contrast against white.
 
 ---
 
@@ -74,9 +71,9 @@ the verdict can turn on screen brightness and room light rather than on the colo
 OKCA (OK Contrast Algorithm) is an OKLCH-native contrast algorithm. It uses the
 perceptually uniform Oklab/OKLCH colour space — introduced by Björn Ottosson in a
 widely-adopted 2020 technical publication — as its luminance input rather than the
-IEC 61966-2-1 sRGB decomposition. This is not a patch on top of
-WCAG — it is a different measurement model that happens to be expressible on the
-same 1–21 scale with the same AA/AAA thresholds, allowing parallel deployment.
+IEC 61966-2-1 sRGB decomposition. It is not a new perceptual model: it keeps WCAG's
+1–21 scale and AA/AAA thresholds and makes the same check harder to pass by
+mistake, so it can run alongside existing WCAG tooling.
 
 **Polarity follows the evidence.** `okca(text, background)` can differ from
 `okca(background, text)`, but only because dark backgrounds measurably cost contrast:
@@ -85,21 +82,16 @@ higher. That matches reading research, which finds dark text on a light backgrou
 outperforms the reverse. There is no editorial polarity bias: the achromatic anchors
 score the same both ways (white/black 20.9, `#767676` and white 3.9).
 
-**Chromatic text receives a chroma-weighted luminance penalty.** The lighter
-element's luminance proxy is compressed by a power exponent that grows with Oklab
-chroma. Achromatic pairs are unaffected. Vivid chromatic lighter elements score lower
-than an achromatic element at equivalent OKLCH L. Hot pink on near-black: WCAG 6.6,
-OKCA 4.1.
-
-**The penalty follows colour-vision deficiency, hue by hue.** About 8% of men of
-Northern European descent have red–green colour-vision deficiency. Dichromats
-lose much of the contrast of reds, oranges and magentas, and little of greens,
-blues and purples. OKCA weights its chroma penalty along the direction in Oklab
-where that loss is greatest, essentially the red–green opponent axis, and adds a
-small lift to dark blue text. The strength of each is the smallest that keeps
-scores at or below what dichromats see. Both are derived from data, not tuned, and
-there is no hue branch. Pure red on black scores 3.3 (WCAG 5.3); saturated blue `#3b82f6` on black
-scores 3.6 (WCAG 5.7).
+**Saturated colours are penalised, hue by hue, as colour-vision deficiency
+predicts.** About 8% of men of Northern European descent have red–green
+colour-vision deficiency. Dichromats lose much of the contrast of reds, oranges
+and magentas, and little of greens, blues and purples. OKCA reduces the lighter
+colour's luminance in proportion to its saturation along that red–green
+direction, and adds a small lift to dark blue text. Greys are unaffected. The
+strength of each is the smallest that keeps scores at or below what dichromats
+see; both are derived from data, and there is no hue branch. Hot pink on
+near-black scores 4.1 (WCAG 6.6), pure red on black 3.3 (WCAG 5.3), and
+saturated blue `#3b82f6` on black 3.6 (WCAG 5.7).
 
 **The darker colour is corrected for its background.** On any background darker
 than the AA boundary grey `#767676`, OKCA applies CAM16's background effect to the
@@ -112,7 +104,7 @@ most.
 **Each score is capped at what survives doubled flare.** OKCA re-scores every pair
 with twice WCAG's flare allowance and keeps the lower result. Its strength is the
 largest that never moves a grey pair on a white background, so the anchors above hold.
-On dark backgrounds, grey and near-grey text needs about one palette grade more
+On dark backgrounds, text needs about one palette grade more
 lightness to pass: mid-grey `#888888` on black scores 3.7 (WCAG 5.9).
 This is a margin argument, not a model of viewing conditions: OKCA still has no
 access to the room, so it keeps the same margin everywhere.

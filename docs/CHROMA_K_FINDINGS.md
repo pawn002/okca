@@ -1,11 +1,12 @@
 # Lighter-Element Penalty — Fit Findings
 
-Research notes for [#33](https://github.com/pawn002/okca/issues/33).
-
-> **Applied:** the linear penalty with $K_L$ = 0.22 and $K_D$ = 0.065 is now
-> Steps 3–4 in `src/index.ts`. Dark orange passing AA was accepted, and "hot pink
-> on near-black fails AA" is pinned as a test. The figures below compare against
-> the line before this change.
+> **Research record** for [#33](https://github.com/pawn002/okca/issues/33),
+> November 2026. Outcome: adopted as the linear lighter penalty; dark orange on
+> near-black passing AA was accepted, and hot pink failing AA is pinned as a
+> test. Figures describe OKCA as it stood then and are not kept current; where a
+> script reimplements that version, its check against the live `contrast()` can
+> report mismatches. Current algorithm: [`OKCA_DESIGN.md`](OKCA_DESIGN.md). How
+> this work fits the project's path: [`HISTORY.md`](HISTORY.md).
 
 Reproduce:
 

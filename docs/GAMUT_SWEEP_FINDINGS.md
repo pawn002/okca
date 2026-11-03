@@ -1,7 +1,13 @@
 # Gamut Sweep Findings — Hue-Specific Behaviour & the L³/Y Divergence
 
-Research notes from sweeping OKCA across the sRGB gamut and stratifying by
-OKLCH hue and chroma. This is *analysis* — running it changed no algorithm code.
+> **Research record**, July 2026, from the 2.0 calibration. Outcome: the hue and
+> chroma behaviour behind later work; the structural findings below still hold.
+> Figures describe OKCA as it stood then and are not kept current; where a
+> script reimplements that version, its check against the live `contrast()` can
+> report mismatches. Current algorithm: [`OKCA_DESIGN.md`](OKCA_DESIGN.md). How
+> this work fits the project's path: [`HISTORY.md`](HISTORY.md).
+
+Sweeps OKCA across the sRGB gamut, stratified by OKLCH hue and chroma.
 
 > **Snapshot — read this first.** This document is a **point-in-time
 > characterization of a specific calibration**, not a live spec. The figures
@@ -35,7 +41,7 @@ WCAG values use the standard relative-luminance formula, reimplemented inline
 OKCA's darker-element luminance proxy is $L^3$ (OKLCH lightness cubed). WCAG
 uses relative luminance
 
-$$Y = 0.2126\thinspace R_{\text{lin}} + 0.7152\thinspace G_{\text{lin}} + 0.0722\thinspace B_{\text{lin}}$$
+$$Y = 0.2126 R_{\text{lin}} + 0.7152 G_{\text{lin}} + 0.0722 B_{\text{lin}}$$
 
 (linearised sRGB). Their gap
 

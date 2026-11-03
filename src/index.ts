@@ -33,8 +33,8 @@
  *        rawRatio  = (lighterY + 0.05) / (darkerY + 0.05)
  *        ratio     = CAP × (rawRatio / 21) ^ POL_K
  *        CAP < 21 keeps OKCA strictly below WCAG. The same cap applies in both
- *        polarities: polarity differences come only from Steps 4 and 6, which
- *        tighten dark backgrounds (docs/POLARITY_FINDINGS.md).
+ *        polarities: polarity differences come only from Step 4's background
+ *        induction, which tightens dark backgrounds (docs/POLARITY_FINDINGS.md).
  *   6. Flare-robustness ceiling — the same curve on the uncompressed proxies
  *      with a larger flare term, re-anchored to the same cap:
  *        flareRatio = (lighterL³ + FLARE) / (darkerL³ + FLARE)
@@ -59,7 +59,7 @@
  *     flare allowance doubles, so dark-mode greys carry the same margin as
  *     light-mode ones at the same score.
  *   - Polarity-aware: foreground and background roles matter, because dark
- *     backgrounds measurably cost contrast (Steps 4 and 6). Dark-on-light never
+ *     backgrounds measurably cost contrast (Step 4). Dark-on-light never
  *     scores lower than the same pair reversed; there is no editorial bias.
  *   - Pure OKLCH/Oklab — no WCAG luminance formula, no hue branch. The chroma
  *     terms are weighted along Oklab's opponent axes, linearly in a and b.

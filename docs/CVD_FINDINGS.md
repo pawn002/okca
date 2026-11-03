@@ -1,11 +1,17 @@
 # Colour-Vision Deficiency — Should Colourfulness Lower Contrast?
 
-Research notes for [#26](https://github.com/pawn002/okca/issues/26). The CAM16
-survey left one question open. CAM16 supports *where* OKCA's chroma penalty
-applies, on the lighter element and mostly on dark backgrounds. It says nothing
-about *whether* colourfulness should lower a contrast score. Dichromacy gives a
-physiological route into that question, starting from red on black. This is
-*analysis*. Running it changed no algorithm code.
+> **Research record** for [#26](https://github.com/pawn002/okca/issues/26),
+> October 2026. Outcome: led to the opponent-axis terms of
+> [#28](https://github.com/pawn002/okca/issues/28). Figures describe OKCA as it
+> stood then and are not kept current; where a script reimplements that version,
+> its check against the live `contrast()` can report mismatches. Current
+> algorithm: [`OKCA_DESIGN.md`](OKCA_DESIGN.md). How this work fits the
+> project's path: [`HISTORY.md`](HISTORY.md).
+
+The CAM16 survey left one question open. CAM16 supports *where* OKCA's chroma
+penalty applies, on the lighter element and mostly on dark backgrounds. It says
+nothing about *whether* colourfulness should lower a contrast score. Dichromacy
+gives a physiological route into that question, starting from red on black.
 
 Reproduce:
 
