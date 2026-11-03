@@ -30,7 +30,9 @@ import {
   Iv, K, add, addK, mulK, div, square, powK, powIv, imin, imax, colorIv, ColorIv,
 } from './interval';
 
-const POL_K = 1.1;
+// OKCA_POL_K re-runs the lemmas at another scaling exponent (#34 found that
+// 1.037 does not certify lemma A, so the scatter observer keeps 1.1).
+const POL_K = process.env.OKCA_POL_K ? Number(process.env.OKCA_POL_K) : 1.1;
 // Step 3's penalty is linear in the weight (#33). OKCA_RAMP=capped OKCA_CHROMA_K=0.65
 // re-runs lemma A for the pre-#33 capped ramp; OKCA_CHROMA_K alone varies the strength.
 const RAMP = process.env.OKCA_RAMP === 'capped' ? 'capped' : 'linear';

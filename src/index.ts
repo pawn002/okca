@@ -79,6 +79,23 @@ const OPP_K_D     = 0.065; // Darker-lift strength: fitted with CHROMA_K, no gri
 const FLARE     = 0.10;  // Flare allowance for the step-6 ceiling (2× WCAG's 0.05)
 const FLARE_K   = 1.5;   // Ceiling exponent: the largest that leaves every white/grey pair untouched
 
+// Scatter observer (opt-in, experimental — release candidates only, #34).
+// Intraocular scatter veils the image in proportion to the background's
+// luminance. Size from the age-adjusted Stiles–Holladay equation for WCAG's
+// reference reader (age 80), over 1°–20° of background around the text.
+const SCATTER_K = 0.155; // Veil as a fraction of background luminance (L³)
+
+/** Options for {@link contrast}. */
+export interface ContrastOptions {
+  /**
+   * Experimental. `'scatter'` scores for an eye whose optics scatter light, as
+   * with an ageing or clouded lens: a bright background veils the text, so
+   * dark-on-light loses contrast. Omit for the default observer. Release
+   * candidates only; may change or be removed before 3.0.0.
+   */
+  observer?: 'scatter';
+}
+
 /** Parse any supported color string to Oklab [L, a, b], or null if unrecognised. */
 function parseToOklab(color: string): [number, number, number] | null {
   return hexToOklab(color)
@@ -87,7 +104,7 @@ function parseToOklab(color: string): [number, number, number] | null {
 }
 
 export class OkcaService {
-  contrast(foreground: string, background: string): number | null {
+  contrast(foreground: string, background: string, options: ContrastOptions = {}): number | null {
     const tOklab = parseToOklab(foreground);
     const bOklab = parseToOklab(background);
     if (!tOklab || !bOklab) return null;
@@ -119,7 +136,12 @@ export class OkcaService {
 
     // Step 5 — power-curve scaling: CAP*(r/21)^POL_K, the same in both polarities.
     // CAP < 21 keeps every score strictly below WCAG (FP=0 by construction).
-    const rawRatio = (lighterY + 0.05) / (darkerY + 0.05);
+    // Scatter observer: a veil proportional to the background's luminance is
+    // added to both patches. Adding the same amount to both can only lower a
+    // ratio above 1, so FP=0 is kept (docs/FP0_PROOF.md §7).
+    const scatter  = options.observer === 'scatter';
+    const veil     = scatter ? SCATTER_K * Math.pow(bL, 3) : 0;
+    const rawRatio = (lighterY + 0.05 + veil) / (darkerY + 0.05 + veil);
     const ratio = CAP * Math.pow(rawRatio / 21, POL_K);
 
     // Step 6 — flare-robustness ceiling: the same curve on the uncompressed L³
@@ -156,10 +178,11 @@ export class OkcaService {
  *
  * @param foreground - The element being evaluated (text, icon, or other visual element)
  * @param background - The surface it sits on
+ * @param options - Experimental observer selection; see {@link ContrastOptions}
  * @returns Contrast ratio in [1, 21] rounded to 1 decimal place, or null if either color is invalid
  */
-export function contrast(foreground: string, background: string): number | null {
-  return new OkcaService().contrast(foreground, background);
+export function contrast(foreground: string, background: string, options?: ContrastOptions): number | null {
+  return new OkcaService().contrast(foreground, background, options);
 }
 
 export {
