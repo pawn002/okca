@@ -85,8 +85,10 @@ const FLARE_K   = 1.5;   // Ceiling exponent: the largest that leaves every whit
 
 // Scatter observer (opt-in, experimental — release candidates only, #34).
 // Intraocular scatter veils the image in proportion to the background's
-// luminance. Size from the age-adjusted Stiles–Holladay equation for WCAG's
-// reference reader (age 80), over 1°–20° of background around the text.
+// luminance. Size from the age-adjusted Stiles–Holladay equation at age 80,
+// over 1°–20° of background around the text. WCAG's 4.5:1 rationale is
+// acuity-only (20/40, typical at about 80) and does not model scatter; the
+// veil is OKCA's addition for that reader.
 const SCATTER_K = 0.155; // Veil as a fraction of background luminance (L³)
 
 /** Options for {@link contrast}. */

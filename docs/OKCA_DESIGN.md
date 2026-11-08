@@ -357,7 +357,7 @@ $$
 r_{\text{raw}} = \frac{Y_{\text{lighter}} + 0.05 + v}{Y_{\text{darker}} + 0.05 + v}, \qquad v = k_s L_{\text{bg}}^{3}
 $$
 
-with $k_s =$ `SCATTER_K` $= 0.155$. That is the age-adjusted Stiles–Holladay veil for an 80-year-old eye, the reader WCAG's 4.5:1 is calculated for, integrated over a uniform background from $1°$ to $20°$ around the text. Light closer than $1°$ counts as blur, which acuity covers. Every other step, including `POL_K`, is unchanged.
+with $k_s =$ `SCATTER_K` $= 0.155$. That is the age-adjusted Stiles–Holladay veil for an 80-year-old eye, integrated over a uniform background from $1°$ to $20°$ around the text. WCAG's 4.5:1 is calculated for 20/40 acuity, which it calls typical at about age 80, but its rationale is built from acuity alone and does not model scatter; this veil is OKCA's addition for that reader. Light closer than $1°$ counts as blur, which acuity covers. Every other step, including `POL_K`, is unchanged.
 
 **Effect.** Light-on-dark scores at least as high as the reverse for every pair where either direction reaches 3.0. A white background veils black text: black on white scores 5.2, white on black 20.9. White on `#767676` scores 3.5 and `#767676` on white 2.6. On WCAG's ratio scale a veil over the darker patch reads as a large loss: black text on white still keeps about 80% Weber contrast at 5.2.
 
