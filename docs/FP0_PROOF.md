@@ -2,7 +2,7 @@
 
 **Status: proven.** $\text{OKCA} \le \text{WCAG}$ for every sRGB pair is an
 **exact algebraic identity** plus **two single-colour lemmas verified by interval
-arithmetic** — no calibration-dependent headroom, no residual. Reproduce:
+arithmetic**, with no residual cases. Reproduce:
 `npm run fp0` (certifies with **0 uncertified boxes**).
 
 Constants: `POL_K` = 1.100, `CHROMA_K` = 0.22, `CAP` = 20.9 (both polarities),

@@ -224,7 +224,7 @@ strength in OKCA chosen by eye.
 shape (linear) and strength (0.22, down from 0.65), fitted together with the
 darker lift. Hot pink on near-black scores 4.1 and still fails AA, so the
 designers' call survives derivation with less margin. It is kept as a test of
-the result, not an input to it. Dark orange on near-black scores 4.8 and now
+the result; it no longer sets the strength. Dark orange on near-black scores 4.8 and now
 passes. The earlier docs had named it as a pair OKCA should fail, but a
 dichromat sees 6.1, and the evidence was allowed to decide.
 
@@ -265,7 +265,7 @@ evidence on scattering eyes improves.
 - **The guarantee is unchanged:** OKCA never scores a pair above WCAG, proven
   for every sRGB pair. The proof now also covers Steps 4 and 6 and needed no
   new bounds, because both can only lower a score.
-- **Every strength in OKCA is now derived, not tuned.** Each comes from CAM16,
+- **Every strength in OKCA is now derived.** Each comes from CAM16,
   from colour-vision data, from WCAG's own flare term, or from a constraint
   stated in advance.
 - **One policy input remains, stated as one.** White on `#767676`, WCAG's own

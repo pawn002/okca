@@ -57,7 +57,7 @@ The 500-level neutral greys are the most practically significant: designers reac
 | pink-700 | `#be185d` | 6.0 | 4.3 | 4.4 |  |
 | rose-600 | `#e11d48` | 4.7 | 3.4 | 3.4 |  |
 
-**Pattern:** The Tailwind neutral 500 scale lands at WCAG ~4.7–4.8 but OKCA scores it 3.9–4.1 — squarely in the zone where whether a pair reads comfortably as body text turns on the viewing conditions rather than on the pair (see *The boundary benchmark* below). Fuchsia-600 (3.1) and pink-600 (3.3) score lowest. Five 700 shades (lime, green, cyan, violet, purple) fall short only with white text on them; as text on white they pass.
+**Pattern:** The Tailwind neutral 500 scale lands at WCAG ~4.7–4.8 but OKCA scores it 3.9–4.1: close enough to the line that whether it reads comfortably as body text depends on the screen and room (see *The boundary benchmark* below). Fuchsia-600 (3.1) and pink-600 (3.3) score lowest. Five 700 shades (lime, green, cyan, violet, purple) fall short only with white text on them; as text on white they pass.
 
 ---
 
@@ -81,7 +81,7 @@ GOV.UK makes explicit WCAG 2.2 AA claims and documents approved text pairings. T
 
 ## USWDS v3.x — 50 disagreements
 
-USWDS makes explicit WCAG 2.x AA claims. The 50 disagreements are the grade-50 shade across every chromatic family plus all three gray families. Grade 50 is calibrated to land at WCAG $\approx 4.6$ system-wide — just above the 4.5 threshold.
+USWDS makes explicit WCAG 2.x AA claims. The 50 disagreements are the grade-50 shade across every chromatic family plus all three gray families. Grade 50 is calibrated to land at WCAG $\approx 4.6$ system-wide, just above the 4.5 threshold.
 
 | Family | Hex | WCAG | OKCA L-o-D | OKCA D-o-L |
 |--------|-----|-----:|----------:|----------:|
@@ -111,7 +111,7 @@ USWDS makes explicit WCAG 2.x AA claims. The 50 disagreements are the grade-50 s
 | gray-50 | `#757575` | 4.6 | 3.9 | 3.9 |
 | gray-warm-50 | `#76766a` | 4.6 | 3.9 | 3.9 |
 
-**Pattern:** USWDS grade 50 is calibrated to land at exactly WCAG 4.6 — 0.1 above threshold — across the entire palette. OKCA scores these at 3.2–4.1, consistently below AA. The uniformity (every family, same grade, same WCAG score) demonstrates that USWDS grade 50 sits at the same marginal position as white on `#767676`.
+**Pattern:** USWDS grade 50 is calibrated to land at exactly WCAG 4.6, 0.1 above threshold, across the entire palette. OKCA scores these at 3.2–4.1, consistently below AA. The uniformity (every family, same grade, same WCAG score) demonstrates that USWDS grade 50 sits at the same marginal position as white on `#767676`.
 
 ---
 
@@ -124,16 +124,16 @@ USWDS makes explicit WCAG 2.x AA claims. The 50 disagreements are the grade-50 s
 - Several mid-range chromatic 700s (emerald, teal, red, rose) clear AA in both directions
 
 ### Where OKCA consistently disagrees
-1. **Gray 500 zone** — the entire Tailwind neutral scale at 500 (~4.7–4.8 WCAG, OKCA 3.9–4.1). The most important disagreements from a practitioner standpoint.
-2. **USWDS grade 50 across all families** — calibrated to WCAG $\approx 4.6$ system-wide. One grade darker, grade 60 passes both WCAG and OKCA in every family; one grade lighter, grade 40 fails both.
-3. **Saturated chromatics at medium depth** — high-chroma hues near the WCAG boundary (fuchsia, pink, magenta, red). Oklab rates these lighter than WCAG's luminance does, so they lose the most contrast against white.
-4. **Blue / indigo / violet hues** — Oklab also rates these lighter than WCAG's luminance does, and as darker colours they carry OKCA's blue lift, which lowers their score further.
+1. **Gray 500 zone:** the entire Tailwind neutral scale at 500 (~4.7–4.8 WCAG, OKCA 3.9–4.1). The most important disagreements from a practitioner standpoint.
+2. **USWDS grade 50 across all families:** calibrated to WCAG $\approx 4.6$ system-wide. One grade darker, grade 60 passes both WCAG and OKCA in every family; one grade lighter, grade 40 fails both.
+3. **Saturated chromatics at medium depth:** high-chroma hues near the WCAG boundary (fuchsia, pink, magenta, red). Oklab rates these lighter than WCAG's luminance does, so they lose the most contrast against white.
+4. **Blue / indigo / violet hues:** Oklab also rates these lighter than WCAG's luminance does, and as darker colours they carry OKCA's blue lift, which lowers their score further.
 
 ### The D-o-L asymmetry
 Most colours appear as both a L-o-D and D-o-L failure. With one cap for both polarities, D-o-L scores sit at or slightly above L-o-D scores for the same colour, because Step 4 corrects the darker background in the L-o-D direction. A colour near the line can therefore fail only in the L-o-D direction; five Tailwind 700 shades do.
 
 ### The boundary benchmark
-The canonical marginal pair — white on `#767676` — scores WCAG 4.5, OKCA 3.9 (L-o-D). The 95 entries within a point of the line are in the same zone. A designer who accepts `#767676` as passing AA is accepting the same risk for each of them.
+The canonical marginal pair, white on `#767676`, scores WCAG 4.5, OKCA 3.9 (L-o-D). The 95 entries within a point of the line are in the same zone. A designer who accepts `#767676` as passing AA is accepting the same risk for each of them.
 
 In a threshold experiment reported in [#22](https://github.com/pawn002/okca/issues/22#issuecomment-5282357292), the contrast at which body text was judged shippable measured **5.2 at one display brightness and 2.8 at another** — same observer, same room, same session. OKCA 3.9 falls between those two figures, so the verdict on this exact pair inverts across ordinary viewing conditions.
 

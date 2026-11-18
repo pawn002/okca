@@ -10,7 +10,7 @@ removes first. All four cause marginal colour combinations to pass automated che
 reach production with the least margin for readers who need it most.
 
 OKCA is a **stricter drop-in for WCAG 2.x** that closes all four gaps on the familiar 1–21
-scale and the same AA/AAA thresholds — no new compliance vocabulary. Its one load-bearing
+scale and the same AA/AAA thresholds, with no new compliance vocabulary. Its key
 property is safety: **it is never more permissive than WCAG.** Every score lands at or
 below the WCAG score for the same pair, so a pair that clears OKCA always clears WCAG.
 That property is verified across the full sRGB gamut (an exact identity plus
@@ -37,7 +37,7 @@ cannot capture any of this, because its formula gives the same score whichever
 colour is the text.
 
 **Chromatic over-rating.** Saturated chromatic text on dark
-backgrounds — the hot pink / near-black case is canonical — scores well above the
+backgrounds, such as hot pink on near-black, scores well above the
 4.5 AA threshold (6.6), yet designers routinely judge it inadequate for text. Part
 of that is measurable: a reader with red–green colour-vision deficiency keeps about
 5.3 of its 6.6, while a grey of the same luminance loses nothing. WCAG's formula
@@ -74,9 +74,9 @@ well above the line but Oklab rates lighter, leaving less contrast against white
 ## What OKCA Does
 
 OKCA (OK Contrast Algorithm) is an OKLCH-native contrast algorithm. It uses the
-perceptually uniform Oklab/OKLCH colour space — introduced by Björn Ottosson in a
-widely-adopted 2020 technical publication — as its luminance input rather than the
-IEC 61966-2-1 sRGB decomposition. It keeps WCAG's
+perceptually uniform Oklab/OKLCH colour space as its luminance input in place of
+the IEC 61966-2-1 sRGB decomposition. Oklab was introduced by Björn Ottosson in
+2020 and is now widely adopted. It keeps WCAG's
 1–21 scale and AA/AAA thresholds and makes the same check harder to pass by
 mistake, so it can run alongside existing WCAG tooling.
 
@@ -149,9 +149,7 @@ The guarantee is **verified for the full sRGB gamut**. The argument:
 - **The flare cap only lowers scores.** It is a minimum with the proven score, so
   it inherits the guarantee without a new lemma.
 
-**The one visible consequence:** OKCA's maximum (white on black, and black on white) is **20.9**, a
-hair under WCAG's 21 — the deliberate headroom that makes zero-false-pass a
-theorem. Thresholds (4.5 / 7.0) and the 1–21 scale are otherwise unchanged, so
+**The one visible consequence:** OKCA's maximum (white on black, and black on white) is **20.9**, just under WCAG's 21. That small gap is what makes the zero-false-pass guarantee provable. Thresholds (4.5 / 7.0) and the 1–21 scale are otherwise unchanged, so
 OKCA still drops into WCAG-based tooling. Full argument:
 [`docs/FP0_PROOF.md`](https://github.com/pawn002/okca/blob/main/docs/FP0_PROOF.md)
 (`npm run fp0`).
