@@ -22,7 +22,7 @@ npm install @pawn002/okca
 
 ## Usage
 
-`contrast(foreground, background)`: the first argument is the element being evaluated (text, icon, or other visual element), second is the surface it sits on. Argument order matters: `okca(A, B) ≠ okca(B, A)`.
+`contrast(foreground, background)`: the first argument is the element being evaluated (text, icon, or other visual element), second is the surface it sits on. Argument order can change the score: on backgrounds darker than `#767676`, light text scores a little lower than the same colours reversed.
 
 ```ts
 import { contrast } from '@pawn002/okca';
@@ -30,9 +30,13 @@ import { contrast } from '@pawn002/okca';
 contrast('#ffffff', '#000000');  // 20.9 — white on black (strictly under WCAG's 21)
 contrast('#000000', '#ffffff');  // 20.9 — black on white: one cap for both polarities
 
-// WCAG AA boundary grey — fails in both directions, scored the same way round
+// WCAG AA boundary grey: fails both ways, and scores the same both ways
 contrast('#ffffff', '#767676');  // 3.9
 contrast('#767676', '#ffffff');  // 3.9
+
+// Argument order counts on dark backgrounds: light text on #333333 scores lower
+contrast('#cccccc', '#333333');  // 5.7
+contrast('#333333', '#cccccc');  // 7.0
 
 // WCAG 6.6, OKCA below AA
 contrast('#ff69b4', '#1a1a1a'); // 4.1
