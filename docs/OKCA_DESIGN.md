@@ -435,7 +435,7 @@ What OKCA leaves to other tools, or to the designer.
 
 **Does not rescue a pair WCAG fails.** OKCA never scores above WCAG, so where WCAG under-rates a pair, OKCA fails it too. It corrects WCAG in one direction only. The clearest case is light text on a saturated background such as orange: saturated colours can look darker than their luminance (the Helmholtz–Kohlrausch effect), so readers find such pairs better than either score says. Crediting that would mean scoring above WCAG ([#36](https://github.com/pawn002/okca/issues/36)).
 
-**Does not patch WCAG's channel weighting.** OKCA does not compensate for the IEC 61966-2-1 green-channel weighting in WCAG's luminance formula. Its chroma terms are weighted along Oklab's opponent axes (§2.4), in directions derived from colour-vision-deficiency loss, not from WCAG's channel weights. There is no hue branch, and no per-hue table or condition.
+**Does not patch WCAG's channel weighting.** OKCA does not compensate for the IEC 61966-2-1 green-channel weighting in WCAG's luminance formula. Its chroma terms are weighted along Oklab's opponent axes (§2.4), in directions derived from colour-vision-deficiency loss.
 
 ---
 
