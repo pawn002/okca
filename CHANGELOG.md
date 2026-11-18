@@ -7,7 +7,9 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
-**Breaking — release as 3.0.0.** Against 2.0.3, OKCA adds two corrections for dark backgrounds, weights its colour terms by hue, scores both polarities on one scale, and derives every strength from data except the boundary anchor, which is stated as policy. The four achromatic anchors change only where the polarity scaling did. How each change was reached, including what was tried and dropped, is in `docs/HISTORY.md`.
+## [3.0.0] - 2026-11-18
+
+**Breaking.** Against 2.0.3, OKCA adds two corrections for dark backgrounds, weights its colour terms by hue, scores both polarities on one scale, and derives every strength from data except the boundary anchor, which is stated as policy. The four achromatic anchors change only where the polarity scaling did. How each change was reached, including what was tried and dropped, is in `docs/HISTORY.md`.
 
 ### Changed
 - **Opponent-axis colour terms, Steps 3–4 ([#28](https://github.com/pawn002/okca/issues/28), [#31](https://github.com/pawn002/okca/issues/31), [#33](https://github.com/pawn002/okca/issues/33)).** Both colour terms weight a colour by `w = (C + a·cos θ + b·sin θ) / 2`, linear in `a` and `b`. The lighter colour's penalty runs along `OPP_THETA_L` = 9.4° (essentially Oklab's red–green axis), `exp = 1 + CHROMA_K·w_L/C_THRESH` with `CHROMA_K` = 0.22. A lift for the darker colour runs along `OPP_THETA_D` = 267° (blue), `eD = 1 + OPP_K_D·w_D/C_THRESH` with `OPP_K_D` = 0.065. Directions and strengths are fitted to one rule: the least correction at which no pair on a 262,144-pair grid scores above what a dichromat sees (Machado et al. 2009, severity 1.0). The rule sets the strengths; it hasn't been tested with readers who have colour-vision deficiency. Reds and magentas carry the most penalty; blues and greens much less. The chroma terms now depend on hue (`docs/OKCA_DESIGN.md` §2.4).
