@@ -2,8 +2,8 @@
 
 ## Executive Summary
 
-WCAG 2.x has four measurement gaps OKCA addresses: it over-rates saturated chromatic
-text on dark backgrounds, it scores contrast symmetrically when the perceptual reality
+WCAG 2.x has four measurement gaps OKCA addresses: it over-rates saturated
+colours, it scores contrast symmetrically when the perceptual reality
 is not symmetric, it treats a colour's lightness as fixed whatever background it
 sits on, and its passes on near-black backgrounds rest on a margin that stray light
 removes first. All four cause marginal colour combinations to pass automated checks and
@@ -16,7 +16,7 @@ below the WCAG score for the same pair, so a pair that clears OKCA always clears
 That property is verified across the full sRGB gamut (an exact identity plus
 interval-checked lemmas, `docs/FP0_PROOF.md`). A 1,249-pair audit across Tailwind, GOV.UK
 Design System, and USWDS found zero false passes and flagged 105 pairs that WCAG passes
-and OKCA does not. Most sit on or near the AA line, with no margin against the
+and OKCA does not. Most sit on or near the AA line, with little margin against the
 conditions they will be read in.
 
 ---
@@ -41,7 +41,9 @@ backgrounds — the hot pink / near-black case is canonical — scores well abov
 4.5 AA threshold (6.6), yet designers routinely judge it inadequate for text. Part
 of that is measurable: a reader with red–green colour-vision deficiency keeps about
 5.3 of its 6.6, while a grey of the same luminance loses nothing. WCAG's formula
-sees only luminance, so it scores the two the same.
+sees only luminance, so it scores the two the same. The same loss runs the other way
+for dark blue text on light backgrounds, which dichromats see as lighter than its value:
+`#1d4ed8` on white scores 6.7 under WCAG, and a dichromat keeps about 5.4.
 
 Two further gaps are less often discussed.
 
@@ -74,7 +76,7 @@ well above the line but Oklab rates lighter, leaving less contrast against white
 OKCA (OK Contrast Algorithm) is an OKLCH-native contrast algorithm. It uses the
 perceptually uniform Oklab/OKLCH colour space — introduced by Björn Ottosson in a
 widely-adopted 2020 technical publication — as its luminance input rather than the
-IEC 61966-2-1 sRGB decomposition. It is not a new perceptual model: it keeps WCAG's
+IEC 61966-2-1 sRGB decomposition. It keeps WCAG's
 1–21 scale and AA/AAA thresholds and makes the same check harder to pass by
 mistake, so it can run alongside existing WCAG tooling.
 
@@ -95,13 +97,13 @@ and magentas, and little of greens, blues and purples. OKCA reduces the lighter
 colour's luminance in proportion to its saturation along that red–green
 direction, and adds a small lift to dark blue text. Greys are unaffected. The
 strength of each is the smallest that keeps scores at or below what dichromats
-see; both are derived from data, and there is no hue branch. Hot pink on
+see; both are derived from data. Hot pink on
 near-black scores 4.1 (WCAG 6.6), pure red on black 3.3 (WCAG 5.3), and
 saturated blue `#3b82f6` on black 3.6 (WCAG 5.7).
 
 **The darker colour is corrected for its background.** On any background darker
 than the AA boundary grey `#767676`, OKCA applies CAM16's background effect to the
-darker colour's lightness, using CAM16's own constant and no tuned value. Lighter
+darker colour's lightness, using CAM16's constant. Lighter
 backgrounds, and so the anchors above, are untouched. The correction can only lower
 a score. Light grey `#cccccc` on `#333333` scores 5.7 (WCAG 7.9). Grey and near-grey
 text on dark surfaces needs more lightness to pass than WCAG asks, and AAA is affected
@@ -124,11 +126,10 @@ surfaces as well.
 
 ## The Safety Guarantee
 
-The property that matters most for a working group context: **OKCA produces zero
-false passes against WCAG 2.x** — it never approves a pair WCAG rejects.
+**OKCA produces zero false passes against WCAG 2.x**: it never approves a pair WCAG
+rejects.
 
-The guarantee is **verified for the full sRGB gamut** — not calibration-dependent
-headroom. The argument:
+The guarantee is **verified for the full sRGB gamut**. The argument:
 
 - **Algebraic reduction.** $\text{OKCA} \le \text{WCAG}$ separates into two
   single-element factors: it is equivalent to

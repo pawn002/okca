@@ -6,7 +6,7 @@
 
 It closes four WCAG 2.x gaps:
 
-1. **Saturated colours.** WCAG scores hot pink on near-black 6.6:1 — a comfortable pass. OKCA scores it **4.1**: it tells saturated colour from grey at the same luminance. The penalty follows how colour-vision deficiency loses contrast: strongest for reds and magentas, much lighter for blues and greens. Saturated blue `#3b82f6` on black scores 3.6.
+1. **Saturated colours.** WCAG scores hot pink on near-black 6.6:1 — a comfortable pass. OKCA scores it **4.1**: it tells saturated colour from grey at the same luminance. The penalty follows how colour-vision deficiency loses contrast: strongest for reds and magentas, much lighter for blues and greens. Saturated blue `#3b82f6` on black scores 3.6. Dark blues, which colourblind readers see as lighter, get a matching correction: `#1d4ed8` on white scores 4.8 where WCAG gives 6.7.
 
 2. **Polarity.** WCAG rates `contrast(A on B)` and `contrast(B on A)` identically. So does OKCA for most pairs, including those near the AA line: white on `#767676` scores 3.9 either way. The two directions differ only when the darker colour is darker than `#767676`, where background induction (item 3) lowers the light-on-dark score: white on `#595959` scores 5.7, `#595959` on white 6.2. That matches reading studies, where younger and older adults alike read dark text on a light background better. The exception is eyes that scatter light, as with cataract: for them a bright background veils the text, and light-on-dark can read better. An experimental option scores for that eye (see Usage).
 

@@ -7,7 +7,8 @@ arithmetic** — no calibration-dependent headroom, no residual. Reproduce:
 
 Constants: `POL_K` = 1.100, `CHROMA_K` = 0.22, `CAP` = 20.9 (both polarities),
 `IND_Z` = 1.48, `IND_REF_L` = 0.5658, `OPP_THETA_L` = 9.4°, `OPP_THETA_D` = 267°,
-`OPP_K_D` = 0.065, `FLARE` = 0.10, `FLARE_K` = 1.5.
+`OPP_K_D` = 0.065, `FLARE` = 0.10, `FLARE_K` = 1.5, and for the scatter observer
+`SCATTER_K` = 0.155.
 
 The lighter proxy $Y_{\text{lighter}}$ below is Step 3's, whose exponent is driven
 by the opponent-axis weight $w_L = (C + a \cos\theta_L + b \sin\theta_L)/2$, not by
@@ -140,7 +141,7 @@ one decimal place is monotone and preserves it as well.
 
 ## 7. The scatter observer inherits the bound
 
-The experimental scatter observer adds a veil $v = k_s L_{\text{bg}}^{3} \ge 0$
+The experimental scatter observer adds a veil $v = k_s L_{\text{bg}}^{3} \ge 0$, with $k_s$ = `SCATTER_K`,
 to both patches of the raw ratio. For $Y_{\text{lighter}} \ge Y_{\text{darker}}$,
 
 $$

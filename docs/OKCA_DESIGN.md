@@ -11,17 +11,15 @@ WCAG 2.x contrast uses the ratio formula:
 
 $$\text{ratio} = \frac{Y_1 + 0.05}{Y_2 + 0.05}$$
 
-It reduces a pair to two luminances. Hue, the background a colour sits on, and which colour is the text all drop out. That leaves five places where WCAG's score and the reader's experience part company.
+It reduces a pair to two luminances. Hue, the background a colour sits on, and which colour is the text all drop out. That leaves four places where WCAG's score and the reader's experience part company.
 
-1. **Saturated light colours.** Hot pink on near-black scores 6.6:1 under WCAG, a comfortable AA pass, and designers routinely judge it inadequate for text. Part of the gap is measurable: a reader with red–green colour-vision deficiency keeps about 5.3 of its 6.6, while a grey of the same luminance loses nothing ([`CVD_FINDINGS.md`](CVD_FINDINGS.md)). WCAG scores both alike. OKCA penalises the lighter colour along the red–green axis that colour-vision deficiency loses (Step 3, §5): hot pink scores 4.1, and blues and greens are penalised much less.
+1. **Saturated colours.** Hot pink on near-black scores 6.6:1 under WCAG, a comfortable AA pass, and designers routinely judge it inadequate for text. Part of the gap is measurable: a reader with red–green colour-vision deficiency keeps about 5.3 of its 6.6, while a grey of the same luminance loses nothing ([`CVD_FINDINGS.md`](CVD_FINDINGS.md)). WCAG scores both alike. OKCA penalises the lighter colour along the red–green axis that colour-vision deficiency loses (Step 3, §5): hot pink scores 4.1, and blues and greens are penalised much less. The same loss runs the other way for dark blues, which dichromats see as lighter than their value. Blue `#1d4ed8` on white scores 6.7 under WCAG; a dichromat keeps about 5.4 of it. OKCA lifts the darker colour along the blue axis (Step 4, §5) and scores it 4.8.
 
-2. **Saturated dark colours.** The same loss runs the other way for dark blues, which dichromats see as lighter than their value. Blue `#1d4ed8` on white scores 6.7 under WCAG; a dichromat keeps about 5.4 of it. OKCA lifts the darker colour along the blue axis (Step 4, §5) and scores it 4.8.
+2. **Background-blind lightness.** WCAG and Oklab both treat a colour's lightness as fixed, whatever it sits on. The colour appearance model CAM16 does not: a darker background flattens the lightness scale, so the same pair carries less lightness difference on dark than on light. At the AA line, a just-passing grey on `#1a1a1a` carries 25% less CAM16 lightness gap than one on white ([`CAM16_FINDINGS.md`](CAM16_FINDINGS.md)). OKCA applies CAM16's correction on backgrounds darker than `#767676` (Step 4, §3): `#cccccc` on `#333333` scores 5.7 where WCAG gives 7.9.
 
-3. **Background-blind lightness.** WCAG and Oklab both treat a colour's lightness as fixed, whatever it sits on. The colour appearance model CAM16 does not: a darker background flattens the lightness scale, so the same pair carries less lightness difference on dark than on light. At the AA line, a just-passing grey on `#1a1a1a` carries 25% less CAM16 lightness gap than one on white ([`CAM16_FINDINGS.md`](CAM16_FINDINGS.md)). OKCA applies CAM16's correction on backgrounds darker than `#767676` (Step 4, §3): `#cccccc` on `#333333` scores 5.7 where WCAG gives 7.9.
+3. **Fragile passes on near-black backgrounds.** On a near-black background the ratio gets most of its value from the near-zero denominator, the term stray light erodes first. A just-passing grey on black keeps a ratio of 3.1 when the flare allowance doubles; a just-passing grey on white keeps 4.5 ([`MIDTONE_SURVEY_FINDINGS.md`](MIDTONE_SURVEY_FINDINGS.md)). OKCA caps each score at what the pair keeps under that doubled allowance (Step 6, §7): `#888888` on black scores 3.7 where WCAG gives 5.9.
 
-4. **Fragile passes on near-black backgrounds.** On a near-black background the ratio gets most of its value from the near-zero denominator, the term stray light erodes first. A just-passing grey on black keeps a ratio of 3.1 when the flare allowance doubles; a just-passing grey on white keeps 4.5 ([`MIDTONE_SURVEY_FINDINGS.md`](MIDTONE_SURVEY_FINDINGS.md)). OKCA caps each score at what the pair keeps under that doubled allowance (Step 6, §7): `#888888` on black scores 3.7 where WCAG gives 5.9.
-
-5. **Polarity.** WCAG scores `A on B` and `B on A` identically. Reading studies find dark text on a light background reads at least as well for younger and older adults (§7), and the background correction above means light text on a dark background needs a little more contrast. So OKCA scores both directions the same unless the darker colour is darker than `#767676`, where light-on-dark scores a little lower. Eyes that scatter light, as with cataract, are the exception: for them a bright background veils the text. An experimental scatter observer scores for that eye (§7).
+4. **Polarity.** WCAG scores `A on B` and `B on A` identically. Reading studies find dark text on a light background reads at least as well for younger and older adults (§7), and the background correction above means light text on a dark background needs a little more contrast. So OKCA scores both directions the same unless the darker colour is darker than `#767676`, where light-on-dark scores a little lower. Eyes that scatter light, as with cataract, are the exception: for them a bright background veils the text. An experimental scatter observer scores for that eye (§7).
 
 Every correction keeps OKCA **never more permissive than WCAG**: every score is at or below the WCAG score for the same pair, so OKCA never tells a designer a pair is safe when WCAG says it fails. It keeps WCAG's scale and its 4.5 and 7.0 thresholds, so it drops in where a WCAG check runs today. What it leaves to other tools, including viewing conditions, text size and the extra contrast saturated backgrounds can appear to have, is in §10.
 
@@ -186,8 +184,7 @@ ratio by a margin that grows as the ratio falls below 21.
 
 ### Why FP = 0 holds — by construction across the full sRGB gamut
 
-The raw ratio can exceed WCAG for chromatic darker elements, so FP = 0 is **not**
-carried by the raw ratio. But the full inequality **is** a theorem. Rearranging
+The full inequality is still a theorem. Rearranging
 $\text{OKCA} \le \text{WCAG}$ separates the two elements completely:
 
 $$\text{OKCA} \le \text{WCAG} \iff \frac{\text{CAP}}{21^{k}} \cdot A(\text{lighter}) \cdot B(\text{darker}) \le 1,$$
@@ -210,8 +207,8 @@ interval arithmetic** over the sRGB cube with **0 uncertified boxes**
 
 **Step 6 keeps the bound.** It takes a minimum with this score, so it can only lower it and the bound carries over unchanged ([`FP0_PROOF.md`](FP0_PROOF.md) §6).
 
-So FP = 0 is **verified for all sRGB inputs** — an exact identity plus two
-interval-checked lemmas, not a calibration-dependent headroom property. (The
+So FP = 0 is **verified for all sRGB inputs**: an exact identity plus two
+interval-checked lemmas. (The
 chroma penalty and Step-5 compression still shape *how far* below WCAG each score
 sits; they are not load-bearing for the guarantee itself.)
 
@@ -380,7 +377,7 @@ Three independent batteries:
 
 **WCAG disagreements** are pairs where OKCA scores below 4.5 but WCAG scores 4.5 or more. White on `#767676` --- the canonical WCAG AA boundary anchor --- sits exactly on the line, where the verdict turns on the display and the room rather than on the colours (see *Does not model viewing conditions* in §10 below). 95 of the 105 sit in that zone, with WCAG ratios of 4.5–5.4, where a pair has little margin against the conditions it will be read in. The other ten are saturated purples, violets and pinks that WCAG rates 5.7–7.1. Oklab rates them lighter than WCAG's luminance does (§4), so they carry less contrast against white.
 
-By system: Tailwind CSS v3.4 (43), GOV.UK Design System (14), USWDS v3.x (50). Five Tailwind 700 shades fail only as white text on the colour. See `docs/WCAG_DISAGREEMENTS.md` for the full enumeration with hex values.
+By system: Tailwind CSS v3.4 (41), GOV.UK Design System (14), USWDS v3.x (50). Five Tailwind 700 shades fail only as white text on the colour. See `docs/WCAG_DISAGREEMENTS.md` for the full enumeration with hex values.
 
 ---
 

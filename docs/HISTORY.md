@@ -277,6 +277,10 @@ evidence on scattering eyes improves.
   supports the value; it does not derive it.
 - **Three earlier decisions were reversed:** the 1.0 polarity premise, a
   saturation penalty that ignored hue, and a penalty strength set by eye.
+- **A counting error was found and fixed.** The design-system audit rounded
+  WCAG's ratio before comparing it with 4.5, so one Tailwind colour at 4.47
+  counted as a WCAG pass. 2.0.3's published 97 disagreements should have been
+  95. False passes were unaffected.
 
 ---
 
