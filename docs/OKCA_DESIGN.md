@@ -346,7 +346,9 @@ with $F =$ `FLARE` $= 0.10$ and $k_F =$ `FLARE_K` $= 1.5$.
 
 ### Scatter observer (experimental)
 
-**Opt-in.** `contrast(fg, bg, { observer: 'scatter' })`. Experimental and outside semver: it may change or be removed in any minor release.
+> **Warning: experimental.** This option is outside semver. It may change or be removed in any minor release.
+
+**Opt-in.** `contrast(fg, bg, { observer: 'scatter' })`.
 
 **Mechanism.** A veil proportional to the background's luminance is added to both patches of the Step 5 raw ratio:
 

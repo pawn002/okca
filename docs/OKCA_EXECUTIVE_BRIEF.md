@@ -87,8 +87,8 @@ higher. That matches the reading research for younger and older adults. On light
 and mid-tone backgrounds the two directions score the same (white/black 20.9,
 `#767676` and white 3.9). For eyes that scatter light, an
 experimental option scores the other way: a bright background veils the text, so
-dark-on-light loses contrast. It is opt-in, never scores above the default, and is
-experimental: outside semver, so it may change in any minor release.
+dark-on-light loses contrast. It is opt-in and never scores above the default.
+**Warning: experimental.** It is outside semver and may change in any minor release.
 
 **Saturated colours are penalised, hue by hue, as colour-vision deficiency
 predicts.** About 8% of men of Northern European descent have red–green

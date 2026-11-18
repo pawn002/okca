@@ -45,7 +45,9 @@ contrast('#ff69b4', '#1a1a1a'); // 4.1
 contrast('#888888', '#000000'); // 3.7
 ```
 
-**Experimental: the scatter observer.** For eyes whose optics scatter light, as with an ageing or clouded lens, pass `{ observer: 'scatter' }`. A bright background then veils the text, so dark-on-light loses contrast. It never scores above the default observer, so the WCAG guarantee holds. Experimental and outside semver: it may change or be removed in any minor release.
+**The scatter observer.** For eyes whose optics scatter light, as with an ageing or clouded lens, pass `{ observer: 'scatter' }`. A bright background then veils the text, so dark-on-light loses contrast. It never scores above the default observer, so the WCAG guarantee holds.
+
+> **Warning: experimental.** This option is outside semver. It may change or be removed in any minor release.
 
 ```ts
 contrast('#000000', '#ffffff', { observer: 'scatter' }); // 5.2 — a white background veils black text

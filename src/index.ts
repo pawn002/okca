@@ -94,10 +94,14 @@ const SCATTER_K = 0.155; // Veil as a fraction of background luminance (L³)
 /** Options for {@link contrast}. */
 export interface ContrastOptions {
   /**
-   * Experimental. `'scatter'` scores for an eye whose optics scatter light, as
-   * with an ageing or clouded lens: a bright background veils the text, so
-   * dark-on-light loses contrast. Omit for the default observer. Outside
-   * semver: may change or be removed in any minor release.
+   * WARNING: experimental and outside semver. May change or be removed in any
+   * minor release.
+   *
+   * `'scatter'` scores for an eye whose optics scatter light, as with an ageing
+   * or clouded lens: a bright background veils the text, so dark-on-light loses
+   * contrast. Omit for the default observer.
+   *
+   * @experimental
    */
   observer?: 'scatter';
 }
