@@ -19,9 +19,12 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Effect against 2.0.3
 - On a 262,144-pair sRGB grid, 121,356 pairs rise and 21,344 fall; 3,867 newly pass AA and 1,287 lose it. No pair scores above WCAG.
 - Examples: `#888888` on `#000000` 5.2 → 3.7; `#cccccc` on `#333333` 7.1 → 5.7; `#9f9f9f` on `#1a1a1a` 5.8 → 4.7; hot pink on `#1a1a1a` 3.6 → 4.1 (still fails AA); dark orange on `#1a1a1a` 4.2 → 4.8 (now passes); blue `#3b82f6` on black 2.4 → 3.6; green `#22c55e` on black 4.3 → 6.0; `#1d4ed8` on white 5.3 → 4.8; black on white 20.0 → 20.9; `#767676` on white 3.7 → 3.9.
-- WCAG disagreements 97 → 107 (Tailwind 43, GOV.UK 14, USWDS 50).
+- WCAG disagreements 95 → 105 (Tailwind 41, GOV.UK 14, USWDS 50).
 - 92 curated probe values moved, 58 down and 34 up. Seventeen crossed 7.0; three crossed 4.5: white on `#3a7d44` 4.6 → 4.3, `#3a7d44` on white 4.4 → 4.5, and dark orange on `#1a1a1a` 4.2 → 4.8.
 - **FP = 0 holds.** Steps 4 and 6 can only lower a score and need no new lemma (`docs/FP0_PROOF.md` §5–§6); lemma A is re-verified under Step 3's penalty. `npm run fp0` certifies with 0 uncertified boxes.
+
+### Fixed
+- **Disagreement counts compare WCAG's ratio unrounded.** The design-system audit rounded WCAG's ratio to one decimal place before comparing it with 4.5, so Tailwind indigo-500 (4.47 on white) counted as a WCAG pass in both directions. 2.0.3's published count of 97 should have been 95 (Tailwind 32, GOV.UK 13, USWDS 50). False passes are unaffected: there are none either way.
 
 ### Added
 - **Experimental scatter observer ([#34](https://github.com/pawn002/okca/issues/34)).** `contrast(fg, bg, { observer: 'scatter' })` scores for an eye that scatters light, as with an ageing or clouded lens: a veil of `SCATTER_K` = 0.155 of the background's luminance is added to both patches, so a bright background costs dark text contrast. It never scores above the default observer, so FP = 0 carries over. Experimental and outside semver: it may change or be removed in any minor release.

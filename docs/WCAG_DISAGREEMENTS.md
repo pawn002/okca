@@ -1,6 +1,6 @@
 # OKCA / WCAG Disagreements — Reference
 
-**Total: 107 pairs** (Tailwind 43 · GOV.UK 14 · USWDS 50)
+**Total: 105 pairs** (Tailwind 41 · GOV.UK 14 · USWDS 50)
 
 > **What these counts cover.** Every pair here has white as one partner, so
 > the battery samples light backgrounds and the light-on-dark direction on
@@ -10,7 +10,7 @@
 > is a pair WCAG passes and OKCA does not.
 >
 > All counts are for the default observer. Under the experimental scatter
-> observer the total is 247 (Tailwind 108 · GOV.UK 32 · USWDS 107), 182 of them
+> observer the total is 245 (Tailwind 106 · GOV.UK 32 · USWDS 107), 181 of them
 > colour text on white, because a white background veils dark text.
 
 ### Source versions
@@ -21,13 +21,13 @@
 | GOV.UK Design System | govuk-frontend (MIT) | [github.com/alphagov/govuk-frontend](https://github.com/alphagov/govuk-frontend) `_colours-palette.scss` |
 | US Web Design System | USWDS v3.x (MIT) | [github.com/uswds/uswds](https://github.com/uswds/uswds) `packages/uswds-core/src/styles/tokens/color/` |
 
-All 107 are pairs where OKCA scores below 4.5 AA but WCAG scores $\ge 4.5$. These are intentional. 97 sit within about one point of WCAG's line (WCAG 4.5–5.4), where a pair has little margin against the conditions it will be read in. The other ten are saturated purples, violets and pinks (WCAG 5.7–7.1) that Oklab rates lighter than WCAG's luminance does. Each colour is scored twice due to OKCA's polarity model — once as a L-o-D pair (white text on colour) and once as a D-o-L pair (colour on white) — and counted separately; an "L-o-D only" note marks colours where only the white-text direction falls below 4.5.
+All 105 are pairs where OKCA scores below 4.5 AA but WCAG scores $\ge 4.5$, comparing WCAG's ratio unrounded. 95 sit within about one point of WCAG's line (WCAG 4.5–5.4), where a pair has little margin against the conditions it will be read in. The other ten are saturated purples, violets and pinks (WCAG 5.7–7.1) that Oklab rates lighter than WCAG's luminance does. Each colour is scored twice due to OKCA's polarity model — once as a L-o-D pair (white text on colour) and once as a D-o-L pair (colour on white) — and counted separately; an "L-o-D only" note marks colours where only the white-text direction falls below 4.5.
 
-WCAG score shown is symmetric. OKCA scores can differ by polarity, but light-on-dark never scores above dark-on-light for the same colour. Here, where the colour is the darker partner, the two columns differ mainly through Step 4's corrections to the darker background.
+WCAG score shown is symmetric. OKCA scores can differ by polarity, with light-on-dark at or below dark-on-light for the same colour. Here, where the colour is the darker partner, the two columns differ mainly through Step 4's corrections to the darker background.
 
 ---
 
-## Tailwind CSS v3.4 — 43 disagreements
+## Tailwind CSS v3.4 — 41 disagreements
 
 The 500-level neutral greys are the most practically significant: designers reach for them as body text or icon colours on white. The remaining entries are mid-range chromatic shades (500–700). Oklab rates saturated colours lighter than WCAG's luminance does, so against white they carry less contrast in OKCA than in WCAG.
 
@@ -46,7 +46,6 @@ The 500-level neutral greys are the most practically significant: designers reac
 | green-700 | `#15803d` | 5.0 | 4.4 | 4.5 | L-o-D only |
 | cyan-700 | `#0e7490` | 5.4 | 4.4 | 4.5 | L-o-D only |
 | blue-600 | `#2563eb` | 5.2 | 3.7 | 3.7 |  |
-| indigo-500 | `#6366f1` | 4.5 | 3.2 | 3.2 |  |
 | indigo-600 | `#4f46e5` | 6.3 | 4.1 | 4.3 |  |
 | violet-600 | `#7c3aed` | 5.7 | 3.7 | 3.8 |  |
 | violet-700 | `#6d28d9` | 7.1 | 4.4 | 4.7 | L-o-D only |
@@ -134,7 +133,7 @@ USWDS makes explicit WCAG 2.x AA claims. The 50 disagreements are the grade-50 s
 Most colours appear as both a L-o-D and D-o-L failure. With one cap for both polarities, D-o-L scores sit at or slightly above L-o-D scores for the same colour, because Step 4 corrects the darker background in the L-o-D direction. A colour near the line can therefore fail only in the L-o-D direction; five Tailwind 700 shades do.
 
 ### The boundary benchmark
-The canonical marginal pair — white on `#767676` — scores WCAG 4.5, OKCA 3.9 (L-o-D). The 97 entries within a point of the line are in the same zone. A designer who accepts `#767676` as passing AA is accepting the same risk for each of them.
+The canonical marginal pair — white on `#767676` — scores WCAG 4.5, OKCA 3.9 (L-o-D). The 95 entries within a point of the line are in the same zone. A designer who accepts `#767676` as passing AA is accepting the same risk for each of them.
 
 That risk is not a matter of taste. In a threshold experiment reported in [#22](https://github.com/pawn002/okca/issues/22#issuecomment-5282357292), the contrast at which body text was judged shippable measured **5.2 at one display brightness and 2.8 at another** — same observer, same room, same session. OKCA 3.9 falls between those two figures, so the verdict on this exact pair inverts across ordinary viewing conditions.
 

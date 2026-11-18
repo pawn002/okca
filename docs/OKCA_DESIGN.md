@@ -373,12 +373,12 @@ Three independent batteries:
 |---------|------:|:--:|:------------------:|-------|
 | Light-on-dark | 53 | **0** | — | See design-systems for FP=0 coverage |
 | Dark-on-light | 54 | **0** | — | See design-systems for FP=0 coverage |
-| Design systems | 1,142 | **0** | 107 | See note below |
-| **Total** | **1,249** | **0** | **107** | |
+| Design systems | 1,142 | **0** | 105 | See note below |
+| **Total** | **1,249** | **0** | **105** | |
 
 **False passes are zero** across all 1,249 pairs.
 
-**WCAG disagreements** are pairs where OKCA scores below 4.5 but WCAG scores 4.5 or more. White on `#767676` --- the canonical WCAG AA boundary anchor --- sits exactly on the line, where the verdict turns on the display and the room rather than on the colours (see *Does not model viewing conditions* in §10 below). 97 of the 107 sit in that zone, with WCAG ratios of 4.5–5.4, where a pair has little margin against the conditions it will be read in. The other ten are saturated purples, violets and pinks that WCAG rates 5.7–7.1. Oklab rates them lighter than WCAG's luminance does (§4), so they carry less contrast against white.
+**WCAG disagreements** are pairs where OKCA scores below 4.5 but WCAG scores 4.5 or more. White on `#767676` --- the canonical WCAG AA boundary anchor --- sits exactly on the line, where the verdict turns on the display and the room rather than on the colours (see *Does not model viewing conditions* in §10 below). 95 of the 105 sit in that zone, with WCAG ratios of 4.5–5.4, where a pair has little margin against the conditions it will be read in. The other ten are saturated purples, violets and pinks that WCAG rates 5.7–7.1. Oklab rates them lighter than WCAG's luminance does (§4), so they carry less contrast against white.
 
 By system: Tailwind CSS v3.4 (43), GOV.UK Design System (14), USWDS v3.x (50). Five Tailwind 700 shades fail only as white text on the colour. See `docs/WCAG_DISAGREEMENTS.md` for the full enumeration with hex values.
 

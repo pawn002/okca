@@ -79,7 +79,7 @@ okca.contrast('#fff', '#000');  // 20.9
 - **Zero dependencies:** pure TypeScript, no runtime deps
 - **Original and MIT-licensed:** free to use and embed
 
-*The guarantee is proven:* `OKCA ≤ WCAG` holds for every sRGB pair. The proof is machine-checked across the full gamut (`npm run fp0`; the argument is in [`docs/FP0_PROOF.md`](docs/FP0_PROOF.md)), and CI tests the bound on hundreds of thousands of sampled pairs on every change. OKCA's ceiling is 20.9, not 21, which keeps every score below WCAG's.
+*The guarantee is proven:* `OKCA ≤ WCAG` holds for every sRGB pair. The proof is machine-checked across the full gamut (`npm run fp0`; the argument is in [`docs/FP0_PROOF.md`](docs/FP0_PROOF.md)), and CI tests the bound on close to 200,000 sampled pairs on every change. OKCA's ceiling is 20.9, not 21, which keeps every score below WCAG's.
 
 ## Validation
 
@@ -89,8 +89,8 @@ Tested against 1,249 color pairs across three batteries (light-on-dark, dark-on-
 |---------|------:|:------------:|:-----------------:|
 | Light-on-dark | 53 | 0 | — |
 | Dark-on-light | 54 | 0 | — |
-| Design systems | 1,142 | 0 | 107 |
-| **Total** | **1,249** | **0** | **107** |
+| Design systems | 1,142 | 0 | 105 |
+| **Total** | **1,249** | **0** | **105** |
 
 **False passes: zero.** OKCA never approves a pair that WCAG rejects.
 
