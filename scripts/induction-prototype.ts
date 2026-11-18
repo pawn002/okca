@@ -3,7 +3,7 @@
  * Read-only; no algorithm change. Run: npm run induction
  *
  * CAM16 lightness of a grey is J/100 ~= L^gamma, with
- * gamma = 1.26 c (1.48 + L_bg^1.5) (docs/CAM16_FINDINGS.md §2). Relative to a
+ * gamma = 1.26 c (1.48 + L_bg^1.5) (docs/research/CAM16_FINDINGS.md §2). Relative to a
  * reference background, the lightness scale is a power s of OKLab L:
  *
  *   s(L_bg) = min(1, (1.48 + L_bg^1.5) / (1.48 + L_ref^1.5))

@@ -1,18 +1,18 @@
 # okca — OK Contrast Algorithm
 
-**A stricter drop-in for WCAG 2.x contrast.** Same 1–21 scale, same AA (4.5) and AAA (7.0) thresholds — use it exactly where you use a WCAG contrast check today. The one difference that matters: **OKCA is never more permissive than WCAG.** If a pair clears OKCA it clears WCAG; OKCA just also declines to rubber-stamp the cases WCAG over-rates.
+**A stricter drop-in for WCAG 2.x contrast.** Same 1–21 scale, same AA (4.5) and AAA (7.0) thresholds. Use it exactly where you use a WCAG contrast check today. The difference: **OKCA is never more permissive than WCAG.** If a pair clears OKCA it clears WCAG. It also catches pairs WCAG rates too high.
 
-> **Scope.** OKCA is a stricter WCAG 2.x checker for sRGB. It isn't a new perceptual model and doesn't try to reinvent how contrast is predicted — it makes the WCAG check you already run harder to turn into a false pass.
+> **Scope.** OKCA is a WCAG 2.x-compatible contrast check for sRGB colours. It keeps WCAG's scale and thresholds and is stricter where WCAG is too lenient.
 
 It closes four WCAG 2.x gaps:
 
-1. **Saturated colours.** WCAG scores hot pink on near-black 6.6:1 — a comfortable pass. OKCA scores it **4.1**: it tells saturated colour from grey at the same luminance, and WCAG can't. The penalty follows how colour-vision deficiency actually loses contrast: strongest for reds and magentas, much lighter for blues and greens, and sized from colour-vision data rather than set by hand. Saturated blue `#3b82f6` on black scores 3.6.
+1. **Saturated colours.** WCAG scores hot pink on near-black 6.6:1, a comfortable pass. OKCA scores it **4.1**: it tells saturated colour from grey at the same luminance. The penalty follows how colour-vision deficiency loses contrast: strongest for reds and magentas, much lighter for blues and greens. Saturated blue `#3b82f6` on black scores 3.6. Dark blues, which colourblind readers see as lighter, get a matching correction: `#1d4ed8` on white scores 4.8 where WCAG gives 6.7.
 
-2. **Polarity.** WCAG rates `contrast(A on B)` and `contrast(B on A)` identically. OKCA doesn't, but only where it can say why: dark backgrounds measurably cost contrast (item 3), so light text on a dark background can score lower than the same pair reversed. Never higher.
+2. **Polarity.** WCAG rates `contrast(A on B)` and `contrast(B on A)` identically. So does OKCA for most pairs, including those near the AA line: white on `#767676` scores 3.9 either way. The two directions differ only when the darker colour is darker than `#767676`, where background induction (item 3) lowers the light-on-dark score: white on `#595959` scores 5.7, `#595959` on white 6.2. That matches reading studies, where younger and older adults alike read dark text on a light background better. The exception is eyes that scatter light, as with cataract: for them a bright background veils the text, and light-on-dark can read better. An experimental option scores for that eye (see Usage).
 
 3. **Background.** WCAG treats a colour's lightness as fixed, whatever it sits on. In the CAM16 colour appearance model (the basis of the CIE's CIECAM16), a darker background flattens the lightness scale, so the same pair carries less lightness difference on dark than on light. OKCA applies that correction to the darker colour on any background darker than `#767676`: light grey `#cccccc` on `#333333` scores **5.7** where WCAG gives 7.9. Lighter backgrounds are unaffected, and the correction never raises a score.
 
-4. **Fragile dark-mode passes.** On a near-black background, WCAG's ratio comes mostly from the background being nearly black — the first thing stray light takes away. A grey that just passes AA on black keeps a ratio of 3.1 when the flare allowance doubles; one that just passes on white keeps 4.5. OKCA caps each score at what the pair keeps under that doubled flare, so `#888888` on black scores **3.7** where WCAG gives 5.9. Light-mode greys are unaffected, and like the background correction it never raises a score.
+4. **Fragile dark-mode passes.** On a near-black background, WCAG's ratio comes mostly from the background being nearly black, and that is the first thing stray light takes away. A grey that just passes AA on black keeps a ratio of 3.1 when the flare allowance doubles; one that just passes on white keeps 4.5. OKCA caps each score at what the pair keeps under that doubled flare, so `#888888` on black scores **3.7** where WCAG gives 5.9. Light-mode greys are unaffected, and like the background correction it never raises a score.
 
 ## Install
 
@@ -22,7 +22,7 @@ npm install @pawn002/okca
 
 ## Usage
 
-`contrast(foreground, background)` — first argument is the element being evaluated (text, icon, or other visual element), second is the surface it sits on. Argument order matters: `okca(A, B) ≠ okca(B, A)`.
+`contrast(foreground, background)`: the first argument is the element being evaluated (text, icon, or other visual element), second is the surface it sits on. Argument order can change the score: on backgrounds darker than `#767676`, light text scores a little lower than the same colours reversed.
 
 ```ts
 import { contrast } from '@pawn002/okca';
@@ -30,15 +30,28 @@ import { contrast } from '@pawn002/okca';
 contrast('#ffffff', '#000000');  // 20.9 — white on black (strictly under WCAG's 21)
 contrast('#000000', '#ffffff');  // 20.9 — black on white: one cap for both polarities
 
-// WCAG AA boundary grey — fails in both directions, scored the same way round
+// WCAG AA boundary grey: fails both ways, and scores the same both ways
 contrast('#ffffff', '#767676');  // 3.9
 contrast('#767676', '#ffffff');  // 3.9
 
-// WCAG over-rates this chromatic pair (6.6:1); OKCA scores it below AA
+// Argument order counts on dark backgrounds: light text on #333333 scores lower
+contrast('#cccccc', '#333333');  // 5.7
+contrast('#333333', '#cccccc');  // 7.0
+
+// WCAG 6.6, OKCA below AA
 contrast('#ff69b4', '#1a1a1a'); // 4.1
 
 // Mid-grey on black: WCAG 5.9, but most of it rides on the background staying black
 contrast('#888888', '#000000'); // 3.7
+```
+
+**The scatter observer.** For eyes whose optics scatter light, as with an ageing or clouded lens, pass `{ observer: 'scatter' }`. A bright background then veils the text, so dark-on-light loses contrast. It never scores above the default observer, so the WCAG guarantee holds.
+
+> **Warning: experimental.** This option is outside semver. It may change or be removed in any minor release.
+
+```ts
+contrast('#000000', '#ffffff', { observer: 'scatter' }); // 5.2 — a white background veils black text
+contrast('#ffffff', '#000000', { observer: 'scatter' }); // 20.9 — a black background adds no veil
 ```
 
 Also accepts CSS `oklab()` and `oklch()` alongside hex:
@@ -65,14 +78,14 @@ okca.contrast('#fff', '#000');  // 20.9
 ## Properties
 
 - **Never more permissive than WCAG:** every score is at or below the WCAG equivalent for the same pair; AA/AAA thresholds unchanged
-- **Polarity-aware:** `okca(foreground, background)` can differ from `okca(background, foreground)`. Light-on-dark never scores above the same pair reversed
-- **CVD-informed:** chroma is weighted along Oklab's opponent axes, in the directions colour-vision deficiency loses contrast, so hues colourblind viewers see well are penalised less — no hue branch (`docs/OPPONENT_AXIS_FINDINGS.md`)
-- **Background-aware:** on backgrounds darker than `#767676`, the darker colour's lightness is corrected for the background, following CAM16 (`docs/CAM16_FINDINGS.md`)
-- **Flare-robust:** two pairs with the same score carry comparable margin against stray light, on dark backgrounds and light ones alike (`docs/MIDTONE_SURVEY_FINDINGS.md`)
+- **Polarity-aware:** argument order counts. Both directions score the same unless the darker colour is darker than `#767676`; then light-on-dark scores a little lower
+- **CVD-informed:** chroma is weighted along Oklab's opponent axes, in the directions colour-vision deficiency loses contrast, so hues colourblind viewers see well are penalised less (`docs/research/OPPONENT_AXIS_FINDINGS.md`)
+- **Background-aware:** on backgrounds darker than `#767676`, the darker colour's lightness is corrected for the background, following CAM16 (`docs/research/CAM16_FINDINGS.md`)
+- **Flare-robust:** two pairs with the same score carry comparable margin against stray light, on dark backgrounds and light ones alike (`docs/research/MIDTONE_SURVEY_FINDINGS.md`)
 - **Zero dependencies:** pure TypeScript, no runtime deps
-- **Clean-room implementation:** no third-party contrast algorithm source code
+- **Original and MIT-licensed:** free to use and embed
 
-*Never-more-permissive is proven, not hoped for:* `OKCA ≤ WCAG` holds for every sRGB pair. The proof is machine-checked across the full gamut (`npm run fp0`; the argument is in [`docs/FP0_PROOF.md`](docs/FP0_PROOF.md)), and CI tests the bound on hundreds of thousands of sampled pairs on every change. OKCA's ceiling is 20.9, not 21 — the sliver of headroom that keeps the guarantee airtight.
+*The guarantee is proven:* `OKCA ≤ WCAG` holds for every sRGB pair. The proof is machine-checked across the full gamut (`npm run fp0`; the argument is in [`docs/FP0_PROOF.md`](docs/FP0_PROOF.md)), and CI tests the bound on close to 200,000 sampled pairs on every change. OKCA's ceiling is 20.9, not 21, which keeps every score below WCAG's.
 
 ## Validation
 
@@ -82,14 +95,14 @@ Tested against 1,249 color pairs across three batteries (light-on-dark, dark-on-
 |---------|------:|:------------:|:-----------------:|
 | Light-on-dark | 53 | 0 | — |
 | Dark-on-light | 54 | 0 | — |
-| Design systems | 1,142 | 0 | 107 |
-| **Total** | **1,249** | **0** | **107** |
+| Design systems | 1,142 | 0 | 105 |
+| **Total** | **1,249** | **0** | **105** |
 
 **False passes: zero.** OKCA never approves a pair that WCAG rejects.
 
-**WCAG disagreements** are pairs where OKCA scores below 4.5 but WCAG scores ≥ 4.5. These are intentional. White on `#767676` — WCAG's own AA boundary anchor — sits exactly on the line, where the verdict turns on the display and the room rather than on the colors. The same pair can read acceptably on a bright screen and not on a dimmer one ([#22](https://github.com/pawn002/okca/issues/22#issuecomment-5282357292)). A threshold with no margin against viewing conditions is the problem, and 97 of the 107 disagreements sit in that zone, within about one point of the line. The other ten are saturated purples, violets and pinks that WCAG rates 5.7–7.1: Oklab rates them lighter than WCAG's luminance does, so they carry less contrast against white.
+**WCAG disagreements** are pairs where OKCA scores below 4.5 but WCAG scores ≥ 4.5. Most sit within about a point of the AA line, where the verdict depends on the screen and room as much as the colours ([#22](https://github.com/pawn002/okca/issues/22#issuecomment-5282357292)). The rest are saturated purples, violets and pinks that Oklab rates lighter than WCAG does.
 
-**Found a false pass?** `OKCA ≤ WCAG` is verified across sRGB (`docs/FP0_PROOF.md`). If you somehow find an sRGB pair OKCA scores **above** the WCAG ratio, that's a bug — [open an issue](https://github.com/pawn002/okca/issues) and I'll fix it.
+**Found a false pass?** `OKCA ≤ WCAG` is verified across sRGB (`docs/FP0_PROOF.md`). If you find an sRGB pair OKCA scores **above** the WCAG ratio, that's a bug: [open an issue](https://github.com/pawn002/okca/issues) and I'll fix it.
 
 ## Further reading
 

@@ -4,8 +4,8 @@
 > November 2026. Outcome: adopted as the linear darker lift along 267°. Figures
 > describe OKCA as it stood then and are not kept current; where a script
 > reimplements that version, its check against the live `contrast()` can report
-> mismatches. Current algorithm: [`OKCA_DESIGN.md`](OKCA_DESIGN.md). How this
-> work fits the project's path: [`HISTORY.md`](HISTORY.md).
+> mismatches. Current algorithm: [`OKCA_DESIGN.md`](../OKCA_DESIGN.md). How this
+> work fits the project's path: [`HISTORY.md`](../HISTORY.md).
 
 Reproduce:
 

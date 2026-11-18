@@ -4,8 +4,8 @@
 > (`POL_K` = 1.100), the one calibration input OKCA keeps as stated policy.
 > Figures describe OKCA as it stood then and are not kept current; where a
 > script reimplements that version, its check against the live `contrast()` can
-> report mismatches. Current algorithm: [`OKCA_DESIGN.md`](OKCA_DESIGN.md). How
-> this work fits the project's path: [`HISTORY.md`](HISTORY.md).
+> report mismatches. Current algorithm: [`OKCA_DESIGN.md`](../OKCA_DESIGN.md). How
+> this work fits the project's path: [`HISTORY.md`](../HISTORY.md).
 
 The tables in §5–§6 use the baseline before the change, and §1's constraint
 list states the anchor values as they stood when the experiment was designed.
@@ -44,17 +44,17 @@ less conservative **without** giving up its core safety property?
 
 ### Constraints (agreed up front)
 
-1. **FP=0 stays hard** — OKCA must never score above WCAG for any sRGB pair
+1. **FP=0 stays hard.** OKCA must never score above WCAG for any sRGB pair
    (with production rounding). Non-negotiable (`OKCA_DESIGN.md` §2.1).
 2. **All 4 achromatic anchors stay fixed** (white/black 21.0, black/white 20.0,
    white/#767676 3.5, #767676/white 3.3). *These are the values as of the
    experiment's design. The experiment concluded by moving the grey anchor
    (§8) and a follow-on lowered the light-on-dark cap (§9); three of the four
-   are different today — see the table at the top.*
-3. **Clean-room origin preserved** — no source, formula, or model from any
+   are different today; see the table at the top.*
+3. **Clean-room origin preserved.** No source, formula, or model from any
    external contrast library. The published WCAG 2.x relative-luminance formula
    is exempt (OKCA already references it and reimplements it inline in tests).
-4. **Scope: chromatic only** — recover conservatism on chromatic colours; leave
+4. **Scope: chromatic only.** Recover conservatism on chromatic colours; leave
    neutral/grey behaviour as-is.
 
 ### What the constraints leave free
@@ -67,8 +67,8 @@ the anchors pins two of them:
 - black/white → 20.0 (D-o-L) **pins `DOL_CAP = 20`** — that pair evaluates to
   $\text{CAP} \cdot (21/21)^{k} = \text{CAP} = 20$.
 
-So under constraints (2)+(4) the only genuinely free knobs are **`C_THRESH` and
-`CHROMA_K`** — the lighter-element chroma penalty (`chromaExp`,
+So under constraints (2)+(4) the only free constants are **`C_THRESH` and
+`CHROMA_K`**: the lighter-element chroma penalty (`chromaExp`,
 `src/index.ts:90-96`). Because every anchor is achromatic
 ($C = 0 \Rightarrow \text{exp} = 1$), retuning these two cannot move any anchor
 by construction.
@@ -85,7 +85,7 @@ Three corrections shaped the harness instead:
    it just reproduces WCAG). With no external perceptual model allowed, the only
    legitimate signal is the WCAG ceiling used **one-sidedly**: "reduce the
    $\text{WCAG} - \text{OKCA}$ gap wherever FP=0 does not require it."
-2. **Uniform *RGB* is the wrong space.** The free knobs act on **chroma** in
+2. **Uniform *RGB* is the wrong space.** The free constants act on **chroma** in
    OKLCH; most of sRGB's volume sits far from the 4.5/7.0 decision boundary and
    carries ~no calibration information. The harness samples a gamut-valid sRGB
    grid tagged with OKLCH and concentrates on the regions that matter.
@@ -116,7 +116,7 @@ It reproduces the documented baseline exactly:
 
 ---
 
-## 4. Result 1 — the free knobs cannot move the 111
+## 4. Result 1 — the free constants cannot move the 111
 
 Grid search over `C_THRESH` $\in \lbrace 0.15 \ldots 0.30 \rbrace$ × `CHROMA_K`
 $\in \lbrace 0.20 \ldots 0.50 \rbrace$ (`POL_K`, `DOL_CAP`, anchors all fixed):
@@ -131,13 +131,13 @@ $\in \lbrace 0.20 \ldots 0.50 \rbrace$ (`POL_K`, `DOL_CAP`, anchors all fixed):
 ($L \approx 1$) is always the *lighter* element. The chroma penalty acts only on the
 lighter element, so it **never fires on any of the 111**. Those under-calls are
 driven by the *darker* element's chroma through the global `POL_K` compression —
-which the fixed anchors lock. The two in-scope knobs are orthogonal to the
+which the fixed anchors lock. The two in-scope constants are orthogonal to the
 documented conservatism.
 
 ## 5. Result 2 — the chroma penalty *can* relax, but FP-safety is the wrong test
 
-Where the penalty **does** fire — light chromatic foregrounds (light
-yellow/cyan/green text on dark UI, e.g. the `#ffff99 on #1a1a1a` probe case) —
+Where the penalty **does** fire, on light chromatic foregrounds (light
+yellow/cyan/green text on dark UI, e.g. the `#ffff99 on #1a1a1a` probe case),
 relaxing it recovers large numbers of AA/AAA calls with **zero** FP:
 
 | C_THRESH | CHROMA_K | FP | AA calls recovered | AAA recovered | mean lift |
@@ -148,17 +148,17 @@ relaxing it recovers large numbers of AA/AAA calls with **zero** FP:
 | 0.30 | 0.20 | 0 | 154,599 | 59,947 | 0.538 |
 
 This overturns a natural assumption: the chroma penalty is **not** what
-guarantees FP=0 for the green-darker overshoot — the `POL_K` compression is. The
+guarantees FP=0 for the green-darker overshoot; the `POL_K` compression is. The
 penalty is OKCA's deliberate **perceptual correction** for WCAG over-rating
 saturated colours (hot pink `#ff69b4` on `#1a1a1a`: WCAG 6.6 vs OKCA 3.7).
 
 So FP-safety does **not** justify relaxing it. Moving it toward WCAG would
 re-introduce exactly the saturated-colour over-rating OKCA exists to fix, and
-deciding "how much is too much" requires a perceptual reference — which
-constraints (3) rules out. **No defensible move exists for these two knobs under
+deciding "how much is too much" requires a perceptual reference, which
+constraints (3) rules out. **No defensible change exists for these two constants under
 the agreed constraints.**
 
-## 6. Result 3 — the real lever is the grey anchor, and FP=0 bounds it
+## 6. Result 3 — the grey anchor is what moves the 111, and FP=0 bounds it
 
 The 111 are governed by `POL_K`, pinned by the white/#767676 anchor. An
 out-of-scope, **measurement-only** probe (changes no source) raised that anchor
@@ -176,32 +176,32 @@ over the full 2.79M-pair corpus and disagreement recovery:
 | 4.50 | 1.006 | ❌ (11,837 FP) | 64 |
 
 Raising the anchor lowers `POL_K` → less global compression → less FP=0
-headroom. The **FP=0 wall sits at ≈4.0–4.1**, and the first violation is
-`#ffddff on #004400` (light magenta on dark green) — precisely the green-darker
+headroom. The **FP=0 limit is about 4.0–4.1**, and the first violation is
+`#ffddff on #004400` (light magenta on dark green), in the green-darker
 overshoot region `OKCA_DESIGN.md` §4 documents. Unlike the chroma penalty, this
-knob trades directly against FP=0, so FP=0 **itself** defines the safe range —
-no perceptual oracle needed.
+constant trades directly against FP=0, so FP=0 **itself** defines the safe range,
+with no perceptual reference needed.
 
-Raising white/#767676 from 3.5 → **~3.8–4.0** recovers **11–17** of the 111 —
-including the practitioner-critical grey/dark zone — while provably holding FP=0
+Raising white/#767676 from 3.5 → **~3.8–4.0** recovers **11–17** of the 111,
+including the grey/dark zone practitioners care about most, while provably holding FP=0
 across the whole sRGB stress corpus.
 
 ---
 
 ## 7. Decision
 
-Under the agreed constraints the two free knobs (`C_THRESH`, `CHROMA_K`) can't
+Under the agreed constraints the two free constants (`C_THRESH`, `CHROMA_K`) can't
 touch the documented conservatism, and relaxing them is FP-safe but perceptually
-unjustifiable without a reference the project ruled out. The single
-high-leverage, clean-room, FP=0-preserving move is to raise the white/#767676
-anchor — it directly de-conservatises the grey/dark under-calls, needs only the
-WCAG ceiling and the FP=0 frontier to calibrate, and its safe ceiling (~4.0) is
-discovered, not assumed. That move was chosen and applied (§8).
+unjustifiable without a reference the project ruled out. The one change
+that helps most while keeping FP=0 is to raise the white/#767676
+anchor. It directly reduces the under-scoring of greys on dark backgrounds, needs only the
+WCAG ceiling and the FP=0 limit to calibrate, and its safe ceiling (~4.0) was
+measured. That move was chosen and applied (§8).
 
 If instead the goal is to relax the saturated-colour penalty defensibly, that
 requires a perceptual ground truth. The only clean-room path is a
-project-owned perceptual dataset (a heavy, separate effort) — not a constant
-retune.
+project-owned perceptual dataset, a heavy and separate effort; retuning a constant
+won't do it.
 
 ## 8. Applied change — anchor 3.9 (`POL_K` 1.100) + chroma penalty (`CHROMA_K` 0.65)
 
@@ -209,21 +209,21 @@ Two coupled constant changes, applied together. `C_THRESH`, `DOL_CAP`, and the
 L-o-D cap 21 are unchanged.
 
 **(a) Anchor: white/#767676 → 3.9 (`POL_K` 1.175 → 1.100).** Raised to 3.9 (a
-balanced point below the ~4.0–4.1 FP=0 wall). Exact derivation
+balanced point below the ~4.0–4.1 FP=0 limit). Exact derivation
 `POL_K` $= \ln(3.9/21)/\ln(4.54/21) \approx 1.0996$, rounded to **1.100** (the value at
 which `contrast('#ffffff','#767676')` rounds to 3.9).
 
 **(b) Chroma penalty: `CHROMA_K` 0.50 → 0.65.** `POL_K` is global, so lowering
-it (step a) lifts *every* score — including OKCA's deliberate saturated-colour
-catches. Dark orange/near-black crossed from 4.2 (fail) to 4.7 (pass) and hot
-pink thinned from 3.7 to 4.1. Strengthening the chroma penalty re-docks vivid
-foregrounds to their intended sub-AA scores. This lever is **cleanly decoupled**
-from step (a): the penalty acts only on the *lighter* element, and every
+it (step a) lifts *every* score, including the saturated colours OKCA was
+meant to fail. Dark orange/near-black crossed from 4.2 (fail) to 4.7 (pass) and hot
+pink rose from 3.7 to 4.1. Strengthening the chroma penalty returns vivid
+foregrounds to their intended sub-AA scores. This change is **independent**
+of step (a): the penalty acts only on the *lighter* element, and every
 design-system disagreement pairs a colour with white (white is the lighter
 element), so the 97-count is untouched; achromatic anchors ($C = 0$) are untouched;
 and strengthening a penalty only *lowers* chromatic scores, so FP=0 is preserved
 by construction. `CHROMA_K = 0.65` was chosen as the value that restores dark
-orange to 4.2 and hot pink to 3.7 — their exact pre-recalibration scores — while
+orange to 4.2 and hot pink to 3.7, their exact pre-recalibration scores, while
 leaving light pastels (low chroma → small penalty) essentially unchanged.
 
 **Result (measured, `npm run calibrate` + `npm test`):**

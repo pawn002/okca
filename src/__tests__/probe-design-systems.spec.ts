@@ -8,11 +8,13 @@
  * (OKCA ≥ 4.5 when WCAG < 4.5). Also pins WCAG-disagreement counts per
  * system to detect unexpected shifts.
  *
- * "WCAG disagreements" (pairs where OKCA < 4.5 but WCAG ≥ 4.5) are
- * intentional: WCAG's 4.5:1 AA threshold is widely considered too
- * permissive. White on #767676 — WCAG's own AA boundary anchor — is not
- * production-ready in practice. The disagreements below identify colours
- * that sit in the same marginal zone.
+ * "WCAG disagreements" are pairs where OKCA < 4.5 but WCAG ≥ 4.5. Most sit
+ * close to the AA line, where a pair has little margin against the conditions
+ * it is read in (see docs/WCAG_DISAGREEMENTS.md).
+ *
+ * WCAG ratios are compared unrounded: 4.5:1 means at least 4.5, so 4.47
+ * fails. Rounding to one decimal place first counted Tailwind indigo-500
+ * (4.47 on white) as a WCAG pass.
  *
  * Disagreement character varies by system:
  *
@@ -43,7 +45,7 @@ function wcagContrast(hex1: string, hex2: string): number {
   };
   const l1 = lum(hex1), l2 = lum(hex2);
   const lighter = Math.max(l1, l2), darker = Math.min(l1, l2);
-  return parseFloat(((lighter + 0.05) / (darker + 0.05)).toFixed(1));
+  return (lighter + 0.05) / (darker + 0.05);
 }
 
 // ── Palette data ─────────────────────────────────────────────────────────────
@@ -177,7 +179,7 @@ describe('design-system probe', () => {
     expect(falsePassPairs).toEqual([]);
   });
 
-  it('WCAG disagreement count matches baseline (107 total)', () => {
+  it('WCAG disagreement count matches baseline (105 total)', () => {
     let ffCount = 0;
 
     for (const { fg, bg } of ALL_PAIRS) {
@@ -186,7 +188,7 @@ describe('design-system probe', () => {
       if (okca < AA && wcag >= AA) ffCount++;
     }
 
-    expect(ffCount).toBe(107);
+    expect(ffCount).toBe(105);
   });
 
   it('WCAG disagreement counts match per system', () => {
@@ -200,7 +202,7 @@ describe('design-system probe', () => {
       }
     }
 
-    expect(ffBySystem['tw'] ?? 0).toBe(43);
+    expect(ffBySystem['tw'] ?? 0).toBe(41);
     expect(ffBySystem['govuk'] ?? 0).toBe(14);
     expect(ffBySystem['uswds'] ?? 0).toBe(50);
   });

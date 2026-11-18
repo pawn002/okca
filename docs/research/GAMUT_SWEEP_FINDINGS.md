@@ -4,25 +4,19 @@
 > chroma behaviour behind later work; the structural findings below still hold.
 > Figures describe OKCA as it stood then and are not kept current; where a
 > script reimplements that version, its check against the live `contrast()` can
-> report mismatches. Current algorithm: [`OKCA_DESIGN.md`](OKCA_DESIGN.md). How
-> this work fits the project's path: [`HISTORY.md`](HISTORY.md).
+> report mismatches. Current algorithm: [`OKCA_DESIGN.md`](../OKCA_DESIGN.md). How
+> this work fits the project's path: [`HISTORY.md`](../HISTORY.md).
 
 Sweeps OKCA across the sRGB gamut, stratified by OKLCH hue and chroma.
 
-> **Snapshot — read this first.** This document is a **point-in-time
-> characterization of a specific calibration**, not a live spec. The figures
-> below were computed at `POL_K = 1.100`, `CHROMA_K = 0.65`, `LOD_CAP = 20.9`,
-> `DOL_CAP = 20`, `C_THRESH = 0.15`. Two kinds of finding live here, and they
-> age differently:
->
-> - **Structural (constant-independent):** the $\delta = L^3 - Y$ divergence in
->   §0–§2. It depends only on OKCA's luminance proxy ($L^3$) versus WCAG
->   luminance — **not** on the scaling constants — so it is stable across any
->   recalibration that keeps the $L^3$ proxy.
-> - **Calibration-dependent:** the conservatism/slack, disagreement counts, and
->   FP-margin figures in §3–§4. These shift if the constants change (e.g.
->   lowering `LOD_CAP` widened the green FP margin from 0.2 to 0.3). **Re-run
->   `npm run hue` after any constant change to regenerate them.**
+The figures below were computed at `POL_K = 1.100`, `CHROMA_K = 0.65`,
+`LOD_CAP = 20.9`, `DOL_CAP = 20` and `C_THRESH = 0.15`. Two kinds of finding
+live here, and they age differently. The $\delta = L^3 - Y$ divergence in
+§0–§2 depends only on OKCA's luminance proxy ($L^3$) against WCAG luminance,
+not on the scaling constants, so it holds through any recalibration that keeps
+the $L^3$ proxy. The conservatism, disagreement counts and FP-margin figures in
+§3–§4 depend on the constants and shift when they change (lowering `LOD_CAP`
+widened the green FP margin from 0.2 to 0.3). `npm run hue` regenerates them.
 
 Reproduce:
 
@@ -112,7 +106,7 @@ split the wheel: a green/cyan lobe where OKCA runs up to **6% looser** than WCAG
 
 ### δ scales with chroma
 
-$\delta$ is $\approx 0$ for near-neutral colours and grows toward the primaries — the
+$\delta$ is $\approx 0$ for near-neutral colours and grows toward the primaries: the
 conservatism is a **vivid-colour** phenomenon; pastels barely diverge:
 
 | chroma band | GREEN (120–150°) | BLUE (240–270°) | MAGENTA (300–330°) |
@@ -155,7 +149,7 @@ $\text{WCAG} \ge 4.5$):
 
 OKCA is most conservative on the **purple / magenta / pink / red / blue** arc
 (~1.0–1.2 points below WCAG) and least on **green / teal / cyan** (~0.38). The
-disagreement zone — false failures — concentrates almost entirely in the former.
+disagreement zone (false failures) concentrates almost entirely in the former.
 The per-hue slack ranks **identically** to the per-hue raw bias in §2, so
 $\delta$ is the *mechanism*, not merely a correlate. D-o-L slack runs ~0.2 above L-o-D
 (the polarity penalty).
@@ -166,7 +160,7 @@ $\delta$ is the *mechanism*, not merely a correlate. D-o-L slack runs ~0.2 above
 
 Tightest $\text{WCAG} - \text{OKCA}$ margin when each hue is the **darker** element under
 light-chromatic foregrounds (the overshoot-risk configuration). FP = 0 holds
-everywhere — 0 false passes across ~14M pairs:
+everywhere: 0 false passes across ~14M pairs:
 
 | darker-element hue | bin° | pairs | min $\text{WCAG} - \text{OKCA}$ margin | tightest pair |
 |--------------------|-----:|------:|---------------------:|---------------|
@@ -182,11 +176,11 @@ everywhere — 0 false passes across ~14M pairs:
 | magenta    | 300–330 | 1,840,896 | 0.6 | |
 | pink       | 330–360 | 1,270,784 | 0.5 | |
 
-The FP=0 safety margin is tightest at **green/green-teal (0.3)** — every other
-hue keeps 0.4–0.6. The safety wall is effectively a *green* wall (consistent
+The FP=0 safety margin is tightest at **green/green-teal (0.3)**; every other
+hue keeps 0.4–0.6. The safety limit is set by *green* (consistent
 with the light-magenta-on-dark-green worst case seen during calibration).
 (At the earlier `LOD_CAP = 21` this margin was 0.2; lowering the cap to 20.9
-widened it — the same headroom that made FP=0 provable in `docs/FP0_PROOF.md`.)
+widened it, the same headroom that made FP=0 provable in `docs/FP0_PROOF.md`.)
 
 ---
 
@@ -207,10 +201,10 @@ for green and **overshoots** for blue/purple:
    luminance divergence. This is the legitimately tunable part (and what the
    white/#767676 → 3.9 anchor move targeted).
 2. **Chromatic divergence** ($\delta$). The blue/purple/magenta strictness is a
-   *principled* correction of WCAG's blue-underweighting — arguably the most
-   defensible part of OKCA's conservatism, not an error.
+   *principled* correction of WCAG's blue-underweighting, and part of OKCA's
+   conservatism.
 
-A global `POL_K` lever conflates the two: it relieves (1) but also erodes (2).
+Changing `POL_K` globally mixes the two: it relieves (1) but also weakens (2).
 
 ### OKCA is a one-sided detector of WCAG's luminance weakness
 
@@ -218,8 +212,8 @@ FP = 0 forces $\text{OKCA} \le \text{WCAG}$ for every pair. So OKCA can only eve
 express WCAG's **over-rating** (blue/purple/saturated, where $\delta > 0$ makes
 OKCA stricter). Where OKCA's own proxy says WCAG is **too harsh** (green,
 $\delta < 0$, OKCA would score
-*higher* than WCAG), FP = 0 clamps it — that signal is structurally hidden. The
-tight (0.3) green FP margin is OKCA straining against its own leash. **OKCA
+*higher* than WCAG), FP = 0 clamps it, so that signal is hidden by design. The
+tight (0.3) green FP margin is where FP = 0 constrains OKCA most. **OKCA
 surfaces half of WCAG's hue-luminance weakness by design.**
 
 ### Important limit
@@ -237,8 +231,8 @@ Which model is *correct* needs empirical legibility data OKCA does not have.
 The properties above are limited by tethers OKCA inherits from WCAG 2, not by
 its OKLCH foundation:
 
-- **FP = 0 ($\text{OKCA} \le \text{WCAG}$)** — the ceiling that makes OKCA one-sided.
-- **$L^3$ calibrated to equal $Y$ on the grey axis** — makes the chroma term an
+- **FP = 0 ($\text{OKCA} \le \text{WCAG}$):** the ceiling that makes OKCA one-sided.
+- **$L^3$ calibrated to equal $Y$ on the grey axis:** makes the chroma term an
   approximation of $Y$ rather than a free perceptual model.
 - **The 1–21 luminance-ratio scale** with the $+0.05$ flare term.
 - **Single size-independent AA/AAA thresholds.**
@@ -257,18 +251,18 @@ perceptual contrast metric in its own right. Sketch of what that could be
 2. **Polarity-native, difference-based contrast** on $\text{Ł}$ (signed by direction,
    with distinct exponents per polarity and a soft clamp near black) instead of a
    luminance ratio.
-3. **Usability thresholds decoupled from the metric** — a lookup on
+3. **Usability thresholds decoupled from the metric:** a lookup on
    contrast × font-size × weight, rather than one fixed number.
 4. **A perceptual scale** anchored to just-noticeable differences / measured
    legibility rather than to `white/black = 21`.
 
-Such a metric would be **two-sided** — free to report that WCAG is too harsh
+Such a metric would be **two-sided**, free to report that WCAG is too harsh
 (green) as well as too lenient (blue/saturated), which FP = 0 currently forbids.
 
 **The binding constraint flips.** Today WCAG is OKCA's only external anchor
 (both its ceiling and its validation). Remove it and the math is unconstrained;
 the replacement anchor can only be **empirical legibility data**. So this is not
-an algorithm edit — it is a calibration-and-validation programme, and the first
+an algorithm edit. It is a calibration-and-validation programme, and the first
 deliverable is a data source, not code. The existing sweep / divergence / hue
 tooling is the workbench for characterising any candidate formula across the
 gamut before such data exists.

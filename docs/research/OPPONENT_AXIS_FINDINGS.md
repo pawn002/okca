@@ -7,8 +7,8 @@
 > [#33](https://github.com/pawn002/okca/issues/33). Figures describe OKCA as it
 > stood then and are not kept current; where a script reimplements that version,
 > its check against the live `contrast()` can report mismatches. Current
-> algorithm: [`OKCA_DESIGN.md`](OKCA_DESIGN.md). How this work fits the
-> project's path: [`HISTORY.md`](HISTORY.md).
+> algorithm: [`OKCA_DESIGN.md`](../OKCA_DESIGN.md). How this work fits the
+> project's path: [`HISTORY.md`](../HISTORY.md).
 
 Builds on the CVD survey in [`CVD_FINDINGS.md`](CVD_FINDINGS.md).
 
@@ -34,7 +34,7 @@ $$
 
 This is $C$ in the direction $\theta$, $C/2$ at 90° from it and $0$ opposite.
 It is linear in $a$ and $b$, with no hue branch. It does give up the rotational
-symmetry stated in [`OKCA_DESIGN.md`](OKCA_DESIGN.md) §2.4; that would have to
+symmetry stated in [`OKCA_DESIGN.md`](../OKCA_DESIGN.md) §2.4; that would have to
 be changed outright.
 
 Two terms use it:

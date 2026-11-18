@@ -17,7 +17,7 @@ be kept in sync:
 
 A typical algorithm change touches: constants (`CHROMA_K`, `OPP_K_D`,
 `OPP_THETA_L`, `OPP_THETA_D`, `C_THRESH`, `POL_K`, `CAP`, `IND_Z`,
-`IND_REF_L`, `FLARE`, `FLARE_K`), step descriptions, the FP=0 proof, achromatic
+`IND_REF_L`, `FLARE`, `FLARE_K`, `SCATTER_K`), step descriptions, the FP=0 proof, achromatic
 anchor values (white/black = 20.9 both ways, white/#767676 = 3.9 both ways),
 the WCAG disagreement counts, and a chapter in `docs/HISTORY.md`. Probe test expectations
 (`probe-curated.spec.ts`, `probe-design-systems.spec.ts`), the oracle
@@ -36,7 +36,7 @@ History has two homes:
 - **`docs/HISTORY.md`** — the narrative: what was tried, kept and dropped, and
   why. When work settles, adopted or not, add its chapter there, and update
   "What's ahead".
-- **Research records** (`docs/*_FINDINGS.md`, `CALIBRATION_EXPERIMENT.md`) —
+- **Research records** (`docs/research/`: the `*_FINDINGS.md` files and `CALIBRATION_EXPERIMENT.md`) —
   dated, not kept current. Each opens with one `Research record` status line
   naming its issue, date and outcome. Do not add "Applied" or "Superseded"
   notes to them; update the outcome clause if it changes.
@@ -46,7 +46,7 @@ the path in HISTORY.md, not in the docs.
 
 ## Math notation in `docs/`
 
-All maths in `docs/*.md` is authored in LaTeX (`$...$` inline, `$$...$$`
+All maths in `docs/*.md` and `docs/research/*.md` is authored in LaTeX (`$...$` inline, `$$...$$`
 display) and rendered by GitHub with KaTeX. Do not introduce ASCII or Unicode
 formulas (`L³`, `δ = L³ − Y`, `21^(1−k)·A(white)`) — convert them.
 
@@ -66,8 +66,9 @@ algorithm descriptions and both look like unfinished conversions. They are not.
 - **`src/index.ts` is a source comment**, not Markdown. ASCII (`sqrt(a² + b²)`,
   `L³`) is right there; nothing renders it.
 
-So the notation rule is scoped to `docs/*.md`, and `docs-lint.spec.ts` globs
-exactly that. Widening either the rule or the lint glob breaks the npm listing.
+So the notation rule is scoped to `docs/` (including `docs/research/`), and
+`docs-lint.spec.ts` scans exactly those two directories. Widening either the rule
+or the lint scan to the README breaks the npm listing.
 
 ### The one thing to understand
 
@@ -78,7 +79,7 @@ follows from that, and none of it is visible locally — only on github.com.
 **A multi-line `$$` block is passed through literally and is exempt.** A
 single-line `$$...$$` is not: it is processed like any other inline content.
 
-Rules `docs-lint.spec.ts` enforces across every `docs/*.md`:
+Rules `docs-lint.spec.ts` enforces across every `docs/*.md` and `docs/research/*.md`:
 
 1. **No backslash-escaped punctuation inside single-line math.** Markdown eats
    the backslash. `\_`→`_` and `\%`→`%` become hard KaTeX parse errors; `\,`→`,`

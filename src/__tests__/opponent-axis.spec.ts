@@ -1,5 +1,5 @@
 /**
- * Opponent-axis terms (#28, docs/OPPONENT_AXIS_FINDINGS.md).
+ * Opponent-axis terms (#28, docs/research/OPPONENT_AXIS_FINDINGS.md).
  *
  * Step 3's chroma ramp is driven by w = (C + a cos θ_L + b sin θ_L) / 2, and
  * Step 4 lifts the darker element along θ_D (linear in w_D since #31). These pin the behaviour the terms
