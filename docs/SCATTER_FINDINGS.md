@@ -2,7 +2,7 @@
 
 > **Research record** for [#34](https://github.com/pawn002/okca/issues/34),
 > November 2026. Outcome: the default observer is kept, and the veil is implemented as an
-> experimental opt-in scatter observer for release candidates. Figures
+> experimental opt-in scatter observer, shipped in 3.0.0 outside semver. Figures
 > describe OKCA as it stood then and are not kept current. Current algorithm:
 > [`OKCA_DESIGN.md`](OKCA_DESIGN.md). How this work fits the project's path:
 > [`HISTORY.md`](HISTORY.md).

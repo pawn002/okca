@@ -250,13 +250,15 @@ background easier at the AA line.
 - **Dead end:** keeping the 3.9 anchor under the veil by lowering `POL_K` to
   1.037. Lemma A of the proof does not certify there.
 
-**Adopted, for release candidates: two observers.** The default stays, grounded
-in the reading studies. An experimental scatter observer scores for eyes that
-scatter light: black on white falls to 5.2 for that eye, while white on black
-keeps 20.9. It can only lower scores, so the guarantee holds. This was the
-first decision published as a fork in outputs rather than settled in private:
-the release candidate carries both answers, and feedback decides whether the
-option survives into 3.0.0.
+**Adopted: two observers.** The default stays, grounded in the reading
+studies. An experimental scatter observer scores for eyes that scatter light:
+black on white falls to 5.2 for that eye, while white on black keeps 20.9. It
+can only lower scores, so the guarantee holds. The plan was to publish the two
+answers as competing release candidates and let feedback choose. Feedback came
+before any candidate was cut, and it favoured the reading-based default with
+the scatter observer kept as an experiment. So 3.0.0 ships both: the default,
+and the scatter observer as an opt-in outside semver, free to change as the
+evidence on scattering eyes improves.
 
 ### Where 3.0 landed
 
@@ -296,7 +298,7 @@ Open questions, roughly in order of how much they would change:
   yet found measures how saturated text reads at equal luminance; the reading
   research so far (Legge et al., 1990) shows low-vision readers rely on
   luminance contrast, not that saturated colours are harder to read.
-- **The scatter observer.** Whether it graduates into 3.0.0, and how to apply a
+- **The scatter observer.** It ships as an experiment. Open: how to apply a
   veil without WCAG's ratio scale exaggerating it for dark text. The ages in
   Piepenbrock et al. (2013) and the cataract veil are still to be checked.
 - **Viewing conditions.** OKCA is a relative measure and cannot see screen

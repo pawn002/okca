@@ -83,7 +83,7 @@ const OPP_K_D     = 0.065; // Darker-lift strength: fitted with CHROMA_K, no gri
 const FLARE     = 0.10;  // Flare allowance for the step-6 ceiling (2× WCAG's 0.05)
 const FLARE_K   = 1.5;   // Ceiling exponent: the largest that leaves every white/grey pair untouched
 
-// Scatter observer (opt-in, experimental — release candidates only, #34).
+// Scatter observer (opt-in, experimental and outside semver, #34).
 // Intraocular scatter veils the image in proportion to the background's
 // luminance. Size from the age-adjusted Stiles–Holladay equation at age 80,
 // over 1°–20° of background around the text. WCAG's 4.5:1 rationale is
@@ -96,8 +96,8 @@ export interface ContrastOptions {
   /**
    * Experimental. `'scatter'` scores for an eye whose optics scatter light, as
    * with an ageing or clouded lens: a bright background veils the text, so
-   * dark-on-light loses contrast. Omit for the default observer. Release
-   * candidates only; may change or be removed before 3.0.0.
+   * dark-on-light loses contrast. Omit for the default observer. Outside
+   * semver: may change or be removed in any minor release.
    */
   observer?: 'scatter';
 }
