@@ -11,19 +11,19 @@ WCAG 2.x contrast uses the ratio formula:
 
 $$\text{ratio} = \frac{Y_1 + 0.05}{Y_2 + 0.05}$$
 
-This has four failure modes OKCA addresses:
+It reduces a pair to two luminances. Hue, the background a colour sits on, and which colour is the text all drop out. That leaves five places where WCAG's score and the reader's experience part company.
 
-1. **False passes for saturated chromatic text.** Hot pink on near-black scores 6.6:1 under WCAG --- a comfortable AA pass. Designers routinely judge it inadequate for text, and it is one of the most commonly cited examples of WCAG producing a result that does not match production experience. Part of the gap is measurable: a reader with red–green colour-vision deficiency keeps about 5.3 of its 6.6, while a grey of the same luminance loses nothing ([`CVD_FINDINGS.md`](CVD_FINDINGS.md)). WCAG's luminance formula treats it identically to an achromatic pair at the same luminance ratio.
+1. **Saturated light colours.** Hot pink on near-black scores 6.6:1 under WCAG, a comfortable AA pass, and designers routinely judge it inadequate for text. Part of the gap is measurable: a reader with red–green colour-vision deficiency keeps about 5.3 of its 6.6, while a grey of the same luminance loses nothing ([`CVD_FINDINGS.md`](CVD_FINDINGS.md)). WCAG scores both alike. OKCA penalises the lighter colour along the red–green axis that colour-vision deficiency loses (Step 3, §5): hot pink scores 4.1, and blues and greens are penalised much less.
 
-2. **Polarity blindness.** WCAG's ratio is symmetric: `ratio(A on B) = ratio(B on A)`. The two directions are not equivalent: reading research finds dark text on a light background outperforms the reverse (§7), and dark backgrounds measurably cost contrast (failure modes 3 and 4). WCAG does not model this asymmetry.
+2. **Saturated dark colours.** The same loss runs the other way for dark blues, which dichromats see as lighter than their value. Blue `#1d4ed8` on white scores 6.7 under WCAG; a dichromat keeps about 5.4 of it. OKCA lifts the darker colour along the blue axis (Step 4, §5) and scores it 4.8.
 
-3. **Background-blind lightness.** WCAG and Oklab both treat a colour's lightness as fixed, whatever it sits on. The CIE-lineage colour appearance model CAM16 does not: a darker background flattens the lightness scale, so the same pair carries less lightness difference on a dark background than on a light one. At the AA line, a just-passing grey on `#1a1a1a` carries 25% less CAM16 lightness gap than one on white ([`CAM16_FINDINGS.md`](CAM16_FINDINGS.md)).
+3. **Background-blind lightness.** WCAG and Oklab both treat a colour's lightness as fixed, whatever it sits on. The colour appearance model CAM16 does not: a darker background flattens the lightness scale, so the same pair carries less lightness difference on dark than on light. At the AA line, a just-passing grey on `#1a1a1a` carries 25% less CAM16 lightness gap than one on white ([`CAM16_FINDINGS.md`](CAM16_FINDINGS.md)). OKCA applies CAM16's correction on backgrounds darker than `#767676` (Step 4, §3): `#cccccc` on `#333333` scores 5.7 where WCAG gives 7.9.
 
-4. **Fragile passes on near-black backgrounds.** On a near-black background the ratio gets most of its value from the near-zero denominator --- the term stray light erodes first. A just-passing grey on black keeps a ratio of 3.1 when the flare allowance doubles; a just-passing grey on white keeps 4.5. Two pairs at the same score carry very different margins against the room they are read in ([`MIDTONE_SURVEY_FINDINGS.md`](MIDTONE_SURVEY_FINDINGS.md)).
+4. **Fragile passes on near-black backgrounds.** On a near-black background the ratio gets most of its value from the near-zero denominator, the term stray light erodes first. A just-passing grey on black keeps a ratio of 3.1 when the flare allowance doubles; a just-passing grey on white keeps 4.5 ([`MIDTONE_SURVEY_FINDINGS.md`](MIDTONE_SURVEY_FINDINGS.md)). OKCA caps each score at what the pair keeps under that doubled allowance (Step 6, §7): `#888888` on black scores 3.7 where WCAG gives 5.9.
 
-OKCA corrects all four while being **never more permissive than WCAG** --- every score lands at or below the WCAG score for the same pair, so OKCA never tells a designer a pair is safe when WCAG says it fails.
+5. **Polarity.** WCAG scores `A on B` and `B on A` identically. Reading studies find dark text on a light background reads at least as well for younger and older adults (§7), and the background correction above means light text on a dark background needs a little more contrast. So OKCA scores both directions the same unless the darker colour is darker than `#767676`, where light-on-dark scores a little lower. Eyes that scatter light, as with cataract, are the exception: for them a bright background veils the text. An experimental scatter observer scores for that eye (§7).
 
-OKCA is a stricter WCAG 2.x checker for sRGB, not a new perceptual model: it keeps WCAG's scale and thresholds and tightens the four failure modes above. Its one guarantee is the safety bound.
+Every correction keeps OKCA **never more permissive than WCAG**: every score is at or below the WCAG score for the same pair, so OKCA never tells a designer a pair is safe when WCAG says it fails. It keeps WCAG's scale and its 4.5 and 7.0 thresholds, so it drops in where a WCAG check runs today. What it leaves to other tools, including viewing conditions, text size and the extra contrast saturated backgrounds can appear to have, is in §10.
 
 ### Algorithm overview
 
@@ -42,9 +42,9 @@ Sections 3–7 cover each step in depth. Section 4 proves FP = 0 for every sRGB 
 
 ## 2. Core Design Principles
 
-### 2.1 Safety: FP = 0 Is Non-Negotiable
+### 2.1 Safety: FP = 0
 
-A contrast algorithm used for accessibility decisions must never approve a pair that WCAG rejects. This is not a calibration preference --- it is the definition of a safe accessibility tool. FP = 0 is proven for every sRGB pair, chromatic or not (see [Section 4](#4-the-fp--0-guarantee)).
+A contrast algorithm used for accessibility decisions should never approve a pair that WCAG rejects, so a pair that passes OKCA is safe to ship under WCAG too. FP = 0 is proven for every sRGB pair, chromatic or not (see [Section 4](#4-the-fp--0-guarantee)).
 
 ### 2.2 WCAG-Compatible Scale and Thresholds
 
@@ -58,7 +58,7 @@ $$L^3 \approx Y_{\text{WCAG}}$$
 
 The cube-root perceptual transform inverts to linear luminance. Using L as the primary input makes the algorithm coherent with what designers see in modern colour pickers.
 
-### 2.4 Pure OKLCH/Oklab — No WCAG Hybrid Patches
+### 2.4 Pure OKLCH/Oklab
 
 OKCA is derived entirely from OKLCH and Oklab geometry. The chroma terms (Steps 3 and 4) are weighted along **Oklab's opponent axes**: a colour's weight is a projection of its $(a, b)$ coordinates onto a fixed direction,
 
@@ -66,13 +66,13 @@ $$
 w = \frac{C + a \cos\theta + b \sin\theta}{2}
 $$
 
-which is $C$ in direction $\theta$, $C/2$ at 90° from it and $0$ opposite. It is linear in $a$ and $b$, and there is **no hue branch**: no hue ranges and no conditions on hue angle. It is deliberately *not* rotationally symmetric, because colour-vision deficiency is not: dichromats lose much of the contrast of reds, oranges and magentas, and little of greens, blues and purples ([`CVD_FINDINGS.md`](CVD_FINDINGS.md)). The lighter element's direction, $9.4°$, is the loss-weighted direction of that loss ([`OPPONENT_AXIS_FINDINGS.md`](OPPONENT_AXIS_FINDINGS.md)), essentially Oklab's $+a$ axis: the red end of the red–green opponent channel that protans and deutans lose. The darker element's direction, $267°$, is where OKCA's own scores need a lift to stay at or below a dichromat's ([`DARKER_LIFT_FINDINGS.md`](DARKER_LIFT_FINDINGS.md)), essentially Oklab's $-b$ axis.
+which is $C$ in direction $\theta$, $C/2$ at 90° from it and $0$ opposite. It is linear in $a$ and $b$, with no hue ranges or conditions on hue angle. It depends on hue because colour-vision deficiency does: dichromats lose much of the contrast of reds, oranges and magentas, and little of greens, blues and purples ([`CVD_FINDINGS.md`](CVD_FINDINGS.md)). The lighter element's direction, $9.4°$, is the loss-weighted direction of that loss ([`OPPONENT_AXIS_FINDINGS.md`](OPPONENT_AXIS_FINDINGS.md)), essentially Oklab's $+a$ axis: the red end of the red–green opponent channel that protans and deutans lose. The darker element's direction, $267°$, is where OKCA's own scores need a lift to stay at or below a dichromat's ([`DARKER_LIFT_FINDINGS.md`](DARKER_LIFT_FINDINGS.md)), essentially Oklab's $-b$ axis.
 
-FP = 0 comes from the cap below 21 and two proven single-colour bounds (see [Section 4](#4-the-fp--0-guarantee)), not from hue- or channel-specific patches.
+FP = 0 comes from the cap below 21 and two proven single-colour bounds (see [Section 4](#4-the-fp--0-guarantee)).
 
-### 2.5 Clean-Room IP
+### 2.5 Original and MIT-Licensed
 
-OKCA is a clean-room implementation derived from mathematical specifications and probe-validated calibration, with no third-party contrast algorithm source code.
+OKCA is an original implementation, derived from published colour science and its own calibration, and released under MIT so it can be used and embedded freely.
 
 ### 2.6 Conservative Rather Than Liberal
 
@@ -112,7 +112,7 @@ $$
 
 where $L_{\text{bg}}$ is the background's OKLab $L$ and $L_{\text{ref}} = 0.5658$ is OKLab $L$ of `#767676`.
 
-- **No tuned constants.** $1.48$ is CAM16's own constant, and the reference is the background of the white/`#767676` anchor.
+- **Constants from CAM16.** $1.48$ is CAM16's constant, and the reference is the background of the white/`#767676` anchor.
 - **Identity on lighter backgrounds.** On any background at least as light as `#767676`, $s = 1$. The anchors, and every score on such a background, are unchanged.
 - **Lifts the darker element on darker backgrounds.** Example values are $s = 0.777$ on black, $0.830$ on `#1a1a1a` and $0.903$ on `#444444`.
 
@@ -249,7 +249,7 @@ For a neutral white lighter element: $w_L = 0$ and $\text{exp} = 1$, so $Y_{\tex
 
 For hot pink ($C \approx 0.197$, near the warm direction): $w_L \approx 0.19$ and $\text{exp} \approx 1.28$. After Step 4's background induction and Step 5's scaling, hot pink on near-black scores 4.1, below the 4.5 AA threshold.
 
-**Where the strength comes from.** $K_L$ is not set from any target pair. It is fitted by the rule that sets the darker lift: the smallest correction at which no pair on a 262,144-pair grid scores above what a dichromat sees (Machado et al. 2009, severity 1.0). Every light colour that needs a penalty under that rule is red, orange, yellow, purple or magenta, and the need grows in step with the weight, which gives the linear shape ([`CHROMA_K_FINDINGS.md`](CHROMA_K_FINDINGS.md)). The two strengths are fitted together, because a weaker lighter penalty needs a stronger darker lift. Designers' judgement that hot pink on near-black is inadequate for text is kept as a test of the result, not an input to it. Dark orange on near-black scores 4.8 and passes: a dichromat sees 6.1.
+**Where the strength comes from.** $K_L$ is fitted by the rule that sets the darker lift: the smallest correction at which no pair on a 262,144-pair grid scores above what a dichromat sees (Machado et al. 2009, severity 1.0). Every light colour that needs a penalty under that rule is red, orange, yellow, purple or magenta, and the need grows in step with the weight, which gives the linear shape ([`CHROMA_K_FINDINGS.md`](CHROMA_K_FINDINGS.md)). The two strengths are fitted together, because a weaker lighter penalty needs a stronger darker lift. Designers' judgement that hot pink on near-black is inadequate for text is kept as a test of the result. Dark orange on near-black scores 4.8 and passes: a dichromat sees 6.1.
 
 **By hue.** Median score / WCAG for saturated colours (chroma at least 0.12), against what a dichromat keeps:
 
@@ -302,7 +302,7 @@ where $k =$ `POL_K` $= 1.100$ and $\text{CAP} =$ `CAP` $= 20.9$ in both polariti
 
 **Polarity.** OKCA is **polarity-aware**: `okca(A, B)` can differ from `okca(B, A)`. The difference comes only from Step 4's background induction (§3), which depends on which colour is the background. Every other step treats the lighter and darker colour the same whichever is text, including Step 6's flare ceiling. So a light-on-dark pair can score lower than the same colours reversed, and **never higher**. Where Step 4 does not act (achromatic pairs on backgrounds at least as light as `#767676`), the two directions tie.
 
-**Why one cap.** Any polarity difference comes from a measured effect, not from the scaling. Step 4 tightens dark backgrounds, and the reading studies point the same way for most readers: proofreading is better with dark text on a light background (Buchner & Baumgartner, 2007; Piepenbrock, Mayr & Buchner, 2014a, 2014b), for older adults as well as younger ones (Piepenbrock, Mayr, Mund & Buchner, 2013). No source gives a contrast-equivalent size for the polarity effect itself, so the scaling adds none ([`POLARITY_FINDINGS.md`](POLARITY_FINDINGS.md)).
+**Why one cap.** Polarity differences come from a measured effect, the background correction in Step 4, so the scaling treats both directions alike. Step 4 tightens dark backgrounds, and the reading studies point the same way for most readers: proofreading is better with dark text on a light background (Buchner & Baumgartner, 2007; Piepenbrock, Mayr & Buchner, 2014a, 2014b), for older adults as well as younger ones (Piepenbrock, Mayr, Mund & Buchner, 2013). No source gives a contrast-equivalent size for the polarity effect itself, so the scaling adds none ([`POLARITY_FINDINGS.md`](POLARITY_FINDINGS.md)).
 
 **The exception: eyes that scatter light.** Light scattered inside the eye veils the image in proportion to the background's luminance, so a bright background costs dark text contrast. For eyes with cloudy ocular media the effect is large enough to reverse the reading result: in Rubin & Legge (1989), four of the five low-vision readers who read white-on-black faster had cloudy media. The default score does not model this; the experimental scatter observer below does ([`SCATTER_FINDINGS.md`](SCATTER_FINDINGS.md)).
 
@@ -376,9 +376,9 @@ Three independent batteries:
 | Design systems | 1,142 | **0** | 107 | See note below |
 | **Total** | **1,249** | **0** | **107** | |
 
-**False passes are zero** --- the non-negotiable invariant holds across all 1,249 pairs.
+**False passes are zero** across all 1,249 pairs.
 
-**WCAG disagreements** (pairs where OKCA < 4.5 but WCAG ≥ 4.5) are intentional and should not be read as miscalibration. White on `#767676` --- the canonical WCAG AA boundary anchor --- sits exactly on the line, where the verdict turns on the display and the room rather than on the colours (see *Does not model viewing conditions* in §10 below). 97 of the 107 sit in that marginal zone, with WCAG ratios of 4.5–5.4: proximity to the boundary is not the same as being safely above it, and a pair on the line has no margin against the conditions it will be read in. The other ten are saturated purples, violets and pinks that WCAG rates 5.7–7.1. Oklab rates them lighter than WCAG's luminance does (§4), so they carry less contrast against white.
+**WCAG disagreements** are pairs where OKCA scores below 4.5 but WCAG scores 4.5 or more. White on `#767676` --- the canonical WCAG AA boundary anchor --- sits exactly on the line, where the verdict turns on the display and the room rather than on the colours (see *Does not model viewing conditions* in §10 below). 97 of the 107 sit in that zone, with WCAG ratios of 4.5–5.4, where a pair has little margin against the conditions it will be read in. The other ten are saturated purples, violets and pinks that WCAG rates 5.7–7.1. Oklab rates them lighter than WCAG's luminance does (§4), so they carry less contrast against white.
 
 By system: Tailwind CSS v3.4 (43), GOV.UK Design System (14), USWDS v3.x (50). Five Tailwind 700 shades fail only as white text on the colour. See `docs/WCAG_DISAGREEMENTS.md` for the full enumeration with hex values.
 
@@ -423,7 +423,7 @@ By system: Tailwind CSS v3.4 (43), GOV.UK Design System (14), USWDS v3.x (50). F
 
 ## 10. What OKCA Does Not Do
 
-Understanding the scope prevents incorrect use and misguided extension attempts.
+What OKCA leaves to other tools, or to the designer.
 
 **Does not model font size or weight.** WCAG AA (4.5:1) applies uniformly regardless of text size. OKCA outputs a single ratio; size-dependent thresholds are the caller's responsibility.
 
@@ -433,7 +433,7 @@ Understanding the scope prevents incorrect use and misguided extension attempts.
 
 **Models one reader by default.** The default score follows the reading studies, in which dark text on a light background reads better for younger and older adults. Eyes that scatter light, as with cataract, can read light-on-dark better. The experimental scatter observer (§7) scores for that eye; the default does not.
 
-**Does not rescue a pair WCAG fails.** OKCA never scores above WCAG, so where WCAG under-rates a pair, OKCA fails it too. It corrects WCAG in one direction only.
+**Does not rescue a pair WCAG fails.** OKCA never scores above WCAG, so where WCAG under-rates a pair, OKCA fails it too. It corrects WCAG in one direction only. The clearest case is light text on a saturated background such as orange: saturated colours can look darker than their luminance (the Helmholtz–Kohlrausch effect), so readers find such pairs better than either score says. Crediting that would mean scoring above WCAG ([#36](https://github.com/pawn002/okca/issues/36)).
 
 **Does not patch WCAG's channel weighting.** OKCA does not compensate for the IEC 61966-2-1 green-channel weighting in WCAG's luminance formula. Its chroma terms are weighted along Oklab's opponent axes (§2.4), in directions derived from colour-vision-deficiency loss, not from WCAG's channel weights. There is no hue branch, and no per-hue table or condition.
 
