@@ -91,9 +91,11 @@ export interface ColorIv {
   L: Iv;
   C: Iv;
   Y: Iv;
+  a: Iv;
+  b: Iv;
 }
 
-/** Full OKCA-relevant enclosures (OKLab L, chroma C, WCAG luminance Y) for an
+/** Full OKCA-relevant enclosures (OKLab L, a, b, chroma C, WCAG luminance Y) for an
  *  sRGB box [r]x[g]x[b]. Uses the exact Ottosson matrices from transforms.ts. */
 export function colorIv(r: Iv, g: Iv, b: Iv): ColorIv {
   const rl = linearize(r);
@@ -120,5 +122,5 @@ export function colorIv(r: Iv, g: Iv, b: Iv): ColorIv {
   const C = sqrt(add(square(aa), square(bb)));
 
   const Y = add(add(mulK(rl, 0.2126), mulK(gl, 0.7152)), mulK(bl, 0.0722));
-  return { L, C, Y };
+  return { L, C, Y, a: aa, b: bb };
 }

@@ -1,22 +1,35 @@
-# FP=0 — guaranteed by construction (issue #14)
+# FP=0 — guaranteed by construction
 
-**Status: proven.** $\text{OKCA} \le \text{WCAG}$ for every sRGB pair is now an
+**Status: proven.** $\text{OKCA} \le \text{WCAG}$ for every sRGB pair is an
 **exact algebraic identity** plus **two single-colour lemmas verified by interval
-arithmetic** — no calibration-dependent headroom, no residual. Reproduce:
+arithmetic**, with no residual cases. Reproduce:
 `npm run fp0` (certifies with **0 uncertified boxes**).
 
-Constants: `POL_K` = 1.100, `CHROMA_K` = 0.65, `LOD_CAP` = 20.9, `DOL_CAP` = 20.
+Constants: `POL_K` = 1.100, `CHROMA_K` = 0.22, `CAP` = 20.9 (both polarities),
+`IND_Z` = 1.48, `IND_REF_L` = 0.5658, `OPP_THETA_L` = 9.4°, `OPP_THETA_D` = 267°,
+`OPP_K_D` = 0.065, `FLARE` = 0.10, `FLARE_K` = 1.5, and for the scatter observer
+`SCATTER_K` = 0.155.
+
+The lighter proxy $Y_{\text{lighter}}$ below is Step 3's, whose exponent is driven
+by the opponent-axis weight $w_L = (C + a \cos\theta_L + b \sin\theta_L)/2$, not by
+chroma $C$ alone (§4 verifies lemma A under it).
+
+The proof below is stated for the step-5 score with the darker proxy
+$L_{\text{darker}}^{3}$. Two other steps can only lower the score, so the
+bound carries over to the published score. Step 4's background induction and
+opponent-axis lift raise the darker proxy to $L_{\text{darker}}^{3s/e_D}$ with
+$3s/e_D \le 3$ (§5). Step 6, the
+flare-robustness ceiling, takes a minimum with the step-5 score (§6).
 
 ## 1. Algebraic reduction
 
-The final score is
+The step-5 score is
 
 $$\text{OKCA} = \text{CAP} \cdot \left(\frac{r_{\text{raw}}}{21}\right)^{k}, \qquad r_{\text{raw}} = \frac{Y_{\text{lighter}} + 0.05}{Y_{\text{darker}} + 0.05},$$
 
 where $Y_{\text{lighter}} = \left(L_{\text{lighter}}^{\text{exp}}\right)^{3}$ is
 the chroma-penalised lighter proxy, $Y_{\text{darker}} = L_{\text{darker}}^{3}$,
-$k =$ `POL_K`, and $\text{CAP} =$ `LOD_CAP` (light-on-dark) or `DOL_CAP`
-(dark-on-light). Writing $Y_l$ and $Y_d$ for the **WCAG** luminances of the
+$k =$ `POL_K`, and $\text{CAP} =$ `CAP`, the same in both polarities. Writing $Y_l$ and $Y_d$ for the **WCAG** luminances of the
 lighter and darker elements,
 
 $$r_{\text{WCAG}} = \frac{Y_l + 0.05}{Y_d + 0.05}.$$
@@ -52,28 +65,28 @@ $\max B = B(\text{black})$.
 With $\text{CAP} = 21$ the bound at the anchor is $21/21 = 1$ — **tight**, so
 white-on-black would be the single point where $\text{OKCA} = \text{WCAG}$, which
 interval arithmetic cannot certify (it cannot prove a non-strict equality).
-Setting **`LOD_CAP` $= 20.9 < 21$** — write $c$ for this cap — makes the anchor
+Setting **`CAP` $= 20.9 < 21$** — write $c$ for this cap — makes the anchor
 bound
 
 $$\frac{c}{21^{k}} \cdot A(\text{white}) \cdot B(\text{black}) = \frac{c}{21} = 0.99524 < 1,$$
 
-a **uniform strict margin**. There is now no equality point anywhere: OKCA is
-*strictly* below WCAG for every sRGB pair. (Dark-on-light, $\text{CAP} = 20$, is
-looser still.) The $20.9/21$ factor is the deliberate, minimal step that converts
-the guarantee from "gamut-verified headroom" to "strict by construction".
+a **uniform strict margin**. There is no equality point anywhere: OKCA is
+*strictly* below WCAG for every sRGB pair, in both polarities, since both use the
+same cap. The $20.9/21$ factor is the deliberate, minimal margin that makes the
+guarantee strict by construction rather than a property of sampled headroom.
 
 ## 4. Reduction to two verified lemmas
 
 $A \ge 0$, $B \ge 0$, and the identity give: the pair inequality follows from
 
 $$\begin{aligned}
-\text{(L-A)} \quad & A(l) \le A(\text{white}) \cdot s && \text{for all sRGB } l, \\
-\text{(L-B)} \quad & B(d) \le B(\text{black}) \cdot s && \text{for all sRGB } d,
+\text{(L-A)} \quad & A(l) \le A(\text{white}) \cdot \sigma && \text{for all sRGB } l, \\
+\text{(L-B)} \quad & B(d) \le B(\text{black}) \cdot \sigma && \text{for all sRGB } d,
 \end{aligned}$$
 
-with $s = \sqrt{21 / c} = 1.00239$, since then
+with $\sigma = \sqrt{21 / c} = 1.00239$, since then
 
-$$\frac{c}{21^{k}} \cdot A \cdot B \le \frac{c}{21^{k}} \cdot A(\text{white}) \cdot B(\text{black}) \cdot s^{2} = \frac{c}{21} \cdot \frac{21}{c} = 1.$$
+$$\frac{c}{21^{k}} \cdot A \cdot B \le \frac{c}{21^{k}} \cdot A(\text{white}) \cdot B(\text{black}) \cdot \sigma^{2} = \frac{c}{21} \cdot \frac{21}{c} = 1.$$
 
 `scripts/fp0-proof.ts` branch-and-bounds each
 lemma over the sRGB cube with sound outward-rounded interval arithmetic
@@ -86,30 +99,80 @@ Result (`npm run fp0`):
 
 | lemma | boxes | certified | equality corners | **uncertified** |
 |-------|------:|----------:|-----------------:|----------------:|
-| $A(l) \le A(\text{white}) \cdot s$ | ~96k | all | 0 | **0** |
-| $B(d) \le B(\text{black}) \cdot s$ | ~272k | all | 0 | **0** |
+| $A(l) \le A(\text{white}) \cdot \sigma$ | ~116k | all | 0 | **0** |
+| $B(d) \le B(\text{black}) \cdot \sigma$ | ~272k | all | 0 | **0** |
 
-Every sRGB point is certified; the slack $s > 1$ from the lowered cap lets even
+Lemma A is run under Step 3's linear opponent-axis penalty. The verifier encloses
+$w_L$ from the enclosures of $a$ and $b$, clamped at $0$; the clamp is exact, since
+$|a \cos\theta + b \sin\theta| \le C$. Every box certifies. The penalty matters
+here as well as for colour vision: with no penalty at all, lemma A does not
+certify.
+
+Every sRGB point is certified; the slack $\sigma > 1$ from the lowered cap lets even
 the anchors certify, so no neighbourhood is excluded.
 
-## 5. Conclusion
+## 5. Step 4 keeps the bound
+
+Step 4 replaces the darker proxy with
+
+$$
+Y_{\text{darker}} = L_{\text{darker}}^{3s/e_D}, \qquad s = \min\left(1, \frac{1.48 + L_{\text{bg}}^{1.5}}{1.48 + L_{\text{ref}}^{1.5}}\right) \le 1, \qquad e_D \ge 1,
+$$
+
+where $s$ is background induction and $e_D = 1 + K_D \cdot w_D / 0.15$ is the
+opponent-axis lift. For $L_{\text{darker}} \in [0, 1]$, $3s/e_D \le 3$ gives
+$L_{\text{darker}}^{3s/e_D} \ge L_{\text{darker}}^{3}$.
+In $B(d)$ the darker proxy appears only in the denominator, raised to $k > 0$,
+so $B(d)$ can only fall. Lemma (L-B) therefore holds a fortiori. Lemma (L-A)
+does not involve the darker element. The identity, the
+strict margin and the conclusion below apply unchanged. No new lemma is needed.
+
+## 6. Step 6 inherits the bound
+
+The published score is
+
+$$\text{score} = \min\left(\text{OKCA}, \text{ceiling}\right) \le \text{OKCA},$$
+
+where the ceiling is the flare-robustness term of step 6
+([`OKCA_DESIGN.md`](OKCA_DESIGN.md) §7). It is computed on the plain $L^3$ proxies, not on Step 4's induced and lifted one. Whatever value the ceiling takes, a
+minimum never exceeds either argument. So every bound proved here for the
+step-5 score, including Step 4's, holds for the published score, with no new lemma. Rounding to
+one decimal place is monotone and preserves it as well.
+
+## 7. The scatter observer inherits the bound
+
+The experimental scatter observer adds a veil $v = k_s L_{\text{bg}}^{3} \ge 0$, with $k_s$ = `SCATTER_K`,
+to both patches of the raw ratio. For $Y_{\text{lighter}} \ge Y_{\text{darker}}$,
+
+$$
+\frac{Y_{\text{lighter}} + 0.05 + v}{Y_{\text{darker}} + 0.05 + v} \le \frac{Y_{\text{lighter}} + 0.05}{Y_{\text{darker}} + 0.05},
+$$
+
+so with the same $k$ and cap its step-5 score is at most the default one, and
+everything above applies. It keeps `POL_K` = 1.100. Holding the 3.9 anchor
+under the veil would need $k \approx 1.037$, and at that $k$ lemma A does not
+certify (`OKCA_POL_K=1.037 npm run fp0`).
+
+## 8. Conclusion
 
 For every ordered sRGB pair:
 
 $$\frac{c}{21^{k}} \cdot A(l) \cdot B(d) \le \frac{c}{21^{k}} \cdot A(\text{white}) \cdot B(\text{black}) = \frac{c}{21} < 1,$$
 
-hence $\text{OKCA} \le \text{WCAG}$, strictly.
+hence $\text{OKCA} \le \text{WCAG}$, strictly, and by §5–§7 the published score
+is no higher, for either observer.
 
-**FP = 0 is guaranteed by construction across the full sRGB gamut** — the
-chromatic case (issue #14's gap) is closed. The argument depends only on the
+**FP = 0 is guaranteed by construction across the full sRGB gamut**, for
+chromatic and achromatic pairs alike. The argument depends only on the
 closed-form structure and re-runs via `npm run fp0` after any constant change,
-so it is robust to future retuning (the CI-invariant companion can gate on it).
+so it is robust to future retuning. CI does not run the proof; it runs a sampled
+invariant test (`fp0-invariant.spec.ts`) on every change.
 
 ### Scope
 
 - **sRGB inputs.** Wide-gamut (`oklch()` outside sRGB, P3/Rec.2020) is not
   covered — the lemma search is over the sRGB cube; re-run over the wider domain
   to extend.
-- The lowered `LOD_CAP` means white-on-black = **20.9** (not 21). This is the
+- The lowered `CAP` means white-on-black and black-on-white = **20.9** (not 21). This is the
   deliberate cost of a strict-by-construction guarantee; see the scale note in
   `README.md` / `OKCA_DESIGN.md`.

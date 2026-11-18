@@ -73,7 +73,7 @@ describeBuilt('published entry points', () => {
           `console.log(JSON.stringify([contrast('#ffffff','#000000'), new OkcaService().contrast('#000000','#ffffff')]));`,
         'mjs',
       );
-      expect(JSON.parse(out)).toEqual([20.9, 20]);
+      expect(JSON.parse(out)).toEqual([20.9, 20.9]);
     });
   });
 
@@ -84,7 +84,7 @@ describeBuilt('published entry points', () => {
           `console.log(JSON.stringify([contrast('#ffffff','#000000'), new OkcaService().contrast('#000000','#ffffff')]));`,
         'cjs',
       );
-      expect(JSON.parse(out)).toEqual([20.9, 20]);
+      expect(JSON.parse(out)).toEqual([20.9, 20.9]);
     });
   });
 

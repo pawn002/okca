@@ -10,10 +10,15 @@ import { contrast } from '../index';
 // ── Reference implementation (colorjs-backed, copied from original) ──────────
 
 const C_THRESH  = 0.15;
-const CHROMA_K  = 0.65;
+const CHROMA_K  = 0.22;
 const POL_K     = 1.100;
-const LOD_CAP   = 20.9;
-const DOL_CAP   = 20;
+const CAP       = 20.9;
+const IND_Z     = 1.48;
+const IND_REF_L = 0.5658363271;
+const FLARE     = 0.10;
+const FLARE_K   = 1.5;
+const OPP_THETA_L = 9.4, OPP_THETA_D = 267, OPP_K_D = 0.065;
+const w = (o: number[], th: number) => (Math.hypot(o[1], o[2]) + o[1] * Math.cos(th * Math.PI / 180) + o[2] * Math.sin(th * Math.PI / 180)) / 2;
 
 function refContrast(textColor: string, bgColor: string): number | null {
   let tp: Color, bp: Color;
@@ -31,23 +36,26 @@ function refContrast(textColor: string, bgColor: string): number | null {
   const darker   = isBoW ? tp : bp;
   const darkerL  = isBoW ? tL : bL;
 
-  // Step 3
-  const oklab1 = lighter.to('oklab');
-  const a1 = oklab1.coords[1], b1 = oklab1.coords[2];
-  const C = Math.sqrt(a1 * a1 + b1 * b1);
-  const satW = Math.min(1, (C / C_THRESH) ** 2);
-  const exp = 1 + CHROMA_K * satW;
+  // Step 3 — opponent-axis weight
+  const oklab1 = lighter.to('oklab').coords as number[];
+  const exp = 1 + (CHROMA_K * w(oklab1, OPP_THETA_L)) / C_THRESH;
   const lighterY = Math.pow(Math.pow(lighterL, exp), 3);
 
-  // Step 4 — pure luminance proxy
-  const darkerY = Math.pow(darkerL, 3);
+  // Step 4 — luminance proxy with background induction
+  const s = Math.min(1, (IND_Z + Math.pow(bL, 1.5)) / (IND_Z + Math.pow(IND_REF_L, 1.5)));
+  const eD = 1 + (OPP_K_D * w(darker.to('oklab').coords as number[], OPP_THETA_D)) / C_THRESH;
+  const darkerY = Math.pow(darkerL, (3 * s) / eD);
 
   // Step 5 — polarity-aware scaling
   const isLightOnDark = tL > bL;
   const rawRatio = (lighterY + 0.05) / (darkerY + 0.05);
-  const cap = isLightOnDark ? LOD_CAP : DOL_CAP;
+  const cap = CAP;
   const ratio = cap * Math.pow(rawRatio / 21, POL_K);
-  return parseFloat(Math.max(1, Math.min(21, ratio)).toFixed(1));
+
+  // Step 6 — flare-robustness ceiling
+  const flareRatio = (Math.pow(lighterL, 3) + FLARE) / (Math.pow(darkerL, 3) + FLARE); // plain L³: flare is physical
+  const ceiling = cap * Math.pow(flareRatio / ((1 + FLARE) / FLARE), FLARE_K);
+  return parseFloat(Math.max(1, Math.min(21, ratio, ceiling)).toFixed(1));
 }
 
 // ── Test pairs ───────────────────────────────────────────────────────────────

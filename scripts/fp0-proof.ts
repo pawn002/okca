@@ -9,7 +9,7 @@
  *   B(d) = (Y_d + 0.05)     / (dY_d + 0.05)^k (darker element only)
  *
  * where lY = ((L^exp)^3) is the chroma-penalised proxy, dY = L^3, Y = WCAG
- * relative luminance, k = POL_K. (Dark-on-light, cap = 20, is strictly looser.)
+ * relative luminance, k = POL_K. One cap, CAP = 20.9, applies in both polarities.
  *
  * DEDUCTIVE CORE (exact, any k):
  *     21^(1-k) * A(white) * B(black)
@@ -27,19 +27,41 @@
  * Run: npm run fp0
  */
 import {
-  Iv, K, addK, mulK, div, square, powK, powIv, imin, colorIv, ColorIv,
+  Iv, K, add, addK, mulK, div, square, powK, powIv, imin, imax, colorIv, ColorIv,
 } from './interval';
 
-const POL_K = 1.1;
-const CHROMA_K = 0.65;
+// OKCA_POL_K re-runs the lemmas at another scaling exponent (#34 found that
+// 1.037 does not certify lemma A, so the scatter observer keeps 1.1).
+const POL_K = process.env.OKCA_POL_K ? Number(process.env.OKCA_POL_K) : 1.1;
+// Step 3's penalty is linear in the weight (#33). OKCA_RAMP=capped OKCA_CHROMA_K=0.65
+// re-runs lemma A for the pre-#33 capped ramp; OKCA_CHROMA_K alone varies the strength.
+const RAMP = process.env.OKCA_RAMP === 'capped' ? 'capped' : 'linear';
+const CHROMA_K = process.env.OKCA_CHROMA_K ? Number(process.env.OKCA_CHROMA_K) : (RAMP === 'capped' ? 0.65 : 0.22);
 const C_THRESH = 0.15;
+
+// Step 3's ramp is driven by the opponent-axis weight w = (C + a cos θ_L + b sin θ_L) / 2
+// (#28). OKCA_WEIGHT=chroma OKCA_RAMP=capped re-runs the 2.x ramp for comparison. Step 4's darker
+// terms (induction, opponent-axis lift) only raise the darker proxy, so lemma B holds a
+// fortiori and is verified on plain L^3.
+const WEIGHT = process.env.OKCA_WEIGHT === 'chroma' ? 'chroma' : 'opponent';
+const THETA_L = 9.4 * Math.PI / 180;
 
 const A_TARGET = Math.pow(1.05, POL_K - 1); // A(white)
 const B_TARGET = Math.pow(0.05, 1 - POL_K); // B(black)
 
+/** Enclosure of the weight driving the chroma ramp. w >= 0 holds exactly,
+ *  since |a cos θ + b sin θ| <= C, so the lower end is clamped at 0. */
+function weight(col: ColorIv): Iv {
+  if (WEIGHT === 'chroma') return col.C;
+  const w = mulK(add(col.C, add(mulK(col.a, Math.cos(THETA_L)), mulK(col.b, Math.sin(THETA_L)))), 0.5);
+  return imax(w, 0);
+}
+
 function penalisedProxy(col: ColorIv): Iv {
-  const satW = imin(mulK(square(col.C), 1 / (C_THRESH * C_THRESH)), 1);
-  const exp = addK(mulK(satW, CHROMA_K), 1); // [1, 1.65]
+  const satW = RAMP === 'linear'
+    ? mulK(weight(col), 1 / C_THRESH)
+    : imin(mulK(square(weight(col)), 1 / (C_THRESH * C_THRESH)), 1);
+  const exp = addK(mulK(satW, CHROMA_K), 1);
   return powK(powIv(col.L, exp), 3);
 }
 function A(col: ColorIv): Iv {
@@ -109,7 +131,7 @@ function main() {
   console.log(`identity  21^(1-k)*A(white)*B(black) = ${(Math.pow(21, 1 - POL_K) * A_TARGET * B_TARGET).toFixed(12)}`);
 
   const RHO = Number(process.argv[3] || 0); // anchor-neighbourhood radius (0 => full cube, complete proof)
-  const LOD_CAP = Number(process.argv[4] || 20.9); // production light-on-dark cap
+  const LOD_CAP = Number(process.argv[4] || 20.9); // production cap (both polarities)
   // With cap < 21 the bound gets slack s^2 = 21/cap; split evenly across the two
   // lemmas so even the anchor certifies (no equality point) -> complete proof.
   const s = Math.sqrt(21 / LOD_CAP);
@@ -118,7 +140,8 @@ function main() {
   const nearWhite = (c: Cube) => c.r.lo >= 1 - RHO && c.g.lo >= 1 - RHO && c.b.lo >= 1 - RHO;
   const nearBlack = (c: Cube) => c.r.hi <= RHO && c.g.hi <= RHO && c.b.hi <= RHO;
 
-  console.log(`L-o-D cap=${LOD_CAP}  slack factor s=${s.toFixed(5)}  anchor-ball RHO=${RHO}`);
+  console.log(`weight=${WEIGHT}${WEIGHT === 'opponent' ? ' (θ_L = 9.4°)' : ''}`);
+  console.log(`cap=${LOD_CAP}  slack factor s=${s.toFixed(5)}  anchor-ball RHO=${RHO}`);
   console.log(`combined bound at anchor: (cap/21^k)*A(white)*B(black) = cap/21 = ${(LOD_CAP / 21).toFixed(5)}  (<1 => strict, no residual)`);
   const okA = prove('A(l) <= A(white)*s', A, aT, nearWhite, maxDepth);
   const okB = prove('B(d) <= B(black)*s', B, bT, nearBlack, maxDepth);
@@ -128,6 +151,8 @@ function main() {
     console.log('BOTH lemmas verified. With the exact identity, for every sRGB pair:');
     console.log('  21^(1-k)*A(l)*B(d) <= 21^(1-k)*A(white)*B(black) = 1  =>  OKCA <= WCAG.');
     console.log('=> FP=0 proven over the full sRGB gamut (interval-verified lemmas + exact identity).');
+    console.log('   Step 4 (induction, opponent-axis lift) raises the darker proxy (L^(3s/eD) >= L^3), so B(d) only falls: the bound holds a fortiori.');
+    console.log('   Step 6 (flare ceiling) is a min() with this score, so the published score inherits it.');
   } else {
     console.log('At least one lemma left interior boxes uncertified — increase depth or inspect above.');
   }

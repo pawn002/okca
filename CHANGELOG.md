@@ -5,13 +5,42 @@ All notable changes to this project will be documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## [3.0.0] - 2026-11-18
+
+**Breaking.** Against 2.0.3, OKCA adds two corrections for dark backgrounds, weights its colour terms by hue, scores both polarities on one scale, and derives every strength from data except the boundary anchor, which is stated as policy. The four achromatic anchors change only where the polarity scaling did. How each change was reached, including what was tried and dropped, is in `docs/HISTORY.md`.
+
+### Changed
+- **Opponent-axis colour terms, Steps 3–4 ([#28](https://github.com/pawn002/okca/issues/28), [#31](https://github.com/pawn002/okca/issues/31), [#33](https://github.com/pawn002/okca/issues/33)).** Both colour terms weight a colour by `w = (C + a·cos θ + b·sin θ) / 2`, linear in `a` and `b`. The lighter colour's penalty runs along `OPP_THETA_L` = 9.4° (essentially Oklab's red–green axis), `exp = 1 + CHROMA_K·w_L/C_THRESH` with `CHROMA_K` = 0.22. A lift for the darker colour runs along `OPP_THETA_D` = 267° (blue), `eD = 1 + OPP_K_D·w_D/C_THRESH` with `OPP_K_D` = 0.065. Directions and strengths are fitted to one rule: the least correction at which no pair on a 262,144-pair grid scores above what a dichromat sees (Machado et al. 2009, severity 1.0). The rule sets the strengths; it hasn't been tested with readers who have colour-vision deficiency. Reds and magentas carry the most penalty; blues and greens much less. The chroma terms now depend on hue (`docs/OKCA_DESIGN.md` §2.4).
+- **Step 4, background induction ([#26](https://github.com/pawn002/okca/issues/26)).** On a background darker than `#767676`, the darker colour's proxy becomes `L^(3s)` with `s = min(1, (1.48 + L_bg^1.5) / (1.48 + L_ref^1.5))`, using CAM16's constant: a darker background flattens the lightness scale. It reaches mid-dark surfaces the flare ceiling leaves alone, and can only lower a score.
+- **One cap for both polarities ([#30](https://github.com/pawn002/okca/issues/30)).** `LOD_CAP` 20.9 / `DOL_CAP` 20 become a single `CAP` = 20.9. Both directions score the same unless the darker colour is darker than `#767676`; then Step 4's background induction scores light-on-dark a little lower.
+- **Step 6, flare-robustness ceiling ([#25](https://github.com/pawn002/okca/issues/25)).** Each score is capped at what the pair keeps when WCAG's flare allowance doubles (`FLARE` = 0.10, `FLARE_K` = 1.5), computed on plain L³ and re-anchored to the same cap. On a near-black background a pair's ratio rests mostly on the near-zero denominator, which stray light erodes first. Text on dark surfaces needs about one palette grade more lightness to pass.
+- **The boundary anchor is stated as policy.** White on `#767676` scores 3.9, which sets `POL_K` = 1.100. It's the one calibration value chosen as policy; the rest come from data or constraints.
+
+### Effect against 2.0.3
+- On a 262,144-pair sRGB grid, 121,356 pairs rise and 21,344 fall; 3,867 newly pass AA and 1,287 lose it. No pair scores above WCAG.
+- Examples: `#888888` on `#000000` 5.2 → 3.7; `#cccccc` on `#333333` 7.1 → 5.7; `#9f9f9f` on `#1a1a1a` 5.8 → 4.7; hot pink on `#1a1a1a` 3.6 → 4.1 (still fails AA); dark orange on `#1a1a1a` 4.2 → 4.8 (now passes); blue `#3b82f6` on black 2.4 → 3.6; green `#22c55e` on black 4.3 → 6.0; `#1d4ed8` on white 5.3 → 4.8; black on white 20.0 → 20.9; `#767676` on white 3.7 → 3.9.
+- WCAG disagreements 95 → 105 (Tailwind 41, GOV.UK 14, USWDS 50).
+- 92 curated probe values moved, 58 down and 34 up. Seventeen crossed 7.0; three crossed 4.5: white on `#3a7d44` 4.6 → 4.3, `#3a7d44` on white 4.4 → 4.5, and dark orange on `#1a1a1a` 4.2 → 4.8.
+- **FP = 0 holds.** Steps 4 and 6 can only lower a score and need no new lemma (`docs/FP0_PROOF.md` §5–§6); lemma A is re-verified under Step 3's penalty. `npm run fp0` certifies with 0 uncertified boxes.
+
+### Fixed
+- **Disagreement counts compare WCAG's ratio unrounded.** The design-system audit rounded WCAG's ratio to one decimal place before comparing it with 4.5, so Tailwind indigo-500 (4.47 on white) counted as a WCAG pass in both directions. 2.0.3's published count of 97 should have been 95 (Tailwind 32, GOV.UK 13, USWDS 50). False passes are unaffected: there are none either way.
+
+### Added
+- **Experimental scatter observer ([#34](https://github.com/pawn002/okca/issues/34)).** `contrast(fg, bg, { observer: 'scatter' })` scores for an eye that scatters light, as with an ageing or clouded lens: a veil of `SCATTER_K` = 0.155 of the background's luminance is added to both patches, so a bright background costs dark text contrast. It never scores above the default observer, so FP = 0 carries over. **Warning: experimental.** Outside semver; it may change or be removed in any minor release.
+- `docs/HISTORY.md` — how OKCA reached its current state, including dead ends, and what is open.
+- Research records, each with its script: `docs/research/MIDTONE_SURVEY_FINDINGS.md` (`npm run midtone`), `docs/research/CAM16_FINDINGS.md` (`npm run cam16`, `npm run induction`; `OKCA_CAM=ciecam16` re-runs under CIECAM16), `docs/research/CVD_FINDINGS.md` (`npm run cvd`), `docs/research/OPPONENT_AXIS_FINDINGS.md` (`npm run opponent`), `docs/research/POLARITY_FINDINGS.md` (`npm run polarity`), `docs/research/DARKER_LIFT_FINDINGS.md` (`npm run darker-lift`) and `docs/research/CHROMA_K_FINDINGS.md` (`npm run chroma-k`). `scripts/cvd.ts` is the shared colour-vision yardstick; it lives outside the algorithm.
+- Tests: `flare-ceiling.spec.ts`, `background-induction.spec.ts` and `opponent-axis.spec.ts` pin each step's behaviour and assert its structural properties. "Hot pink on near-black fails AA" is pinned as a check on the derived penalty.
+
 ## [2.0.3] - 2026-08-13
 
 Documentation only — no algorithm or API change. `contrast()` returns identical values to 2.0.0.
 
 ### Changed
 - **Removed absolute claims about how a marginal pair looks.** The README and `docs/OKCA_DESIGN.md` said white on `#767676` "is not production-ready in most real designs"; `docs/WCAG_DISAGREEMENTS.md` said "a designer would generally not call any of these comfortable for body text on white". A threshold experiment ([#22](https://github.com/pawn002/okca/issues/22#issuecomment-5282357292)) measured the contrast at which body text was judged shippable at **5.2 under one display brightness and 2.8 under another** — same observer, same room, same session. OKCA scores that pair **3.9**, which falls between them, so the verdict on it inverts across ordinary viewing conditions. Replaced with the argument the measurement supports: a pair sitting on the AA line carries no margin against the conditions it will actually be read in, which is a case for a floor above the line on variance grounds rather than on appearance.
-- `docs/CALIBRATION_EXPERIMENT.md` §1's constraint list is now signposted as the anchor values *as of the experiment's design*. Three of the four moved in 2.0.0 and its follow-on, and the prose had carried the stale figures through two recalibrations.
+- `docs/research/CALIBRATION_EXPERIMENT.md` §1's constraint list is now signposted as the anchor values *as of the experiment's design*. Three of the four moved in 2.0.0 and its follow-on, and the prose had carried the stale figures through two recalibrations.
 
 ### Added
 - `docs/OKCA_DESIGN.md` §10 — **"Does not model viewing conditions."** OKCA is a relative metric over sRGB with no access to absolute luminance, so it does not model the dependence above and no constant of its own could. The FP = 0 safety bound is unaffected, being a relation between two relative metrics.
@@ -49,7 +78,7 @@ Documentation only — no algorithm or API change. `contrast()` returns identica
 ### Added
 - **FP = 0 proven by construction** (`docs/FP0_PROOF.md`) — an exact identity plus two interval-verified single-color lemmas, with no calibration-dependent headroom. Verifier `npm run fp0` certifies with 0 uncertified boxes.
 - CI invariant test (`src/__tests__/fp0-invariant.spec.ts`) asserting OKCA ≤ WCAG across the sRGB gamut (curated, random, grid, and green-band sweeps).
-- Calibration/analysis tooling under `scripts/` (`npm run calibrate | hue | divergence | flexibility | fp0 | capcost`) plus `docs/CALIBRATION_EXPERIMENT.md` and `docs/GAMUT_SWEEP_FINDINGS.md`.
+- Calibration/analysis tooling under `scripts/` (`npm run calibrate | hue | divergence | flexibility | fp0 | capcost`) plus `docs/research/CALIBRATION_EXPERIMENT.md` and `docs/research/GAMUT_SWEEP_FINDINGS.md`.
 - `release:patch` / `release:minor` / `release:major` npm scripts.
 
 ## [1.0.2] - 2026-06-09

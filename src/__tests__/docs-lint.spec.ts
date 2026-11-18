@@ -4,7 +4,7 @@
  *
  * These run as part of the normal test suite so CI catches them.
  *
- * Scope: every `docs/*.md` file. Math in these docs is authored in LaTeX and
+ * Scope: every `docs/*.md` and `docs/research/*.md` file. Math in these docs is authored in LaTeX and
  * rendered by GitHub, which runs its Markdown pass BEFORE handing the result
  * to KaTeX. That two-stage pipeline is what the checks below target: Markdown
  * silently rewrites the TeX, and the damage is only visible on github.com.
@@ -48,9 +48,13 @@ function findAnchorTable(src: string): AnchorRow[] | null {
   return rows;
 }
 
-const MD_FILES = fs
-  .readdirSync(DOCS_DIR)
-  .filter((f) => f.endsWith('.md'))
+// The current docs sit in docs/; research records in docs/research/. Both are scanned.
+const MD_FILES = ['', 'research']
+  .flatMap((sub) =>
+    fs.readdirSync(path.join(DOCS_DIR, sub))
+      .filter((f) => f.endsWith('.md'))
+      .map((f) => (sub ? `${sub}/${f}` : f)),
+  )
   .sort();
 
 interface Line {

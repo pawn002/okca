@@ -1,0 +1,36 @@
+name: Release Candidate
+
+# A release candidate is a GitHub prerelease tagged v<version>-rc.<fork>.<n>.
+# This builds and tests it, then attaches the npm tarball so reviewers can
+# install it by URL. It never publishes to npm.
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  attach-tarball:
+    if: ${{ github.event.release.prerelease && contains(github.event.release.tag_name, '-rc.') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm run build
+      - run: npm test
+      - name: Check package version matches the tag
+        run: |
+          TAG="${{ github.event.release.tag_name }}"
+          VERSION="v$(node -p "require('./package.json').version")"
+          [ "$TAG" = "$VERSION" ] || { echo "Tag $TAG does not match package.json $VERSION"; exit 1; }
+      - name: Pack and attach
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          FILE=$(npm pack --silent)
+          gh release upload "${{ github.event.release.tag_name }}" "$FILE" --clobber
