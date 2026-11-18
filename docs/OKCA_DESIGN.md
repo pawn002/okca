@@ -13,11 +13,11 @@ $$\text{ratio} = \frac{Y_1 + 0.05}{Y_2 + 0.05}$$
 
 It reduces a pair to two luminances, so it ignores hue, the background, and which colour is the text. Four problems follow.
 
-1. **Saturated colours.** Hot pink on near-black scores 6.6:1 under WCAG, a comfortable AA pass, and designers routinely judge it inadequate for text. Part of the gap is measurable: a reader with red–green colour-vision deficiency keeps about 5.3 of its 6.6, while a grey of the same luminance loses nothing ([`CVD_FINDINGS.md`](CVD_FINDINGS.md)). WCAG scores both alike. OKCA penalises the lighter colour along the red–green axis that colour-vision deficiency loses (Step 3, §5): hot pink scores 4.1, and blues and greens are penalised much less. The same loss runs the other way for dark blues, which dichromats see as lighter than their value. Blue `#1d4ed8` on white scores 6.7 under WCAG; a dichromat keeps about 5.4 of it. OKCA lifts the darker colour along the blue axis (Step 4, §5) and scores it 4.8.
+1. **Saturated colours.** Hot pink on near-black scores 6.6:1 under WCAG, a comfortable AA pass, and designers routinely judge it inadequate for text. Part of the gap is measurable: a reader with red–green colour-vision deficiency keeps about 5.3 of its 6.6, while a grey of the same luminance loses nothing ([`CVD_FINDINGS.md`](research/CVD_FINDINGS.md)). WCAG scores both alike. OKCA penalises the lighter colour along the red–green axis that colour-vision deficiency loses (Step 3, §5): hot pink scores 4.1, and blues and greens are penalised much less. The same loss runs the other way for dark blues, which dichromats see as lighter than their value. Blue `#1d4ed8` on white scores 6.7 under WCAG; a dichromat keeps about 5.4 of it. OKCA lifts the darker colour along the blue axis (Step 4, §5) and scores it 4.8.
 
-2. **Background-blind lightness.** WCAG and Oklab both treat a colour's lightness as fixed, whatever it sits on. The colour appearance model CAM16 does not: a darker background flattens the lightness scale, so the same pair carries less lightness difference on dark than on light. At the AA line, a just-passing grey on `#1a1a1a` carries 25% less CAM16 lightness gap than one on white ([`CAM16_FINDINGS.md`](CAM16_FINDINGS.md)). OKCA applies CAM16's correction on backgrounds darker than `#767676` (Step 4, §3): `#cccccc` on `#333333` scores 5.7 where WCAG gives 7.9.
+2. **Background-blind lightness.** WCAG and Oklab both treat a colour's lightness as fixed, whatever it sits on. The colour appearance model CAM16 does not: a darker background flattens the lightness scale, so the same pair carries less lightness difference on dark than on light. At the AA line, a just-passing grey on `#1a1a1a` carries 25% less CAM16 lightness gap than one on white ([`CAM16_FINDINGS.md`](research/CAM16_FINDINGS.md)). OKCA applies CAM16's correction on backgrounds darker than `#767676` (Step 4, §3): `#cccccc` on `#333333` scores 5.7 where WCAG gives 7.9.
 
-3. **Fragile passes on near-black backgrounds.** On a near-black background the ratio gets most of its value from the near-zero denominator, the term stray light erodes first. A just-passing grey on black keeps a ratio of 3.1 when the flare allowance doubles; a just-passing grey on white keeps 4.5 ([`MIDTONE_SURVEY_FINDINGS.md`](MIDTONE_SURVEY_FINDINGS.md)). OKCA caps each score at what the pair keeps under that doubled allowance (Step 6, §7): `#888888` on black scores 3.7 where WCAG gives 5.9.
+3. **Fragile passes on near-black backgrounds.** On a near-black background the ratio gets most of its value from the near-zero denominator, the term stray light erodes first. A just-passing grey on black keeps a ratio of 3.1 when the flare allowance doubles; a just-passing grey on white keeps 4.5 ([`MIDTONE_SURVEY_FINDINGS.md`](research/MIDTONE_SURVEY_FINDINGS.md)). OKCA caps each score at what the pair keeps under that doubled allowance (Step 6, §7): `#888888` on black scores 3.7 where WCAG gives 5.9.
 
 4. **Polarity.** WCAG scores `A on B` and `B on A` identically. Reading studies find dark text on a light background reads at least as well for younger and older adults (§7), and the background correction above means light text on a dark background needs a little more contrast. So OKCA scores both directions the same unless the darker colour is darker than `#767676`, where light-on-dark scores a little lower. Eyes that scatter light, as with cataract, are the exception: for them a bright background veils the text. An experimental scatter observer scores for that eye (§7).
 
@@ -64,7 +64,7 @@ $$
 w = \frac{C + a \cos\theta + b \sin\theta}{2}
 $$
 
-which is $C$ in direction $\theta$, $C/2$ at 90° from it and $0$ opposite. It is linear in $a$ and $b$, with no hue ranges or conditions on hue angle. It depends on hue because colour-vision deficiency does: dichromats lose much of the contrast of reds, oranges and magentas, and little of greens, blues and purples ([`CVD_FINDINGS.md`](CVD_FINDINGS.md)). The lighter element's direction, $9.4°$, is the loss-weighted direction of that loss ([`OPPONENT_AXIS_FINDINGS.md`](OPPONENT_AXIS_FINDINGS.md)), essentially Oklab's $+a$ axis: the red end of the red–green opponent channel that protans and deutans lose. The darker element's direction, $267°$, is where OKCA's own scores need a lift to stay at or below a dichromat's ([`DARKER_LIFT_FINDINGS.md`](DARKER_LIFT_FINDINGS.md)), essentially Oklab's $-b$ axis.
+which is $C$ in direction $\theta$, $C/2$ at 90° from it and $0$ opposite. It is linear in $a$ and $b$, with no hue ranges or conditions on hue angle. It depends on hue because colour-vision deficiency does: dichromats lose much of the contrast of reds, oranges and magentas, and little of greens, blues and purples ([`CVD_FINDINGS.md`](research/CVD_FINDINGS.md)). The lighter element's direction, $9.4°$, is the loss-weighted direction of that loss ([`OPPONENT_AXIS_FINDINGS.md`](research/OPPONENT_AXIS_FINDINGS.md)), essentially Oklab's $+a$ axis: the red end of the red–green opponent channel that protans and deutans lose. The darker element's direction, $267°$, is where OKCA's own scores need a lift to stay at or below a dichromat's ([`DARKER_LIFT_FINDINGS.md`](research/DARKER_LIFT_FINDINGS.md)), essentially Oklab's $-b$ axis.
 
 FP = 0 comes from the cap below 21 and two proven single-colour bounds (see [Section 4](#4-the-fp--0-guarantee)).
 
@@ -100,7 +100,7 @@ $$
 J/100 \approx L^{\gamma}, \qquad \gamma \approx 1.26 c \left(1.48 + L_{\text{bg}}^{1.5}\right)
 $$
 
-from about 1.36 on near-black to 2.13 on white, fit to within 0.15 $J$. A darker background flattens the scale, so the same pair carries less lightness difference. Without Step 4, a grey just passing 4.5 on `#1a1a1a` carries a background-aware CAM16-UCS lightness gap of 47.6, and one on `#333333` 45.1, against 63.4 on white ([`CAM16_FINDINGS.md`](CAM16_FINDINGS.md) §2–§3).
+from about 1.36 on near-black to 2.13 on white, fit to within 0.15 $J$. A darker background flattens the scale, so the same pair carries less lightness difference. Without Step 4, a grey just passing 4.5 on `#1a1a1a` carries a background-aware CAM16-UCS lightness gap of 47.6, and one on `#333333` 45.1, against 63.4 on white ([`CAM16_FINDINGS.md`](research/CAM16_FINDINGS.md) §2–§3).
 
 **Mechanism.** Take CAM16's exponent relative to a reference background. The factor $1.26 c$ cancels:
 
@@ -131,7 +131,7 @@ where $L_{\text{bg}}$ is the background's OKLab $L$ and $L_{\text{ref}} = 0.5658
 - **High-contrast scores fall too.** White on `#111111` goes from 18.6 to 15.8, because the correction scales the whole dark side.
 - **AAA feels it most.** Of the 107 curated probe pairs, Step 4 takes nine below 7.0 and two below 4.5.
 
-**Not a viewing-conditions model.** $Y_b$ is the background colour, which OKCA receives as an input. Absolute luminance and surround, which OKCA cannot observe, were also tested in CAM16; they do not separate dark backgrounds from light ones (§10, and [`CAM16_FINDINGS.md`](CAM16_FINDINGS.md) §4).
+**Not a viewing-conditions model.** $Y_b$ is the background colour, which OKCA receives as an input. Absolute luminance and surround, which OKCA cannot observe, were also tested in CAM16; they do not separate dark backgrounds from light ones (§10, and [`CAM16_FINDINGS.md`](research/CAM16_FINDINGS.md) §4).
 
 ---
 
@@ -246,7 +246,7 @@ For a neutral white lighter element: $w_L = 0$ and $\text{exp} = 1$, so $Y_{\tex
 
 For hot pink ($C \approx 0.197$, near the warm direction): $w_L \approx 0.19$ and $\text{exp} \approx 1.28$. After Step 4's background induction and Step 5's scaling, hot pink on near-black scores 4.1, below the 4.5 AA threshold.
 
-**Where the strength comes from.** $K_L$ is fitted by the rule that sets the darker lift: the smallest correction at which no pair on a 262,144-pair grid scores above what a dichromat sees (Machado et al. 2009, severity 1.0). Every light colour that needs a penalty under that rule is red, orange, yellow, purple or magenta, and the need grows in step with the weight, which gives the linear shape ([`CHROMA_K_FINDINGS.md`](CHROMA_K_FINDINGS.md)). The two strengths are fitted together, because a weaker lighter penalty needs a stronger darker lift. Designers' judgement that hot pink on near-black is inadequate for text is kept as a test of the result. Dark orange on near-black scores 4.8 and passes: a dichromat sees 6.1.
+**Where the strength comes from.** $K_L$ is fitted by the rule that sets the darker lift: the smallest correction at which no pair on a 262,144-pair grid scores above what a dichromat sees (Machado et al. 2009, severity 1.0). Every light colour that needs a penalty under that rule is red, orange, yellow, purple or magenta, and the need grows in step with the weight, which gives the linear shape ([`CHROMA_K_FINDINGS.md`](research/CHROMA_K_FINDINGS.md)). The two strengths are fitted together, because a weaker lighter penalty needs a stronger darker lift. Designers' judgement that hot pink on near-black is inadequate for text is kept as a test of the result. Dark orange on near-black scores 4.8 and passes: a dichromat sees 6.1.
 
 **By hue.** Median score / WCAG for saturated colours (chroma at least 0.12), against what a dichromat keeps:
 
@@ -265,7 +265,7 @@ The lighter penalty does not cover saturated dark text on light fills, where the
 
 $$e_D = 1 + K_D \cdot \frac{w_D}{0.15}, \qquad Y_{\text{darker}} = L_{\text{darker}}^{3s/e_D}$$
 
-All three pieces are fitted to one rule: no pair on a 262,144-pair grid should score above what a dichromat sees (Machado et al. 2009, severity 1.0). For each dark colour, find the smallest $e_D$ that meets it. Only 35 of 512 need any lift, nearly all blue to violet, and the requirement grows roughly in proportion to chroma. Hence the direction ($\theta_D$, the requirement-weighted direction), the linear shape, and $K_D =$ `OPP_K_D` $= 0.065$, fitted jointly with the lighter penalty's strength ([`DARKER_LIFT_FINDINGS.md`](DARKER_LIFT_FINDINGS.md), [`CHROMA_K_FINDINGS.md`](CHROMA_K_FINDINGS.md)). No grid pair then scores above the dichromat's ratio. That is rationale for the calibration, not a guarantee; OKCA's promise is the WCAG bound. The lift only raises the darker proxy, so it can only lower a score (§4). `#1d4ed8` on white scores 4.8, against a dichromat's 5.4.
+All three pieces are fitted to one rule: no pair on a 262,144-pair grid should score above what a dichromat sees (Machado et al. 2009, severity 1.0). For each dark colour, find the smallest $e_D$ that meets it. Only 35 of 512 need any lift, nearly all blue to violet, and the requirement grows roughly in proportion to chroma. Hence the direction ($\theta_D$, the requirement-weighted direction), the linear shape, and $K_D =$ `OPP_K_D` $= 0.065$, fitted jointly with the lighter penalty's strength ([`DARKER_LIFT_FINDINGS.md`](research/DARKER_LIFT_FINDINGS.md), [`CHROMA_K_FINDINGS.md`](research/CHROMA_K_FINDINGS.md)). No grid pair then scores above the dichromat's ratio. That is rationale for the calibration, not a guarantee; OKCA's promise is the WCAG bound. The lift only raises the darker proxy, so it can only lower a score (§4). `#1d4ed8` on white scores 4.8, against a dichromat's 5.4.
 
 ---
 
@@ -299,9 +299,9 @@ where $k =$ `POL_K` $= 1.100$ and $\text{CAP} =$ `CAP` $= 20.9$ in both polariti
 
 **Polarity.** OKCA is **polarity-aware**: `okca(A, B)` can differ from `okca(B, A)`. The difference comes only from Step 4's background induction (§3), which depends on which colour is the background. Every other step treats the lighter and darker colour the same whichever is text, including Step 6's flare ceiling. So a light-on-dark pair can score lower than the same colours reversed, and **never higher**. Where Step 4 does not act (achromatic pairs on backgrounds at least as light as `#767676`), the two directions tie.
 
-**Why one cap.** Polarity differences come from a measured effect, the background correction in Step 4, so the scaling treats both directions alike. Step 4 tightens dark backgrounds, and the reading studies point the same way for most readers: proofreading is better with dark text on a light background (Buchner & Baumgartner, 2007; Piepenbrock, Mayr & Buchner, 2014a, 2014b), for older adults as well as younger ones (Piepenbrock, Mayr, Mund & Buchner, 2013). No source gives a contrast-equivalent size for the polarity effect itself, so the scaling adds none ([`POLARITY_FINDINGS.md`](POLARITY_FINDINGS.md)).
+**Why one cap.** Polarity differences come from a measured effect, the background correction in Step 4, so the scaling treats both directions alike. Step 4 tightens dark backgrounds, and the reading studies point the same way for most readers: proofreading is better with dark text on a light background (Buchner & Baumgartner, 2007; Piepenbrock, Mayr & Buchner, 2014a, 2014b), for older adults as well as younger ones (Piepenbrock, Mayr, Mund & Buchner, 2013). No source gives a contrast-equivalent size for the polarity effect itself, so the scaling adds none ([`POLARITY_FINDINGS.md`](research/POLARITY_FINDINGS.md)).
 
-**The exception: eyes that scatter light.** Light scattered inside the eye veils the image in proportion to the background's luminance, so a bright background costs dark text contrast. For eyes with cloudy ocular media the effect is large enough to reverse the reading result: in Rubin & Legge (1989), four of the five low-vision readers who read white-on-black faster had cloudy media. The default score does not model this; the experimental scatter observer below does ([`SCATTER_FINDINGS.md`](SCATTER_FINDINGS.md)).
+**The exception: eyes that scatter light.** Light scattered inside the eye veils the image in proportion to the background's luminance, so a bright background costs dark text contrast. For eyes with cloudy ocular media the effect is large enough to reverse the reading result: in Rubin & Legge (1989), four of the five low-vision readers who read white-on-black faster had cloudy media. The default score does not model this; the experimental scatter observer below does ([`SCATTER_FINDINGS.md`](research/SCATTER_FINDINGS.md)).
 
 **Deriving $k$.** The exponent is set so that white on `#767676` (the canonical WCAG AA boundary grey, raw $r \approx 4.54$) rounds to 3.9, the boundary anchor (§9):
 
@@ -319,7 +319,7 @@ $$k = \frac{\ln(3.9/21)}{\ln(4.54/21)} \approx 1.0996 \rightarrow 1.100$$
 | `#1a1a1a` | `#8c8c8c` | 3.28 |
 | `#ffffff` | `#6a6a6a` | 4.51 |
 
-Colour difference (CIEDE2000) and colour-vision-deficiency simulation do **not** flag these pairs. The leniency is in luminance margin, not in separation ([`MIDTONE_SURVEY_FINDINGS.md`](MIDTONE_SURVEY_FINDINGS.md)).
+Colour difference (CIEDE2000) and colour-vision-deficiency simulation do **not** flag these pairs. The leniency is in luminance margin, not in separation ([`MIDTONE_SURVEY_FINDINGS.md`](research/MIDTONE_SURVEY_FINDINGS.md)).
 
 **Mechanism.** Recompute the raw ratio on the uncompressed proxies with a flare term $F$, re-anchor it so white on black keeps its cap, and take the minimum:
 

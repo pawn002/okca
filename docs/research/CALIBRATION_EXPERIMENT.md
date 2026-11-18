@@ -4,8 +4,8 @@
 > (`POL_K` = 1.100), the one calibration input OKCA keeps as stated policy.
 > Figures describe OKCA as it stood then and are not kept current; where a
 > script reimplements that version, its check against the live `contrast()` can
-> report mismatches. Current algorithm: [`OKCA_DESIGN.md`](OKCA_DESIGN.md). How
-> this work fits the project's path: [`HISTORY.md`](HISTORY.md).
+> report mismatches. Current algorithm: [`OKCA_DESIGN.md`](../OKCA_DESIGN.md). How
+> this work fits the project's path: [`HISTORY.md`](../HISTORY.md).
 
 The tables in §5–§6 use the baseline before the change, and §1's constraint
 list states the anchor values as they stood when the experiment was designed.

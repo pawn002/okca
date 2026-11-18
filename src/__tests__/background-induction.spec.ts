@@ -1,5 +1,5 @@
 /**
- * Step 4 — CAM16 background induction (docs/CAM16_FINDINGS.md §7).
+ * Step 4 — CAM16 background induction (docs/research/CAM16_FINDINGS.md §7).
  *
  * The curated battery barely samples mid-tones on dark backgrounds, which is
  * how their leniency went unnoticed. These pin that region, and assert the two

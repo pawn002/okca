@@ -4,8 +4,8 @@
 > October 2026. Outcome: adopted as Step 4's background induction. Figures
 > describe OKCA as it stood then and are not kept current; where a script
 > reimplements that version, its check against the live `contrast()` can report
-> mismatches. Current algorithm: [`OKCA_DESIGN.md`](OKCA_DESIGN.md). How this
-> work fits the project's path: [`HISTORY.md`](HISTORY.md).
+> mismatches. Current algorithm: [`OKCA_DESIGN.md`](../OKCA_DESIGN.md). How this
+> work fits the project's path: [`HISTORY.md`](../HISTORY.md).
 
 The question: which viewing-condition factors does Oklab fix, and which can
 OKCA pull back out using only OKLab/OKLCH coordinates?
@@ -147,7 +147,7 @@ average surround:
 
 - **Absolute luminance scales every background identically** (0.79 at
   80 cd/m², 1.16 at 500). In CAM16 it is not a dark-mode factor. This agrees
-  with [`OKCA_DESIGN.md`](OKCA_DESIGN.md) §10, where a level-dependent term
+  with [`OKCA_DESIGN.md`](../OKCA_DESIGN.md) §10, where a level-dependent term
   was measured for and not detected. It also means CAM16's luminance-level
   terms give no basis for Step 6. Flare (§6 of
   [#25](https://github.com/pawn002/okca/issues/25)) remains its
@@ -256,7 +256,7 @@ argument. Unlike Step 6, it would change scores on light grounds too, so the
 > on saturated fills, which induction does not reach. On a 262,144-pair grid,
 > 1,338 pairs newly passed AA against 2.0.3. At 0.65 no pair scores higher than
 > in 2.0.3, and hot pink on `#1a1a1a` becomes 3.0. See
-> [`OKCA_DESIGN.md`](OKCA_DESIGN.md) §3.
+> [`OKCA_DESIGN.md`](../OKCA_DESIGN.md) §3.
 
 Reproduce with `npm run induction` (`scripts/induction-prototype.ts`). Nothing
 here is in `src/`.

@@ -1,5 +1,5 @@
 /**
- * Scatter observer (#34, docs/SCATTER_FINDINGS.md). Experimental and opt-in:
+ * Scatter observer (#34, docs/research/SCATTER_FINDINGS.md). Experimental and opt-in:
  * a veil proportional to the background's luminance is added to both patches,
  * as intraocular scatter does in an ageing or clouded eye.
  */

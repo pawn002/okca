@@ -2,7 +2,7 @@
  * Colour-vision-deficiency survey: should colourfulness lower contrast?
  * Read-only; no algorithm change. Run: npm run cvd
  *
- * The CAM16 survey (docs/CAM16_FINDINGS.md) showed where OKCA's chroma penalty
+ * The CAM16 survey (docs/research/CAM16_FINDINGS.md) showed where OKCA's chroma penalty
  * applies, not whether colourfulness should lower contrast at all. Dichromacy
  * gives a physiological route: a colour that loses cone signal loses luminance
  * for that viewer. Starting from red on black:

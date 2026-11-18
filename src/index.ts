@@ -16,32 +16,32 @@
  *        lighterY  = (lighterL ^ exp) ^ 3          // L → luminance proxy
  *      w is chroma weighted toward OPP_THETA_L ≈ Oklab's +a axis, the
  *      red–green opponent channel colour-vision deficiency loses
- *      (docs/OPPONENT_AXIS_FINDINGS.md). Reds and magentas carry the most
+ *      (docs/research/OPPONENT_AXIS_FINDINGS.md). Reds and magentas carry the most
  *      penalty; cool colours, which dichromats see with little loss, carry
  *      little. CHROMA_K is the smallest strength with no grid pair above the
- *      CVD ratio (docs/CHROMA_K_FINDINGS.md).
+ *      CVD ratio (docs/research/CHROMA_K_FINDINGS.md).
  *   4. Darker element — background induction and opponent-axis lift:
  *        s         = min(1, (IND_Z + bgL^1.5) / (IND_Z + IND_REF_L^1.5))
  *        eD        = 1 + OPP_K_D × w_D / C_THRESH,  w_D along θ_D (linear, uncapped)
  *        darkerY   = darkerL ^ (3 × s / eD)
- *      CAM16's background induction (docs/CAM16_FINDINGS.md): a background
+ *      CAM16's background induction (docs/research/CAM16_FINDINGS.md): a background
  *      darker than the AA boundary grey lifts the darker element's effective
  *      lightness. eD lifts dark colours that dichromats see as lighter, in the
- *      direction and proportion OKCA needs (docs/DARKER_LIFT_FINDINGS.md).
+ *      direction and proportion OKCA needs (docs/research/DARKER_LIFT_FINDINGS.md).
  *      Both only raise the proxy; it stays L³ for greys on lighter backgrounds.
  *   5. Contrast ratio:
  *        rawRatio  = (lighterY + 0.05) / (darkerY + 0.05)
  *        ratio     = CAP × (rawRatio / 21) ^ POL_K
  *        CAP < 21 keeps OKCA strictly below WCAG. The same cap applies in both
  *        polarities: polarity differences come only from Step 4's background
- *        induction, which tightens dark backgrounds (docs/POLARITY_FINDINGS.md).
+ *        induction, which tightens dark backgrounds (docs/research/POLARITY_FINDINGS.md).
  *   6. Flare-robustness ceiling — the same curve on the uncompressed proxies
  *      with a larger flare term, re-anchored to the same cap:
  *        flareRatio = (lighterL³ + FLARE) / (darkerL³ + FLARE)
  *        ceiling    = CAP × (flareRatio / ((1 + FLARE) / FLARE)) ^ FLARE_K
  *        score      = min(ratio, ceiling), clamped to [1, 21], rounded to 1 dp.
  *      Binds only where the ratio leans on a near-black darker element, which
- *      stray light erodes first (docs/MIDTONE_SURVEY_FINDINGS.md). Never binds
+ *      stray light erodes first (docs/research/MIDTONE_SURVEY_FINDINGS.md). Never binds
  *      on a white/grey pair.
  *
  * Luminance proxy: L³ (OKLCH L cubed ≈ WCAG Y for neutral grays). Step 4
@@ -64,7 +64,7 @@
  *   - Experimental scatter observer ({ observer: 'scatter' }): adds a veil
  *     SCATTER_K × bgL³ to both patches of the raw ratio, as intraocular scatter
  *     does in an ageing or clouded eye, so a bright background costs dark text
- *     contrast. Never scores above the default (docs/SCATTER_FINDINGS.md).
+ *     contrast. Never scores above the default (docs/research/SCATTER_FINDINGS.md).
  *   - Pure OKLCH/Oklab — no WCAG luminance formula, no hue branch. The chroma
  *     terms are weighted along Oklab's opponent axes, linearly in a and b.
  */

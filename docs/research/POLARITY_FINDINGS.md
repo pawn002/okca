@@ -4,8 +4,8 @@
 > November 2026. Outcome: adopted as one cap for both polarities. Figures
 > describe OKCA as it stood then and are not kept current; where a script
 > reimplements that version, its check against the live `contrast()` can report
-> mismatches. Current algorithm: [`OKCA_DESIGN.md`](OKCA_DESIGN.md). How this
-> work fits the project's path: [`HISTORY.md`](HISTORY.md).
+> mismatches. Current algorithm: [`OKCA_DESIGN.md`](../OKCA_DESIGN.md). How this
+> work fits the project's path: [`HISTORY.md`](../HISTORY.md).
 
 Reproduce:
 
@@ -19,7 +19,7 @@ npm run polarity     # scripts/polarity-caps.ts
 
 Step 5 scales light-on-dark (L-o-D) pairs to `LOD_CAP` = 20.9 and
 dark-on-light (D-o-L) pairs to `DOL_CAP` = 20. That is an editorial asymmetry
-that scores light-on-dark higher; [`OKCA_DESIGN.md`](OKCA_DESIGN.md) §7
+that scores light-on-dark higher; [`OKCA_DESIGN.md`](../OKCA_DESIGN.md) §7
 anchors it to practitioner reference values.
 
 Three later findings push the other way:

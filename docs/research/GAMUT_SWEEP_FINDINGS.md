@@ -4,8 +4,8 @@
 > chroma behaviour behind later work; the structural findings below still hold.
 > Figures describe OKCA as it stood then and are not kept current; where a
 > script reimplements that version, its check against the live `contrast()` can
-> report mismatches. Current algorithm: [`OKCA_DESIGN.md`](OKCA_DESIGN.md). How
-> this work fits the project's path: [`HISTORY.md`](HISTORY.md).
+> report mismatches. Current algorithm: [`OKCA_DESIGN.md`](../OKCA_DESIGN.md). How
+> this work fits the project's path: [`HISTORY.md`](../HISTORY.md).
 
 Sweeps OKCA across the sRGB gamut, stratified by OKLCH hue and chroma.
 

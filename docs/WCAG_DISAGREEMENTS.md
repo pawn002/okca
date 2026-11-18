@@ -6,7 +6,7 @@
 > the battery samples light backgrounds and the light-on-dark direction on
 > mid-tone fills. Step 6's flare ceiling never binds on these pairs; its effect
 > is on dark backgrounds, which this battery does not sample (see
-> `docs/MIDTONE_SURVEY_FINDINGS.md`). OKCA never scores above WCAG, so every row
+> `docs/research/MIDTONE_SURVEY_FINDINGS.md`). OKCA never scores above WCAG, so every row
 > is a pair WCAG passes and OKCA does not.
 >
 > All counts are for the default observer. Under the experimental scatter

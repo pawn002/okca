@@ -3,7 +3,7 @@
  * one-off ~1.2M-evaluation gamut sweep described in docs/OKCA_DESIGN.md §4
  * but never committed as runnable code.
  *
- * Purpose (see docs/CALIBRATION_EXPERIMENT.md):
+ * Purpose (see docs/research/CALIBRATION_EXPERIMENT.md):
  *   Measure how far the lighter-element chroma penalty (C_THRESH, CHROMA_K)
  *   can be RELAXED to make OKCA less conservative on chromatic colours,
  *   WITHOUT breaking FP=0 (OKCA never scores above WCAG, with rounding).

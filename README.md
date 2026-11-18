@@ -73,9 +73,9 @@ okca.contrast('#fff', '#000');  // 20.9
 
 - **Never more permissive than WCAG:** every score is at or below the WCAG equivalent for the same pair; AA/AAA thresholds unchanged
 - **Polarity-aware:** argument order counts. Both directions score the same unless the darker colour is darker than `#767676`; then light-on-dark scores a little lower
-- **CVD-informed:** chroma is weighted along Oklab's opponent axes, in the directions colour-vision deficiency loses contrast, so hues colourblind viewers see well are penalised less (`docs/OPPONENT_AXIS_FINDINGS.md`)
-- **Background-aware:** on backgrounds darker than `#767676`, the darker colour's lightness is corrected for the background, following CAM16 (`docs/CAM16_FINDINGS.md`)
-- **Flare-robust:** two pairs with the same score carry comparable margin against stray light, on dark backgrounds and light ones alike (`docs/MIDTONE_SURVEY_FINDINGS.md`)
+- **CVD-informed:** chroma is weighted along Oklab's opponent axes, in the directions colour-vision deficiency loses contrast, so hues colourblind viewers see well are penalised less (`docs/research/OPPONENT_AXIS_FINDINGS.md`)
+- **Background-aware:** on backgrounds darker than `#767676`, the darker colour's lightness is corrected for the background, following CAM16 (`docs/research/CAM16_FINDINGS.md`)
+- **Flare-robust:** two pairs with the same score carry comparable margin against stray light, on dark backgrounds and light ones alike (`docs/research/MIDTONE_SURVEY_FINDINGS.md`)
 - **Zero dependencies:** pure TypeScript, no runtime deps
 - **Original and MIT-licensed:** free to use and embed
 

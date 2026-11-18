@@ -5,8 +5,8 @@
 > [#28](https://github.com/pawn002/okca/issues/28). Figures describe OKCA as it
 > stood then and are not kept current; where a script reimplements that version,
 > its check against the live `contrast()` can report mismatches. Current
-> algorithm: [`OKCA_DESIGN.md`](OKCA_DESIGN.md). How this work fits the
-> project's path: [`HISTORY.md`](HISTORY.md).
+> algorithm: [`OKCA_DESIGN.md`](../OKCA_DESIGN.md). How this work fits the
+> project's path: [`HISTORY.md`](../HISTORY.md).
 
 The CAM16 survey left one question open. CAM16 supports *where* OKCA's chroma
 penalty applies, on the lighter element and mostly on dark backgrounds. It says

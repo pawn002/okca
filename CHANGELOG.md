@@ -29,7 +29,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Added
 - **Experimental scatter observer ([#34](https://github.com/pawn002/okca/issues/34)).** `contrast(fg, bg, { observer: 'scatter' })` scores for an eye that scatters light, as with an ageing or clouded lens: a veil of `SCATTER_K` = 0.155 of the background's luminance is added to both patches, so a bright background costs dark text contrast. It never scores above the default observer, so FP = 0 carries over. Experimental and outside semver: it may change or be removed in any minor release.
 - `docs/HISTORY.md` — how OKCA reached its current state, including dead ends, and what is open.
-- Research records, each with its script: `docs/MIDTONE_SURVEY_FINDINGS.md` (`npm run midtone`), `docs/CAM16_FINDINGS.md` (`npm run cam16`, `npm run induction`; `OKCA_CAM=ciecam16` re-runs under CIECAM16), `docs/CVD_FINDINGS.md` (`npm run cvd`), `docs/OPPONENT_AXIS_FINDINGS.md` (`npm run opponent`), `docs/POLARITY_FINDINGS.md` (`npm run polarity`), `docs/DARKER_LIFT_FINDINGS.md` (`npm run darker-lift`) and `docs/CHROMA_K_FINDINGS.md` (`npm run chroma-k`). `scripts/cvd.ts` is the shared colour-vision yardstick; it lives outside the algorithm.
+- Research records, each with its script: `docs/research/MIDTONE_SURVEY_FINDINGS.md` (`npm run midtone`), `docs/research/CAM16_FINDINGS.md` (`npm run cam16`, `npm run induction`; `OKCA_CAM=ciecam16` re-runs under CIECAM16), `docs/research/CVD_FINDINGS.md` (`npm run cvd`), `docs/research/OPPONENT_AXIS_FINDINGS.md` (`npm run opponent`), `docs/research/POLARITY_FINDINGS.md` (`npm run polarity`), `docs/research/DARKER_LIFT_FINDINGS.md` (`npm run darker-lift`) and `docs/research/CHROMA_K_FINDINGS.md` (`npm run chroma-k`). `scripts/cvd.ts` is the shared colour-vision yardstick; it lives outside the algorithm.
 - Tests: `flare-ceiling.spec.ts`, `background-induction.spec.ts` and `opponent-axis.spec.ts` pin each step's behaviour and assert its structural properties. "Hot pink on near-black fails AA" is pinned as a check on the derived penalty.
 
 ## [2.0.3] - 2026-08-13
@@ -38,7 +38,7 @@ Documentation only — no algorithm or API change. `contrast()` returns identica
 
 ### Changed
 - **Removed absolute claims about how a marginal pair looks.** The README and `docs/OKCA_DESIGN.md` said white on `#767676` "is not production-ready in most real designs"; `docs/WCAG_DISAGREEMENTS.md` said "a designer would generally not call any of these comfortable for body text on white". A threshold experiment ([#22](https://github.com/pawn002/okca/issues/22#issuecomment-5282357292)) measured the contrast at which body text was judged shippable at **5.2 under one display brightness and 2.8 under another** — same observer, same room, same session. OKCA scores that pair **3.9**, which falls between them, so the verdict on it inverts across ordinary viewing conditions. Replaced with the argument the measurement supports: a pair sitting on the AA line carries no margin against the conditions it will actually be read in, which is a case for a floor above the line on variance grounds rather than on appearance.
-- `docs/CALIBRATION_EXPERIMENT.md` §1's constraint list is now signposted as the anchor values *as of the experiment's design*. Three of the four moved in 2.0.0 and its follow-on, and the prose had carried the stale figures through two recalibrations.
+- `docs/research/CALIBRATION_EXPERIMENT.md` §1's constraint list is now signposted as the anchor values *as of the experiment's design*. Three of the four moved in 2.0.0 and its follow-on, and the prose had carried the stale figures through two recalibrations.
 
 ### Added
 - `docs/OKCA_DESIGN.md` §10 — **"Does not model viewing conditions."** OKCA is a relative metric over sRGB with no access to absolute luminance, so it does not model the dependence above and no constant of its own could. The FP = 0 safety bound is unaffected, being a relation between two relative metrics.
@@ -76,7 +76,7 @@ Documentation only — no algorithm or API change. `contrast()` returns identica
 ### Added
 - **FP = 0 proven by construction** (`docs/FP0_PROOF.md`) — an exact identity plus two interval-verified single-color lemmas, with no calibration-dependent headroom. Verifier `npm run fp0` certifies with 0 uncertified boxes.
 - CI invariant test (`src/__tests__/fp0-invariant.spec.ts`) asserting OKCA ≤ WCAG across the sRGB gamut (curated, random, grid, and green-band sweeps).
-- Calibration/analysis tooling under `scripts/` (`npm run calibrate | hue | divergence | flexibility | fp0 | capcost`) plus `docs/CALIBRATION_EXPERIMENT.md` and `docs/GAMUT_SWEEP_FINDINGS.md`.
+- Calibration/analysis tooling under `scripts/` (`npm run calibrate | hue | divergence | flexibility | fp0 | capcost`) plus `docs/research/CALIBRATION_EXPERIMENT.md` and `docs/research/GAMUT_SWEEP_FINDINGS.md`.
 - `release:patch` / `release:minor` / `release:major` npm scripts.
 
 ## [1.0.2] - 2026-06-09

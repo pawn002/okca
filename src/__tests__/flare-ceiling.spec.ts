@@ -1,5 +1,5 @@
 /**
- * Step 6 — flare-robustness ceiling (docs/MIDTONE_SURVEY_FINDINGS.md).
+ * Step 6 — flare-robustness ceiling (docs/research/MIDTONE_SURVEY_FINDINGS.md).
  *
  * The curated battery barely samples mid-tone foregrounds on near-black, which
  * is how their leniency went unnoticed. These pin the region the ceiling exists

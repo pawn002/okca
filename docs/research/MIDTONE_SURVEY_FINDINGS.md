@@ -5,8 +5,8 @@
 > both polarities with a flare term of 0.10. Figures describe OKCA as it stood
 > then and are not kept current; where a script reimplements that version, its
 > check against the live `contrast()` can report mismatches. Current algorithm:
-> [`OKCA_DESIGN.md`](OKCA_DESIGN.md). How this work fits the project's path:
-> [`HISTORY.md`](HISTORY.md).
+> [`OKCA_DESIGN.md`](../OKCA_DESIGN.md). How this work fits the project's path:
+> [`HISTORY.md`](../HISTORY.md).
 
 Whether OKCA scores mid-tone foregrounds on near-black backgrounds too
 permissively. `npm run midtone` reimplements the version before Step 6 and
@@ -120,7 +120,7 @@ Step 6 (§5).
 
 ## 4. Relationship to viewing conditions
 
-[`OKCA_DESIGN.md`](OKCA_DESIGN.md) §10 says OKCA does not model viewing
+[`OKCA_DESIGN.md`](../OKCA_DESIGN.md) §10 says OKCA does not model viewing
 conditions, and that its floors should be conservative because of that. This
 finding is consistent with that position.
 
@@ -169,7 +169,7 @@ with $F = 0.10$ (twice WCAG's flare allowance) and $k_F = 1.5$.
 **Properties.**
 
 - **FP = 0 is inherited.** The score is a minimum with the steps 1–5 score, so
-  it cannot exceed it. [`FP0_PROOF.md`](FP0_PROOF.md) would need one added
+  it cannot exceed it. [`FP0_PROOF.md`](../FP0_PROOF.md) would need one added
   line, not a new lemma.
 - **Anchors unchanged.** White/black stays 20.9/20.0 and white/`#767676`
   stays 3.9/3.7. The hot-pink and dark-orange catches stay at 3.6 and 4.2.
