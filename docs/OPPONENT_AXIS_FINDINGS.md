@@ -1,19 +1,16 @@
 # Opponent-Axis Terms — Prototype Findings
 
-Research notes for [#28](https://github.com/pawn002/okca/issues/28). Builds on
-the CVD survey in [`CVD_FINDINGS.md`](CVD_FINDINGS.md).
+> **Research record** for [#28](https://github.com/pawn002/okca/issues/28),
+> October 2026. Outcome: adopted as the opponent-axis terms of Steps 3–4; their
+> strengths were later fitted by
+> [#31](https://github.com/pawn002/okca/issues/31) and
+> [#33](https://github.com/pawn002/okca/issues/33). Figures describe OKCA as it
+> stood then and are not kept current; where a script reimplements that version,
+> its check against the live `contrast()` can report mismatches. Current
+> algorithm: [`OKCA_DESIGN.md`](OKCA_DESIGN.md). How this work fits the
+> project's path: [`HISTORY.md`](HISTORY.md).
 
-> **Applied** as the paired design (§3, $K_D$ = 0.09) in `src/index.ts`: Step 3's
-> ramp and Step 4's darker lift. See [`OKCA_DESIGN.md`](OKCA_DESIGN.md) §2.4 and §5.
-> The prototype figures below were measured against the line before this change.
-> `npm run opponent` now runs on top of the applied change, so its "current"
-> column is the paired design itself.
->
-> **Superseded in part by [#31](https://github.com/pawn002/okca/issues/31):**
-> Step 4's darker lift is now linear along $267°$ with $K_D$ = 0.070, fitted to
-> where OKCA needs a lift rather than to raw CVD loss. See
-> [`DARKER_LIFT_FINDINGS.md`](DARKER_LIFT_FINDINGS.md). Step 3's terms are
-> unchanged.
+Builds on the CVD survey in [`CVD_FINDINGS.md`](CVD_FINDINGS.md).
 
 Reproduce:
 

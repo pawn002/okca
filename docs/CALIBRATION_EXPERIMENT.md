@@ -1,23 +1,15 @@
 # OKCA Calibration Experiment — Reducing Conservatism (sRGB)
 
-**Status:** experiment complete **and follow-up applied.** The experiment
-concluded that the only clean-room, FP=0-safe lever was the white/#767676
-anchor; that anchor was subsequently raised **3.5 → 3.9** (`POL_K` 1.175 →
-**1.100**), recovering **14** of the 111 WCAG disagreements (111 → **97**:
-Tailwind 46→34, GOV.UK 15→13, USWDS 50→50) while preserving FP=0. Because the
-global `POL_K` lift also loosened OKCA's saturated-colour catches, the chroma
-penalty was strengthened in tandem (**`CHROMA_K` 0.50 → 0.65**) to re-dock vivid
-foregrounds — a lever cleanly decoupled from the grey recovery. See
-**§8 — Applied change** below. A second, separate step then lowered the
-light-on-dark cap (**`LOD_CAP` 21 → 20.9**, issue #14) to make FP=0 a theorem
-rather than a gamut-verified property — see **§9**.
+> **Research record**, July 2026, for 2.0. Outcome: set the 3.9 boundary anchor
+> (`POL_K` = 1.100), the one calibration input OKCA keeps as stated policy.
+> Figures describe OKCA as it stood then and are not kept current; where a
+> script reimplements that version, its check against the live `contrast()` can
+> report mismatches. Current algorithm: [`OKCA_DESIGN.md`](OKCA_DESIGN.md). How
+> this work fits the project's path: [`HISTORY.md`](HISTORY.md).
 
-The body (§1–§7) records the method and data that led there; the tables in
-§5–§6 use the pre-change baseline. **All four achromatic anchors named in §1's
-constraint list have since moved**: three as a result of this work, and the two
-dark-on-light ones again when 3.0 set one cap for both polarities (#30). That
-list states the values as they stood when the experiment was designed, not the
-current ones. Current values are always these:
+The tables in §5–§6 use the baseline before the change, and §1's constraint
+list states the anchor values as they stood when the experiment was designed.
+Current values:
 
 <!-- ANCHORS:BEGIN — checked against contrast() by src/__tests__/docs-lint.spec.ts -->
 

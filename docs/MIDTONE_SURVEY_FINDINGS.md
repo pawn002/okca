@@ -1,15 +1,16 @@
 # Mid-tone on Near-Black — Survey Findings
 
-Research notes on whether OKCA scores mid-tone foregrounds on near-black
-backgrounds too permissively. Section 5's candidate has since been **applied**
-as Step 6 of the algorithm ([`OKCA_DESIGN.md`](OKCA_DESIGN.md) §7). The
-decisions in §5 were taken as recommended: both polarities, $F = 0.10$, and a
-major version.
+> **Research record** for [#25](https://github.com/pawn002/okca/issues/25),
+> October 2026. Outcome: adopted as Step 6, the flare-robustness ceiling, in
+> both polarities with a flare term of 0.10. Figures describe OKCA as it stood
+> then and are not kept current; where a script reimplements that version, its
+> check against the live `contrast()` can report mismatches. Current algorithm:
+> [`OKCA_DESIGN.md`](OKCA_DESIGN.md). How this work fits the project's path:
+> [`HISTORY.md`](HISTORY.md).
 
-> **Snapshot.** §2–§3 describe OKCA *before* Step 6, at `POL_K` $= 1.100$,
-> `CHROMA_K` $= 0.65$, `LOD_CAP` $= 20.9$, `DOL_CAP` $= 20$, `C_THRESH`
-> $= 0.15$. `npm run midtone` reimplements that version locally and prints it
-> beside the live `contrast()`, so both columns reproduce.
+Whether OKCA scores mid-tone foregrounds on near-black backgrounds too
+permissively. `npm run midtone` reimplements the version before Step 6 and
+prints it beside the live `contrast()`, so both columns reproduce.
 
 Reproduce:
 

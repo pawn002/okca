@@ -1,12 +1,14 @@
 # CAM16 — What Oklab Abstracts
 
-Research notes. The question: which viewing-condition factors does Oklab fix,
-and which can OKCA pull back out using only OKLab/OKLCH coordinates? This is
-*analysis*. Running it changed no algorithm code.
+> **Research record** for [#26](https://github.com/pawn002/okca/issues/26),
+> October 2026. Outcome: adopted as Step 4's background induction. Figures
+> describe OKCA as it stood then and are not kept current; where a script
+> reimplements that version, its check against the live `contrast()` can report
+> mismatches. Current algorithm: [`OKCA_DESIGN.md`](OKCA_DESIGN.md). How this
+> work fits the project's path: [`HISTORY.md`](HISTORY.md).
 
-> **Step 6** in these notes is the flare-robustness ceiling from
-> [#25](https://github.com/pawn002/okca/issues/25), on branch `okca-25-near-black`.
-> This branch does not contain it; the scripts here reimplement it for comparison.
+The question: which viewing-condition factors does Oklab fix, and which can
+OKCA pull back out using only OKLab/OKLCH coordinates?
 
 Reproduce:
 
@@ -65,7 +67,7 @@ background:
 
 The fit is within about 0.15 $J$ on every background, so this is close to
 exact. The exponent follows from CAM16's structure. Its cone compression is
-roughly a $0.42$ power of luminance, lightness is $J = 100\thinspace(A/A_w)^{cz}$,
+roughly a $0.42$ power of luminance, lightness is $J = 100(A/A_w)^{cz}$,
 and $z = 1.48 + \sqrt{Y_b}$. With $Y = L^3$ and $Y_b = L_{\text{bg}}^3$:
 
 $$
@@ -74,7 +76,7 @@ $$
 
 with $c = 0.69$ for an average surround. That gives 2.15 on white and 1.55 on
 `#555555`, against fitted values of 2.133 and 1.532. A linear fit over
-background lightness is also close: $\gamma \approx 1.22 + 0.83 \thinspace L_{\text{bg}}$,
+background lightness is also close: $\gamma \approx 1.22 + 0.83 L_{\text{bg}}$,
 maximum residual 0.14.
 
 **What this means.** CAM16 treats the background as setting the lightness
@@ -210,7 +212,7 @@ does not settle whether more colourfulness should lower a contrast score.
 
 | Factor Oklab fixes | Observable from the pair? | CAM16 finding | OKLab/OKLCH expression |
 |---|---|---|---|
-| Background luminance, as lightness | **Yes** | Exponent from about 1.36 (near-black) to 2.13 (white); at OKCA's threshold, darker grounds carry less lightness gap | $L^{\gamma(L_{\text{bg}})}$, with $\gamma \approx 1.26 \thinspace c \thinspace (1.48 + L_{\text{bg}}^{1.5})$ |
+| Background luminance, as lightness | **Yes** | Exponent from about 1.36 (near-black) to 2.13 (white); at OKCA's threshold, darker grounds carry less lightness gap | $L^{\gamma(L_{\text{bg}})}$, with $\gamma \approx 1.26 c (1.48 + L_{\text{bg}}^{1.5})$ |
 | Background luminance, as colourfulness | **Yes** | About 1.5 times on black versus white | Chroma weight as a function of $L_{\text{bg}}$ |
 | Hue (eccentricity) | Yes | Blue about 20% below red per unit $C$ | Hue weight on $C$. Conflicts with OKCA's hue-blind design |
 | Absolute luminance | No | Scales all backgrounds equally | None needed |
@@ -260,10 +262,10 @@ Reproduce with `npm run induction` (`scripts/induction-prototype.ts`). Nothing
 here is in `src/`.
 
 **The term.** Taking §2's exponent relative to a reference background, the
-$1.26 \thinspace c$ factor cancels:
+$1.26 c$ factor cancels:
 
 $$
-s(L_{\text{bg}}) = \min\left(1, \thinspace \frac{1.48 + L_{\text{bg}}^{1.5}}{1.48 + L_{\text{ref}}^{1.5}}\right)
+s(L_{\text{bg}}) = \min\left(1, \frac{1.48 + L_{\text{bg}}^{1.5}}{1.48 + L_{\text{ref}}^{1.5}}\right)
 $$
 
 $1.48$ is CAM16's own constant, and $L_{\text{ref}} = 0.5658$ is OKLab $L$ of
