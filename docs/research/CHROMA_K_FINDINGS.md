@@ -132,7 +132,7 @@ maintainer:
 
 - whether dark orange passing AA on near-black (4.8) is acceptable, since the
   evidence supports it and the earlier design judgement does not;
-- whether "hot pink on near-black fails AA" becomes a pinned test, as a
-  check on the derivation rather than an input to it.
+- whether "hot pink on near-black fails AA" becomes a pinned test that checks
+  the derivation, with no say in the strength itself.
 
 Applied, with both: dark orange passes, and hot pink is pinned.
