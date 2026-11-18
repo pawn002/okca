@@ -72,7 +72,7 @@ okca.contrast('#fff', '#000');  // 20.9
 ## Properties
 
 - **Never more permissive than WCAG:** every score is at or below the WCAG equivalent for the same pair; AA/AAA thresholds unchanged
-- **Polarity-aware:** `okca(foreground, background)` can differ from `okca(background, foreground)`. Light-on-dark never scores above the same pair reversed
+- **Polarity-aware:** argument order counts. Both directions score the same unless the darker colour is darker than `#767676`; then light-on-dark scores a little lower
 - **CVD-informed:** chroma is weighted along Oklab's opponent axes, in the directions colour-vision deficiency loses contrast, so hues colourblind viewers see well are penalised less (`docs/OPPONENT_AXIS_FINDINGS.md`)
 - **Background-aware:** on backgrounds darker than `#767676`, the darker colour's lightness is corrected for the background, following CAM16 (`docs/CAM16_FINDINGS.md`)
 - **Flare-robust:** two pairs with the same score carry comparable margin against stray light, on dark backgrounds and light ones alike (`docs/MIDTONE_SURVEY_FINDINGS.md`)
