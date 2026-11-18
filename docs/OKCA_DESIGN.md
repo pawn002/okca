@@ -11,7 +11,7 @@ WCAG 2.x contrast uses the ratio formula:
 
 $$\text{ratio} = \frac{Y_1 + 0.05}{Y_2 + 0.05}$$
 
-It reduces a pair to two luminances. Hue, the background a colour sits on, and which colour is the text all drop out. That leaves four places where WCAG's score and the reader's experience part company.
+It reduces a pair to two luminances, so it ignores hue, the background, and which colour is the text. Four problems follow.
 
 1. **Saturated colours.** Hot pink on near-black scores 6.6:1 under WCAG, a comfortable AA pass, and designers routinely judge it inadequate for text. Part of the gap is measurable: a reader with red–green colour-vision deficiency keeps about 5.3 of its 6.6, while a grey of the same luminance loses nothing ([`CVD_FINDINGS.md`](CVD_FINDINGS.md)). WCAG scores both alike. OKCA penalises the lighter colour along the red–green axis that colour-vision deficiency loses (Step 3, §5): hot pink scores 4.1, and blues and greens are penalised much less. The same loss runs the other way for dark blues, which dichromats see as lighter than their value. Blue `#1d4ed8` on white scores 6.7 under WCAG; a dichromat keeps about 5.4 of it. OKCA lifts the darker colour along the blue axis (Step 4, §5) and scores it 4.8.
 
